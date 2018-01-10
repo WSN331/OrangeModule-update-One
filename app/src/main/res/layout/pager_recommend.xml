@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#cccccc"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <!--轮播-->
+            <com.oragee.banners.BannerView
+                android:id="@+id/bannerView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp">
+            </com.oragee.banners.BannerView>
+
+            <!--功能选项-->
+            <LinearLayout
+                android:background="#ffffff"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <LinearLayout
+                    android:id="@+id/one"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/sx"/>
+                    <TextView
+                        android:text="上新"
+                        android:textSize="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/two"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/tj"/>
+                    <TextView
+                        android:text="推荐"
+                        android:textSize="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/three"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/qg"/>
+                    <TextView
+                        android:text="抢购"
+                        android:textSize="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/four"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/gd"/>
+                    <TextView
+                        android:text="更多"
+                        android:textSize="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <!--商品推荐部分-->
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:background="#ffffff"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:text="热门"
+                        android:textSize="20dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:layout_gravity="center"
+                        android:text="更多 >"
+                        android:layout_marginRight="10dp"
+                        android:textColor="#cccccc"
+                        android:gravity="right"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                 <!--上半部分-->
+                 <LinearLayout
+                     android:layout_weight="1"
+                     android:layout_width="match_parent"
+                     android:orientation="horizontal"
+                     android:layout_height="0dp">
+
+                     <FrameLayout
+                         android:id="@+id/backup_memory"
+                         android:layout_margin="3dp"
+                         android:background="#60afaaaf"
+                         android:layout_weight="1"
+                         android:layout_width="0dp"
+                         android:layout_height="match_parent">
+                         <TextView
+                             android:text="橙方存储管理设备"
+                             android:layout_marginLeft="10dp"
+                             android:layout_marginTop="10dp"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+                         <TextView
+                             android:text="¥200"
+                             android:layout_marginLeft="10dp"
+                             android:layout_marginTop="30dp"
+                             android:textColor="#f00000"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+
+                         <ImageView
+                             android:src="@drawable/backup_memory"
+                             android:layout_width="60dp"
+                             android:layout_height="60dp"
+                             android:layout_gravity="right|bottom" />
+                     </FrameLayout>
+                     <FrameLayout
+                         android:id="@+id/speaker"
+                         android:layout_margin="3dp"
+                         android:background="#60ffaaaf"
+                         android:layout_weight="1"
+                         android:layout_width="0dp"
+                         android:layout_height="match_parent">
+
+                         <TextView
+                             android:text="外接扬声器"
+                             android:layout_marginLeft="10dp"
+                             android:layout_marginTop="10dp"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+                         <TextView
+                             android:text="¥150"
+                             android:textColor="#f00000"
+                             android:layout_marginLeft="10dp"
+                             android:layout_marginTop="30dp"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+
+                         <ImageView
+                             android:src="@drawable/speaker"
+                             android:layout_width="80dp"
+                             android:layout_height="80dp"
+                             android:layout_gravity="right|bottom" />
+                     </FrameLayout>
+
+                 </LinearLayout>
+
+                 <!--下半部分-->
+                 <LinearLayout
+                     android:layout_weight="2"
+                     android:layout_width="match_parent"
+                     android:orientation="horizontal"
+                     android:layout_height="0dp">
+                     <!--下半部分左边-->
+                     <FrameLayout
+                         android:id="@+id/temp_hum_mod"
+                         android:layout_margin="3dp"
+                         android:background="#6000cf9a"
+                         android:layout_weight="0.98"
+                         android:layout_width="0dp"
+                         android:layout_height="match_parent">
+
+                         <TextView
+                             android:text="温湿度传感器"
+                             android:layout_marginLeft="10dp"
+                             android:layout_marginTop="10dp"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+
+                         <TextView
+                             android:layout_marginTop="30dp"
+                             android:layout_marginLeft="10dp"
+                             android:text="智能感知温湿度变化让您的生活更温馨"
+                             android:layout_width="140dp"
+                             android:layout_height="wrap_content" />
+
+                         <TextView
+                             android:layout_marginTop="70dp"
+                             android:layout_marginLeft="10dp"
+                             android:text="¥266"
+                             android:textColor="#f00000"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content" />
+                         <ImageView
+                             android:layout_gravity="bottom"
+                             android:src="@drawable/temp_hum_mod"
+                             android:layout_width="match_parent"
+                             android:layout_height="120dp" />
+                     </FrameLayout>
+
+                     <!--下半部分右边-->
+                     <LinearLayout
+                         android:layout_weight="1"
+                         android:orientation="vertical"
+                         android:layout_width="0dp"
+                         android:layout_height="match_parent">
+                         <FrameLayout
+                             android:id="@+id/led"
+                             android:layout_margin="3dp"
+                             android:background="#60ffff00"
+                             android:layout_weight="1"
+                             android:layout_width="match_parent"
+                             android:layout_height="0dp">
+
+                             <TextView
+                                 android:text="闪光灯"
+                                 android:layout_marginTop="10dp"
+                                 android:layout_marginLeft="10dp"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content" />
+
+                             <TextView
+                                 android:text="¥186"
+                                 android:layout_marginTop="30dp"
+                                 android:layout_marginLeft="10dp"
+                                 android:textColor="#f00000"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content" />
+
+                             <ImageView
+                                 android:src="@drawable/led"
+                                 android:layout_width="80dp"
+                                 android:layout_height="80dp"
+                                 android:layout_gravity="right|bottom" />
+
+                         </FrameLayout>
+                         <FrameLayout
+                             android:id="@+id/laser_pointer"
+                             android:layout_margin="3dp"
+                             android:background="#60aaaffa"
+                             android:layout_weight="1"
+                             android:layout_width="match_parent"
+                             android:layout_height="0dp">
+
+                             <TextView
+                                 android:text="激光笔"
+                                 android:layout_marginTop="10dp"
+                                 android:layout_marginLeft="10dp"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content" />
+
+                             <TextView
+                                 android:layout_marginTop="30dp"
+                                 android:layout_marginLeft="10dp"
+                                 android:text="¥88"
+                                 android:textColor="#f00000"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content" />
+
+                             <ImageView
+                                 android:src="@drawable/laser_pointer"
+                                 android:layout_width="80dp"
+                                 android:layout_height="80dp"
+                                 android:layout_gravity="right|bottom" />
+                         </FrameLayout>
+                     </LinearLayout>
+
+                 </LinearLayout>
+
+            </LinearLayout>
+
+
+
+    <!--测试部分-->
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:background="#ffffff"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="手机"
+                android:textSize="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_gravity="center"
+                android:text="更多 >"
+                android:layout_marginRight="10dp"
+                android:textColor="#cccccc"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!--上半部分-->
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="0dp">
+
+            <ImageView
+                android:src="@drawable/myhome"
+                android:scaleType="centerCrop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <!--下半部分-->
+        <LinearLayout
+            android:layout_weight="2"
+            android:background="#cccccc"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="0dp">
+
+            <!--上面-->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!--上面左边-->
+                <LinearLayout
+                    android:id="@+id/usb"
+                    android:layout_marginRight="3dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="#ffffff"
+                        android:src="@drawable/usb"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp" />
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:background="#eeeeee"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:text="usb扩展"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:text="¥160"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#ff0000"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!--上面右边-->
+                <LinearLayout
+                    android:id="@+id/dummy"
+                    android:layout_marginLeft="3dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="#ffffff"
+                        android:src="@drawable/backup_memory"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp" />
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:background="#eeeeee"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:text="扩展槽"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:text="¥99"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#ff0000"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <!--下面-->
+            <LinearLayout
+                android:layout_marginTop="3dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!--下面左边-->
+                <LinearLayout
+                    android:id="@+id/hotkey"
+                    android:layout_marginRight="3dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="#ffffff"
+                        android:src="@drawable/hotkey"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp" />
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:background="#eeeeee"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:text="热键"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:text="¥361"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#ff0000"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!--下面右边-->
+                <LinearLayout
+                    android:id="@+id/laser_pointer2"
+                    android:layout_marginLeft="3dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:background="#ffffff"
+                        android:src="@drawable/laser_pointer"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp" />
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:background="#eeeeee"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:text="滑动笔"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:text="¥66"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="#ff0000"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

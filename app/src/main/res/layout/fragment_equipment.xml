@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/onebkg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<!--    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/background"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />-->
+
+<!--        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">-->
+
+    <!--                    <LinearLayout
+                        android:background="@drawable/framework"
+                        android:layout_marginLeft="50dp"
+                        android:gravity="center"
+                        android:elevation="15dp"
+                        android:orientation="vertical"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp">
+                        <TextView
+                            android:textColor="#ffffff"
+                            android:id="@+id/tv_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="框架状态:已连接"/>
+                        <TextView
+                            android:textColor="#ffffff"
+                            android:id="@+id/tv_electricity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="框架剩余电量:80%"/>
+                        <TextView
+                            android:textColor="#ffffff"
+                            android:id="@+id/tv_voltage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="框架电压:4025mV"/>
+                    </LinearLayout>-->
+
+            <!--上半部分-->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+
+        <!--文字提示-->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="8℃"
+                    android:textColor="#ffffff"
+                    android:textSize="50dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="浙江·杭州 金沙东路"
+                    android:textColor="#ffffff"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="室外空气 轻度污染"
+                    android:textColor="#ffffff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="周边水质 不可直饮"
+                    android:textColor="#ffffff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="环境温度 潮湿"
+                    android:textColor="#ffffff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--框架提示-->
+        <LinearLayout
+            android:id="@+id/frame"
+            android:background="@drawable/framework"
+            android:gravity="center"
+            android:elevation="40dp"
+            android:orientation="vertical"
+            android:layout_width="120dp"
+            android:layout_height="120dp">
+            <TextView
+                android:textColor="#ffffff"
+                android:id="@+id/tv_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="框架状态:未连接"/>
+            <TextView
+                android:textColor="#ffffff"
+                android:id="@+id/tv_electricity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="框架剩余电量:0%"/>
+            <TextView
+                android:textColor="#ffffff"
+                android:id="@+id/tv_voltage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="框架电压:0mv"/>
+        </LinearLayout>
+    </LinearLayout>
+
+            <!--下半部分-->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2">
+
+                <RelativeLayout
+                    android:background="@drawable/background"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:layout_marginTop="10dp"
+                        android:layout_centerHorizontal="true"
+                        android:src="@drawable/show"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+                    <ImageView
+                        android:layout_marginBottom="10dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentBottom="true"
+                        android:src="@drawable/set"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/equipment_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+
+                </FrameLayout>
+
+            </LinearLayout>
+<!--        </LinearLayout>
+
+    </FrameLayout>-->
+</LinearLayout>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_goods"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:background="#f0f0f0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--顶层图片-->
+        <ImageView
+            android:id="@+id/iv_module_image"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:src="@drawable/paq5" />
+
+        <!--第二层价格和描述-->
+        <LinearLayout
+            android:id="@+id/two_describe"
+            android:layout_below="@+id/iv_module_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#ffffff"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/tv_module_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="橙方智能模块"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="让科技改变生活，改变世界！"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:id="@+id/tv_module_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="¥100"
+                android:textColor="#CD0000"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/two_end"
+            android:layout_below="@+id/two_describe"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#F0F0F0"/>
+
+        <!--第三层服务-->
+        <LinearLayout
+            android:id="@+id/three_service"
+            android:layout_below="@+id/two_end"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:orientation="horizontal"
+            android:background="#ffffff">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="服务："
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="橙方甄选精品"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#0F0F0F"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="限时免邮"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#0F0F0F"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="由 深圳橙方智能有限公司 发货并提供售后"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#0F0F0F"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/three_end"
+            android:layout_below="@+id/three_service"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#F0F0F0"/>
+
+        <!--第四层公司简介-->
+        <LinearLayout
+            android:id="@+id/four_des"
+            android:layout_below="@+id/three_end"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="#ffffff">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/logo"
+                android:layout_marginLeft="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="深圳橙方智能有限公司"
+                android:textColor="#0F0F0F"
+                android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_below="@+id/four_des"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#F0F0F0"/>
+
+        <!--第五层按钮层-->
+        <LinearLayout
+            android:background="#ffffff"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/device_btn"
+                android:layout_weight="0.8"
+                android:src="@drawable/store"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
+            <ImageView
+                android:id="@+id/shop_btn"
+                android:layout_weight="0.8"
+                android:src="@drawable/shoppingcar"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
+            <TextView
+                android:id="@+id/mine_btn"
+                android:layout_weight="1"
+                android:text="立即购买"
+                android:textColor="#ffffff"
+                android:background="@android:color/holo_red_light"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/mine_btn2"
+                android:layout_weight="1"
+                android:text="加入购物车"
+                android:textColor="#ffffff"
+                android:background="#FFA07A"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+</LinearLayout>

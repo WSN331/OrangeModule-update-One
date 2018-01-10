@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="180dp">
+        <!--定位符-->
+        <ImageView
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:src="@drawable/position"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+        <!--详细信息页-->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+
+            <!--第一行-->
+            <LinearLayout
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="收货人：张三"
+                    android:textSize="20dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="15788888888"
+                    android:textSize="20dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!--第二行-->
+            <TextView
+                android:layout_marginTop="20dp"
+                android:text="收货地址：浙江省杭州市江干区白杨街道杭州电子科技大学"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!--第三行-->
+            <TextView
+                android:textColor="#ffaa00"
+                android:layout_marginTop="20dp"
+                android:text="（收货不便时，可选择免费代收货服务）"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:src="@drawable/toright"
+                android:layout_width="25dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
