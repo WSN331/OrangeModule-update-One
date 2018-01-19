@@ -1,6 +1,9 @@
 package com.qiuyi.cn.orangemodule.bean;
 
+import android.view.View;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Administrator on 2018/1/2.
@@ -23,6 +26,12 @@ public class Product implements Serializable{
     private int count;
     //商品是否被选中
     private boolean isSelected;
+    //商品轮播图
+    private List<View> viewList;
+
+    public Product(){
+
+    }
 
     public Product(int image,String name,String price,String type,int myflag){
         this.image = image;
@@ -94,5 +103,13 @@ public class Product implements Serializable{
 
     public void setSelected(boolean selected) {
         isSelected = selected;
+    }
+
+    public List<View> getViewList() {
+        return viewList;
+    }
+
+    public void setViewList(List<View> viewList) {
+        this.viewList = viewList;
     }
 }

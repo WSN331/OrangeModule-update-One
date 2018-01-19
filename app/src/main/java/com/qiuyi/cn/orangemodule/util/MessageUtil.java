@@ -48,7 +48,7 @@ public class MessageUtil {
             int myint1 = Integer.parseInt(d1,16);
             int myint2 = Integer.parseInt(d2,16);
             mydata = String.valueOf(myint1)+String.valueOf(myint2);
-            FileOutToWrite.write("--甲醛十进制--"+mydata);
+/*            FileOutToWrite.write("--甲醛十进制--"+mydata);*/
 
         }
         return mydata;

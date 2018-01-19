@@ -262,7 +262,7 @@ public class DevicePager extends BasePager{
                         @Override
                         public void run() {
                             Toast.makeText(mActivity,"现在有"+deviceList.size()+"个设备接入",Toast.LENGTH_SHORT).show();
-
+                            int n = 0;
                             synchronized (deviceList){
                                 Iterator<UsbDevice> it = deviceList.iterator();
                                 while(it.hasNext()){
@@ -273,16 +273,29 @@ public class DevicePager extends BasePager{
                                     if(communication.getDeviceConnection()!=null){
                                         //框架模块
                                         if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
-                                            Bundle bundle = new Bundle();
-                                            bundle.putParcelable("usbDevice",nowDevice);
-                                            Intent newIntent = new Intent(mActivity, UsbService.class);
-                                            //这里有点不同
-                                            newIntent.putExtras(bundle);
-                                            //启动接收数据服务
-                                            mActivity.startService(newIntent);
+                                            n++;
+/*                                            if(n==1){
+                                                Bundle bundle = new Bundle();
+                                                bundle.putParcelable("usbDevice",nowDevice);
+                                                Intent newIntent = new Intent(mActivity, UsbService.class);
+                                                //这里有点不同
+                                                newIntent.putExtras(bundle);
+                                                //启动接收数据服务
+                                                mActivity.startService(newIntent);
+                                            }*/
+                                            if(n==1){
+                                                Bundle bundle = new Bundle();
+                                                bundle.putParcelable("usbDevice",nowDevice);
+                                                Intent newIntent = new Intent(mActivity, UsbPMService.class);
+                                                //这里有点不同
+                                                newIntent.putExtras(bundle);
+                                                //启动接收数据服务
+                                                mActivity.startService(newIntent);
+                                            }
+
                                         }
                                         //空气模块
-                                        if(nowDevice.getVendorId()==885 && nowDevice.getProductId()==30002){
+/*                                        if(nowDevice.getVendorId()==885 && nowDevice.getProductId()==30002){
                                             Bundle bundle = new Bundle();
                                             bundle.putParcelable("usbDevice",nowDevice);
                                             Intent newIntent = new Intent(mActivity, UsbPMService.class);
@@ -290,7 +303,7 @@ public class DevicePager extends BasePager{
                                             newIntent.putExtras(bundle);
                                             //启动接收数据服务
                                             mActivity.startService(newIntent);
-                                        }
+                                        }*/
                                         //甲醛模块
                                         if(nowDevice.getVendorId()==887 && nowDevice.getProductId()==30004){
                                             //当前插入的设备

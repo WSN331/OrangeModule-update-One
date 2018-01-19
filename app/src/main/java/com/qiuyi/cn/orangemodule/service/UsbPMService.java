@@ -69,18 +69,11 @@ public class UsbPMService extends Service {
                 if (receiveBytes != null) {
                     //这里执行与Activity的交互操作
                     initData = MessageUtil.byte2String(receiveBytes);
-
-                    Log.e(TAG, initData.split("/r/n")[0]);
-
-                    Log.e("pmpmpm", "这里是数据"+initData.split("/r/n")[0]);
-
-                    if (initData.startsWith("EF")) {
-                        frameList = MessageUtil.getPMData(initData);
-
-                        intent.putExtra("pm", frameList);
-
-                        sendBroadcast(intent);
-                    }
+                    //将bytes[]字符串转成16进制的字符串输出
+                    String mydata = MessageUtil.bytesToHexString(initData);
+                    //mydata = mydata.replaceAll("efbfbd","");
+                    Log.e("pppppp","数据:"+mydata+"--长度:"+initData.split("\r\n")[0].length());
+                    Log.e("pmpmpm", "这里是数据"+initData.split("\r\n")[0]);
 
 
                 } else {
