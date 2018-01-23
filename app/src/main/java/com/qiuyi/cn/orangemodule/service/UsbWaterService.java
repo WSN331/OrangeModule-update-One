@@ -1,7 +1,10 @@
 package com.qiuyi.cn.orangemodule.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,6 +24,8 @@ public class UsbWaterService extends Service {
 
     private static final String TAG = UsbWaterService.class.getSimpleName();
     private static final String ACTION = "com.yangjian.testWater.RECEIVER";
+    private static final String ACTION_STOP3 = "com.yangjian.waterSTOP.RECEIVER";
+
 
     private UsbCommunication communication;
     private UsbDevice usbDevice;
@@ -30,16 +35,29 @@ public class UsbWaterService extends Service {
     private byte[] receiveBytes;
     private String initData;
 
-    private String dateJQ;
+    private String dataWater = null;
     private Intent intent = new Intent(ACTION);
 
     public UsbWaterService() {
     }
 
+
+    private BroadcastReceiver Stopframe = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            timer.cancel();
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate() executed");
+
+        //注册接收广播
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_STOP3);
+        registerReceiver(Stopframe,filter);
     }
 
     @Override
@@ -69,26 +87,26 @@ public class UsbWaterService extends Service {
                 if (receiveBytes != null) {
                     //这里执行与Activity的交互操作
 
-                    //先转成字符串
-                    initData = MessageUtil.byte2String(receiveBytes);
-                    //将bytes[]字符串转成16进制的字符串输出
-                    String mydata = MessageUtil.bytesToHexString(initData);
+                    //将bytes[]转成16进制的字符串输出
+                    String mydata = MessageUtil.bytesToHex(receiveBytes);
 
-                    Log.e("water", "这里是数据"+mydata+"数据长度"+initData.split("/r/n")[0].length());
+                    Log.e("water", "这里是数据"+mydata.split("0d0a")[0]+"数据长度"+mydata.split("0d0a")[0].length());
 
-/*                    if (mydata.startsWith("4546303030343031") && initData.split("/r/n")[0].length()==22) {
-                        dateJQ = MessageUtil.getJQData(mydata);
-                        intent.putExtra("jq", dateJQ);
+                    String nowdata = mydata.split("0d0a")[0];
 
+                    if (nowdata.startsWith("4546303030333031") && nowdata.length()==24) {
+                        dataWater = MessageUtil.getWaterData(mydata);
+
+                        intent.putExtra("water", dataWater);
                     }else{
-                        intent.putExtra("jq","123");
+                        intent.putExtra("water",dataWater);
                     }
-                    sendBroadcast(intent);*/
+                    sendBroadcast(intent);
                 } else {
                     Log.e(TAG, "No Data!");
                 }
             }
-        }, 3000, 200);
+        }, 3000, 1000);
     }
 
 

@@ -1,7 +1,10 @@
 package com.qiuyi.cn.orangemodule.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,7 +24,8 @@ import java.util.TimerTask;
 public class UsbService extends Service {
 
     private static final String TAG = UsbService.class.getSimpleName();
-    private static final String ACTION = "com.yangjian.testwater.RECEIVER";
+    private static final String ACTION = "com.yangjian.testframework.RECEIVER";
+    private static final String ACTION_STOP = "com.yangjian.frameworkSTOP.RECEIVER";
 
     private UsbCommunication communication;
     private UsbDevice usbDevice;
@@ -35,10 +39,23 @@ public class UsbService extends Service {
     public UsbService() {
     }
 
+
+    private BroadcastReceiver Stopframe = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            timer.cancel();
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate() executed");
+
+        //注册接收广播
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_STOP);
+        registerReceiver(Stopframe,filter);
     }
 
     @Override
@@ -72,20 +89,22 @@ public class UsbService extends Service {
                     Log.e("eeeeee", "这里是数据"+initData.split("\r\n")[0]+"长度:"+initData.split("\r\n")[0].length());
 
                     if (initData.startsWith("EF") && initData.split("\r\n")[0].length()==21) {
+                        frameList = null;
+
                         frameList = MessageUtil.formatFrameData(initData);
 
                         intent.putExtra("frame", frameList);
                     }else{
-                        String[] nullframeList = null;
-                        intent.putExtra("frame",nullframeList);
+
                     }
                     sendBroadcast(intent);
                 } else {
                     Log.e(TAG, "No Data!");
                 }
             }
-        }, 3000, 200);
+        }, 3000, 1000);
     }
+
 
 
 

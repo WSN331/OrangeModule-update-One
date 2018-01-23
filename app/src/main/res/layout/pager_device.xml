@@ -31,21 +31,27 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/tv_pm10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#ffffff"
-                    android:text="PM2.5含量："/>
-
+                    android:text="PM1.0含量：0μg/m³"/>
                 <TextView
                     android:id="@+id/tv_pm25"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#ffffff"
-                    android:text="59μg/m³" />
+                    android:text="PM2.5含量：0μg/m³"/>
+                <TextView
+                    android:id="@+id/tv_pm100"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:text="PM10含量：0μg/m³"/>
 
             </LinearLayout>
 
@@ -92,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#ffffff"
-                    android:text="150ppm" />
+                    android:text="0000ppm" />
 
             </LinearLayout>
 

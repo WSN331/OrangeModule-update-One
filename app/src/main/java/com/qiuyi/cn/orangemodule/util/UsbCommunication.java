@@ -120,6 +120,7 @@ public class UsbCommunication {
     public byte[] receiveMessage() {
         byte[] bytes = new byte[512];
         int result = deviceConnection.bulkTransfer(usbEpIn, bytes, bytes.length, 3000);
+
         byte[] mybytes = new byte[result+10];
         int newresult = deviceConnection.bulkTransfer(usbEpIn,mybytes,mybytes.length,3000);
         //获取到的数据

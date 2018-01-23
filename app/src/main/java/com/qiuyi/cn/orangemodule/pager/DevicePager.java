@@ -45,6 +45,8 @@ public class DevicePager extends BasePager{
 
     //空气
     private static final String ACTION1 ="com.yangjian.testPM.RECEIVER";
+    //水质
+    private static final String Action4 ="com.yangjian.testWater.RECEIVER";
     //甲醛
     private static final String ACTION2 ="com.yangjian.testJQ.RECEIVER";
     //U盘
@@ -62,15 +64,33 @@ public class DevicePager extends BasePager{
     //U盘模块
     @BindView(R.id.udisk_layout)
     LinearLayout uDisk;
+
+    //空气模块
+    @BindView(R.id.air_layout)
+    LinearLayout airLayout;
+    //pm1.0模块
+    @BindView(R.id.tv_pm10)
+    TextView tv_pm10;
     //pm2.5模块
     @BindView(R.id.tv_pm25)
     TextView tv_pm25;
+    //pm10模块
+    @BindView(R.id.tv_pm100)
+    TextView tv_pm100;
+
     //甲醛模块
     @BindView(R.id.tv_cascophen)
     TextView tv_jq;
     //甲醛模块
     @BindView(R.id.cascophen_layout)
     LinearLayout ll_jq;
+
+    //水质模块
+    @BindView(R.id.water_layout)
+    LinearLayout ll_water;
+    //水质模块
+    @BindView(R.id.tv_tds)
+    TextView tv_tds;
 
     //检测usb连接
     private UsbCommunication communication;
@@ -86,12 +106,17 @@ public class DevicePager extends BasePager{
     //监听Pm广播
     private PmMessageReceiver pmMsg;
     private IntentFilter intentFilter;
+    //监听Water广播
+    private WaterMessageReceiver waterMsg;
+    private IntentFilter waterFilter;
     //监听JQ广播
     private JqMessageReceiver jqMsg;
     private IntentFilter jqFilter;
     //监听U盘广播
     private UsbMessageReceiver usbMsg;
     private IntentFilter usbFilter;
+
+
 
     public DevicePager(Activity mActivity) {
         super(mActivity);
@@ -146,6 +171,12 @@ public class DevicePager extends BasePager{
         intentFilter.addAction(ACTION1);
         mActivity.registerReceiver(pmMsg,intentFilter);
 
+        //注册Water广播
+        waterMsg = new WaterMessageReceiver();
+        waterFilter = new IntentFilter();
+        waterFilter.addAction(Action4);
+        mActivity.registerReceiver(waterMsg,waterFilter);
+
         //注册Jq广播
         jqMsg = new JqMessageReceiver();
         jqFilter = new IntentFilter();
@@ -164,8 +195,12 @@ public class DevicePager extends BasePager{
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-/*            //判断连接
+
+            //判断连接
             if(action.equals(TAGIN)){
+
+                //解除原有的绑定
+                mActivity.unbindService(usbComServiceConn);
                 //启动全局USB插入服务
                 intent = new Intent(mActivity, UsbComService.class);
                 usbComServiceConn = new UsbComServiceConn();
@@ -174,14 +209,16 @@ public class DevicePager extends BasePager{
             }
             //判断移除
             if(action.equals(TAGOUT)){
+                //解除原有的绑定
+                mActivity.unbindService(usbComServiceConn);
                 //启动全局USB插入服务
                 intent = new Intent(mActivity, UsbComService.class);
                 usbComServiceConn = new UsbComServiceConn();
                 //绑定服务
                 mActivity.bindService(intent,usbComServiceConn, Context.BIND_AUTO_CREATE);
-            }*/
+            }
 
-            //判断Usb大容量设备连接移除
+            //判断Usb大容量设备连接移除,这里的大容量设备指的是电脑
             if(action.equals(TAGUSB)){
                 boolean connected = intent.getExtras().getBoolean("connected");
                 if (connected) {
@@ -193,6 +230,21 @@ public class DevicePager extends BasePager{
         }
     }
 
+    //水质模块接收广播
+    public class WaterMessageReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String waterData = intent.getStringExtra("water");
+
+            if(waterData!=null){
+                ll_water.setBackgroundColor(Color.parseColor("#ff975a"));
+                tv_tds.setText(waterData+"ppm");
+            }
+
+        }
+    }
+
+
     //甲醛模块接收广播
     public class JqMessageReceiver extends BroadcastReceiver{
         @Override
@@ -202,28 +254,36 @@ public class DevicePager extends BasePager{
             if(jqString!=null && !jqString.equals("123")){
                 ll_jq.setBackgroundColor(Color.parseColor("#ff975a"));
                 tv_jq.setText(jqint+"mg/m³");
-            }else{
+            }/*else{
                 ll_jq.setBackgroundColor(Color.parseColor("#8a8a8a"));
                 tv_jq.setText("0.000mg/m³");
-            }
+            }*/
         }
     }
+
     //Pm2.5空气模块接收广播
     public class PmMessageReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            String[] pmString = intent.getStringArrayExtra("pm");
+            String[] pmString = intent.getStringArrayExtra("pmvalue");
 
-            if(pmString !=null){
+            if(pmString !=null && pmString.length>=3){
+                airLayout.setBackgroundColor(Color.parseColor("#ff975a"));
                 //pm1.0
-                String text1 = pmString[0]+"μg/m³";
+                String text1 = "PM1.0含量："+pmString[0]+"μg/m³";
                 //pm2.5
-                String text2 = pmString[1]+"μg/m³";
+                String text2 = "PM2.5含量："+pmString[1]+"μg/m³";
                 //pm10
-                String text3 = pmString[2]+"μg/m³";
-
+                String text3 = "PM10含量："+pmString[2]+"μg/m³";
+                tv_pm10.setText(text1);
                 tv_pm25.setText(text2);
-            }
+                tv_pm100.setText(text3);
+            }/*else{
+                airLayout.setBackgroundColor(Color.parseColor("#8a8a8a"));
+                tv_pm10.setText("PM1.0含量：0μg/m³");
+                tv_pm25.setText("PM2.5含量：0μg/m³");
+                tv_pm100.setText("PM10含量：0μg/m³");
+            }*/
         }
     }
     //U盘模块广播
@@ -231,12 +291,12 @@ public class DevicePager extends BasePager{
         @Override
         public void onReceive(Context context, Intent intent) {
             String isConn = intent.getStringExtra("isConn");
+
             if(isConn.equals("1")){
                 uDisk.setBackgroundColor(Color.parseColor("#ff975a"));
             }else{
                 uDisk.setBackgroundColor(Color.parseColor("#8a8a8a"));
             }
-
         }
     }
 
@@ -274,7 +334,9 @@ public class DevicePager extends BasePager{
                                         //框架模块
                                         if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
                                             n++;
-/*                                            if(n==1){
+                                            if(n==1){
+
+                                                //框架模块
                                                 Bundle bundle = new Bundle();
                                                 bundle.putParcelable("usbDevice",nowDevice);
                                                 Intent newIntent = new Intent(mActivity, UsbService.class);
@@ -282,8 +344,9 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }*/
-                                            if(n==1){
+                                            }
+/*                                            if(n==1){
+                                                //空气模块
                                                 Bundle bundle = new Bundle();
                                                 bundle.putParcelable("usbDevice",nowDevice);
                                                 Intent newIntent = new Intent(mActivity, UsbPMService.class);
@@ -291,36 +354,25 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }
+                                            }*/
+/*                                            if(n==1){
+                                                //水质模块
+                                                Bundle bundle = new Bundle();
+                                                bundle.putParcelable("usbDevice",nowDevice);
+                                                Intent newIntent = new Intent(mActivity, UsbWaterService.class);
+                                                //这里有点不同
+                                                newIntent.putExtras(bundle);
+                                                //启动接收数据服务
+                                                mActivity.startService(newIntent);
+                                            }*/
 
                                         }
-                                        //空气模块
-/*                                        if(nowDevice.getVendorId()==885 && nowDevice.getProductId()==30002){
-                                            Bundle bundle = new Bundle();
-                                            bundle.putParcelable("usbDevice",nowDevice);
-                                            Intent newIntent = new Intent(mActivity, UsbPMService.class);
-                                            //这里有点不同
-                                            newIntent.putExtras(bundle);
-                                            //启动接收数据服务
-                                            mActivity.startService(newIntent);
-                                        }*/
                                         //甲醛模块
                                         if(nowDevice.getVendorId()==887 && nowDevice.getProductId()==30004){
                                             //当前插入的设备
                                             Bundle bundle = new Bundle();
                                             bundle.putParcelable("usbDevice",nowDevice);
                                             Intent newIntent = new Intent(mActivity, UsbJQService.class);
-                                            //这里有点不同
-                                            newIntent.putExtras(bundle);
-                                            //启动接收数据服务
-                                            mActivity.startService(newIntent);
-                                        }
-                                        //水质模块
-                                        if(nowDevice.getVendorId()==886 && nowDevice.getProductId()==30003){
-                                            //当前插入的设备
-                                            Bundle bundle = new Bundle();
-                                            bundle.putParcelable("usbDevice",nowDevice);
-                                            Intent newIntent = new Intent(mActivity, UsbWaterService.class);
                                             //这里有点不同
                                             newIntent.putExtras(bundle);
                                             //启动接收数据服务

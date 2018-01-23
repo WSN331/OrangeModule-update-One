@@ -1,7 +1,10 @@
 package com.qiuyi.cn.orangemodule.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,6 +24,8 @@ public class UsbPMService extends Service {
 
     private static final String TAG = UsbPMService.class.getSimpleName();
     private static final String ACTION = "com.yangjian.testPM.RECEIVER";
+    //空气服务停止广播
+    private static final String ACTION_STOP2 = "com.yangjian.airSTOP.RECEIVER";
 
     private UsbCommunication communication;
     private UsbDevice usbDevice;
@@ -31,15 +36,28 @@ public class UsbPMService extends Service {
     private String initData;
 
     private String[] frameList;
+
     private Intent intent = new Intent(ACTION);
 
     public UsbPMService() {
     }
 
+    private BroadcastReceiver Stopframe = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            timer.cancel();
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate() executed");
+
+        //注册接收广播
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_STOP2);
+        registerReceiver(Stopframe,filter);
     }
 
     @Override
@@ -67,20 +85,30 @@ public class UsbPMService extends Service {
                 receiveBytes = communication.receiveMessage();
 
                 if (receiveBytes != null) {
-                    //这里执行与Activity的交互操作
-                    initData = MessageUtil.byte2String(receiveBytes);
-                    //将bytes[]字符串转成16进制的字符串输出
-                    String mydata = MessageUtil.bytesToHexString(initData);
-                    //mydata = mydata.replaceAll("efbfbd","");
-                    Log.e("pppppp","数据:"+mydata+"--长度:"+initData.split("\r\n")[0].length());
-                    Log.e("pmpmpm", "这里是数据"+initData.split("\r\n")[0]);
+
+                    //字节转换成16进制字符串
+                    String mydata = MessageUtil.bytesToHex(receiveBytes);
+
+                    Log.e("pppppp","数据:"+mydata.split("0d0a")[0]+"--长度:"+mydata.split("0d0a")[0].length());
+                    String nowdata = mydata.split("0d0a")[0];
+                    if(nowdata.startsWith("4546303030323033") && nowdata.length() == 28){
+                        frameList = MessageUtil.getPMData(nowdata);
+
+                        intent.putExtra("pmvalue", frameList);
+                    }else{
+                        String[] nullframeList = null;
+                        intent.putExtra("pmvalue",nullframeList);
+                    }
+
+                    sendBroadcast(intent);
+
 
 
                 } else {
                     Log.e(TAG, "No Data!");
                 }
             }
-        }, 3000, 200);
+        }, 3000, 1000);
     }
 
 

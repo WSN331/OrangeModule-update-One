@@ -25,7 +25,7 @@ import butterknife.ButterKnife;
  */
 public class MainFragmentEquipment extends BaseFragment{
 
-    private static final String ACTION = "com.yangjian.testwater.RECEIVER";
+    private static final String ACTION = "com.yangjian.testframework.RECEIVER";
 
     //frameLayout放4块板子
     @BindView(R.id.equipment_content)
@@ -104,12 +104,12 @@ public class MainFragmentEquipment extends BaseFragment{
                 }
                 tv_electricity.setText("框架剩余电量:"+text1);
                 tv_voltage.setText("框架电压:"+text2);
-            }else{
+            }/*else{
                 frame.setBackgroundResource(R.drawable.framework);
                 tv_state.setText("框架状态:未连接");
                 tv_electricity.setText("框架剩余电量:0%");
                 tv_voltage.setText("框架电压:0mv");
-            }
+            }*/
         }
     }
 }

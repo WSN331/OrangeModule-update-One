@@ -2,7 +2,10 @@ package com.qiuyi.cn.orangemodule.service;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,6 +25,8 @@ public class UsbJQService extends Service {
 
     private static final String TAG = UsbJQService.class.getSimpleName();
     private static final String ACTION = "com.yangjian.testJQ.RECEIVER";
+    //甲醛服务停止广播
+    private static final String ACTION_STOP4 = "com.yangjian.jqSTOP.RECEIVER";
 
     private UsbCommunication communication;
     private UsbDevice usbDevice;
@@ -37,10 +42,22 @@ public class UsbJQService extends Service {
     public UsbJQService() {
     }
 
+    private BroadcastReceiver Stopframe = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            timer.cancel();
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate() executed");
+
+        //注册接收广播
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_STOP4);
+        registerReceiver(Stopframe,filter);
     }
 
     @Override
@@ -88,7 +105,7 @@ public class UsbJQService extends Service {
                     Log.e(TAG, "No Data!");
                 }
             }
-        }, 3000, 200);
+        }, 3000, 1000);
     }
 
 
