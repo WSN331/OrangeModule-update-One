@@ -21,12 +21,25 @@
             android:gravity="center"
             android:background="#8a8a8a">
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#ffffff"
-                android:text="空气模块"
-                android:textSize="20sp"/>
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:text="空气模块"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/air_rank"
+                    android:padding="3dp"
+                    android:textColor="#ffffff"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,6 +59,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#ffffff"
                     android:text="PM2.5含量：0μg/m³"/>
+
                 <TextView
                     android:id="@+id/tv_pm100"
                     android:layout_width="wrap_content"
@@ -74,12 +88,24 @@
             android:gravity="center"
             android:background="#8a8a8a">
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#ffffff"
-                android:text="水质模块"
-                android:textSize="20sp"/>
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:text="水质模块"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/water_rank"
+                    android:textColor="#ffffff"
+                    android:padding="3dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -121,12 +147,24 @@
             android:gravity="center"
             android:background="#8a8a8a">
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#ffffff"
-                android:text="甲醛模块"
-                android:textSize="20sp"/>
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:text="甲醛模块"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/jq_rank"
+                    android:textColor="#ffffff"
+                    android:padding="3dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

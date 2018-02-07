@@ -92,6 +92,15 @@ public class DevicePager extends BasePager{
     @BindView(R.id.tv_tds)
     TextView tv_tds;
 
+
+    //甲醛，水质，空气模块等级评价显示
+    @BindView(R.id.air_rank)
+    TextView airShow;
+    @BindView(R.id.water_rank)
+    TextView waterShow;
+    @BindView(R.id.jq_rank)
+    TextView jqShow;
+
     //检测usb连接
     private UsbCommunication communication;
     //USB插入服务
@@ -239,6 +248,31 @@ public class DevicePager extends BasePager{
             if(waterData!=null){
                 ll_water.setBackgroundColor(Color.parseColor("#ff975a"));
                 tv_tds.setText(waterData+"ppm");
+
+                int water = Integer.parseInt(waterData);
+                if(water<=9){
+                    //纯净水（优）
+                    waterShow.setText("纯净水（优）");
+                    waterShow.setBackgroundColor(Color.parseColor("#7cfc00"));
+                }else if(9<water && water<=60){
+                    //矿化水（良）
+                    waterShow.setText("矿泉水（良）");
+                    waterShow.setBackgroundColor(Color.parseColor("#eeee00"));
+                }else if(60<water && water<=100){
+                    //净化水（差）
+                    waterShow.setText("净化水（差）");
+                    waterShow.setBackgroundColor(Color.parseColor("#ee7600"));
+                }else if(100<water && water<=300){
+                    //自来水
+                    waterShow.setText("自来水");
+                    waterShow.setBackgroundColor(Color.parseColor("#ee7600"));
+                }else if(300<water){
+                    //污染水
+                    waterShow.setText("污染水");
+                    waterShow.setBackgroundColor(Color.parseColor("#ee0000"));
+
+                }
+
             }
 
         }
@@ -254,6 +288,26 @@ public class DevicePager extends BasePager{
             if(jqString!=null && !jqString.equals("123")){
                 ll_jq.setBackgroundColor(Color.parseColor("#ff975a"));
                 tv_jq.setText(jqint+"mg/m³");
+
+                if(jqint<=0.05){
+                    //优
+                    jqShow.setText("优");
+                    jqShow.setBackgroundColor(Color.parseColor("#7cfc00"));
+                }else if(0.05<jqint && jqint<=0.08){
+                    //良
+                    jqShow.setText("良");
+                    jqShow.setBackgroundColor(Color.parseColor("#eeee00"));
+                }else if(0.08<jqint && jqint<=0.1){
+                    //轻度污染(不适宜居住)
+                    jqShow.setText("轻度污染（不适宜居住）");
+                    jqShow.setBackgroundColor(Color.parseColor("#ee7600"));
+                }else if(0.1<jqint){
+                    //重度污染(甲醛含量超标)
+                    jqShow.setText("重度污染（甲醛含量超标）");
+                    jqShow.setBackgroundColor(Color.parseColor("#ee0000"));
+                }
+
+
             }/*else{
                 ll_jq.setBackgroundColor(Color.parseColor("#8a8a8a"));
                 tv_jq.setText("0.000mg/m³");
@@ -278,6 +332,33 @@ public class DevicePager extends BasePager{
                 tv_pm10.setText(text1);
                 tv_pm25.setText(text2);
                 tv_pm100.setText(text3);
+
+                Float airMsg = Float.parseFloat(pmString[1]);
+                if(airMsg<=50){
+                    //优
+                    airShow.setText("优");
+                    airShow.setBackgroundColor(Color.parseColor("#7cfc00"));
+                }else if(50<airMsg && airMsg<=100){
+                    //良
+                    airShow.setText("良");
+                    airShow.setBackgroundColor(Color.parseColor("#eeee00"));
+                }else if (100<airMsg && airMsg<=150){
+                    //轻度污染
+                    airShow.setText("轻度污染");
+                    airShow.setBackgroundColor(Color.parseColor("#ee7600"));
+                }else if (150<airMsg && airMsg<=200){
+                    //中度污染
+                    airShow.setText("中度污染");
+                    airShow.setBackgroundColor(Color.parseColor("#ee0000"));
+                }else if (200<airMsg && airMsg<=300){
+                    //重度污染
+                    airShow.setText("重度污染");
+                    airShow.setBackgroundColor(Color.parseColor("#ff00ff"));
+                }else if (300<airMsg){
+                    //极度污染
+                    airShow.setText("极度污染");
+                    airShow.setBackgroundColor(Color.parseColor("#8b008b"));
+                }
             }/*else{
                 airLayout.setBackgroundColor(Color.parseColor("#8a8a8a"));
                 tv_pm10.setText("PM1.0含量：0μg/m³");
@@ -334,7 +415,7 @@ public class DevicePager extends BasePager{
                                         //框架模块
                                         if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
                                             n++;
-                                            if(n==1){
+/*                                            if(n==1){
 
                                                 //框架模块
                                                 Bundle bundle = new Bundle();
@@ -344,7 +425,7 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }
+                                            }*/
 /*                                            if(n==1){
                                                 //空气模块
                                                 Bundle bundle = new Bundle();
@@ -355,7 +436,7 @@ public class DevicePager extends BasePager{
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
                                             }*/
-/*                                            if(n==1){
+                                            if(n==1){
                                                 //水质模块
                                                 Bundle bundle = new Bundle();
                                                 bundle.putParcelable("usbDevice",nowDevice);
@@ -364,7 +445,7 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }*/
+                                            }
 
                                         }
                                         //甲醛模块

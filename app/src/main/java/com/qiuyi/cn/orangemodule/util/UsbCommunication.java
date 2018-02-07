@@ -128,7 +128,19 @@ public class UsbCommunication {
         return mybytes;
     }
 
-
+    //方式二：接受数据
+    public byte[] receiveData() {
+        byte[] bytes = null;
+        int max = usbEpIn.getMaxPacketSize();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(max);
+        UsbRequest usbRequest = new UsbRequest();
+        usbRequest.initialize(deviceConnection, usbEpIn);
+        usbRequest.queue(byteBuffer, max);
+        if (deviceConnection.requestWait() == usbRequest) {
+            bytes = byteBuffer.array();
+        }
+        return bytes;
+    }
 
 
 
@@ -140,19 +152,6 @@ public class UsbCommunication {
     }*/
 
 
-    //方式二：接受数据
-/*    public byte[] receiveData() {
-        byte[] bytes = null;
-        int max = usbEpIn.getMaxPacketSize();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(max);
-        UsbRequest usbRequest = new UsbRequest();
-        usbRequest.initialize(deviceConnection, usbEpIn);
-        usbRequest.queue(byteBuffer, max);
-        if (deviceConnection.requestWait() == usbRequest) {
-            bytes = byteBuffer.array();
-        }
-        return bytes;
-    }*/
 
 
 

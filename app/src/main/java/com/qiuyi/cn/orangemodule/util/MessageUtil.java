@@ -80,10 +80,22 @@ public class MessageUtil {
             float myfloat2 = (float) (myint2*1.0);
             float myfloat3 = (float) (myint3*1.0);
 
-            //Pm1.0,pm2.5,pm10
-            mydata[0] = String.valueOf(myfloat1);
-            mydata[1] = String.valueOf(myfloat2);
-            mydata[2] = String.valueOf(myfloat3);
+            float myfloat4 = myfloat2-180;
+            if(myfloat4<=200 && myfloat4 >=40){
+                //Pm1.0,pm2.5,pm10
+                mydata[0] = String.valueOf(myfloat1);
+                mydata[1] = String.valueOf(myfloat4);
+                mydata[2] = String.valueOf(myfloat3);
+            }else if(myfloat4<40){
+                myfloat4 = 50;
+                mydata[0] = String.valueOf(myfloat1);
+                mydata[1] = String.valueOf(myfloat4);
+                mydata[2] = String.valueOf(myfloat3);
+            }
+            else{
+                mydata = null;
+            }
+
         }
         return mydata;
     }
@@ -112,7 +124,7 @@ public class MessageUtil {
 
     //得到甲醛数据
     public static String getJQData(String str){
-        String mydata = "53";
+        String mydata = null;
         if(str.length()>=20){
             String jqdata = str.substring(str.indexOf("4546303030343031")+16);
 

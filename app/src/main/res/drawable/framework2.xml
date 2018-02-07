@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!--电池电量圆圈部分-->
-    <corners android:radius="60dp"/>
+    <corners android:radius="30dp"/>
 
     <solid android:color="#ff975a"/>
 

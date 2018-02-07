@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qiuyi.cn.orangemodule.R;
+import com.qiuyi.cn.orangemodule.myview.BatteryView;
 import com.qiuyi.cn.orangemodule.pager.DevicePager;
 
 import org.w3c.dom.Text;
@@ -34,14 +35,17 @@ public class MainFragmentEquipment extends BaseFragment{
     @BindView(R.id.frame)
     LinearLayout frame;
     //状态
-    @BindView(R.id.tv_state)
-    TextView tv_state;
+/*    @BindView(R.id.tv_state)
+    TextView tv_state;*/
     //电量
     @BindView(R.id.tv_electricity)
     TextView tv_electricity;
     //电压
-    @BindView(R.id.tv_voltage)
-    TextView tv_voltage;
+/*    @BindView(R.id.tv_voltage)
+    TextView tv_voltage;*/
+    //电池
+    @BindView(R.id.horizontalBattery)
+    BatteryView myBattery;
 
     //广播接收
     private BroadcastReceiver messageReceiver;
@@ -98,12 +102,13 @@ public class MainFragmentEquipment extends BaseFragment{
                 String text3 = frameData[2];
                 Log.i("aaaaa","状态："+text3+"电量："+text1+"电压"+text2);
 
-                if(text3.equals("1"))
+/*                if(text3.equals("1"))
                 {
                     tv_state.setText("框架状态:已连接");
-                }
-                tv_electricity.setText("框架剩余电量:"+text1);
-                tv_voltage.setText("框架电压:"+text2);
+                }*/
+                tv_electricity.setText("电量:"+text1);
+                myBattery.setPower(Integer.parseInt(frameData[1]));
+/*                tv_voltage.setText("框架电压:"+text2);*/
             }/*else{
                 frame.setBackgroundResource(R.drawable.framework);
                 tv_state.setText("框架状态:未连接");

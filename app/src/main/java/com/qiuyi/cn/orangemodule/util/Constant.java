@@ -8,6 +8,22 @@ import com.qiuyi.cn.orangemodule.R;
  */
 public class Constant {
 
+    //private static final String IP = "192.168.2.178";
+    private static final String IP = "192.168.2.199";
+    private static final String PORT = "8080";
+
+    //获取验证码
+    public static final String URL_VERIFY = "http://"+IP+":"+PORT+"/user/sendVerify";
+    //登录
+    public static final String URL_LOGIN = "http://"+IP+":"+PORT+"/user/login";
+    //注销
+    public static final String URL_LOGINOUT = "http://"+IP+":"+PORT+"/user/logout";
+
+
+    //存储用户登录后的用户信息
+    public static final String MYMSG_LOGIN = "myMsgLogin";
+
+
     //商品图片
     public static final int[] module_images =
             {R.drawable.backup_memory, R.drawable.speaker, R.drawable.laser_pointer,
