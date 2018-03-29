@@ -53,10 +53,10 @@ public class MainFragmentEquipment extends BaseFragment{
 
     //初始化设备模块的界面
     @Override
-    public View initView() {
+    public void initView(FrameLayout mAddView) {
         View view = View.inflate(mActivity, R.layout.fragment_equipment,null);
         ButterKnife.bind(this,view);
-        return view;
+        mAddView.addView(view);
     }
 
     //将模块化功能界面添加到现在的界面中

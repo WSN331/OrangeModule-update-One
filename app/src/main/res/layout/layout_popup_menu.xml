@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#aaaaaa"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/tv_sim"
+        android:text="SIM卡"
+        android:textColor="#fff"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:background="#fff"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"></View>
+
+    <TextView
+        android:id="@+id/tv_file"
+        android:text="文件管理"
+        android:textColor="#fff"
+        android:textSize="20dp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:background="#fff"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"></View>
+
+    <TextView
+        android:id="@+id/tv_other"
+        android:text="其他"
+        android:textColor="#fff"
+        android:textSize="20dp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:background="#fff"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"></View>
+
+    <LinearLayout
+        android:layout_margin="30dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/Img_no"
+            android:src="@drawable/delete"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+    </LinearLayout>
+
+
+</LinearLayout>

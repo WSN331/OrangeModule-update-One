@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.qiuyi.cn.orangemodule.myview.MyViewGroup
+        android:id="@+id/myViewGroup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <RelativeLayout
+            android:background="#cccc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/lock"
+                android:src="@drawable/lock"
+                android:layout_centerHorizontal="true"
+                android:layout_width="32dp"
+                android:layout_height="32dp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:background="#ccc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_dropRefresh"
+                android:text="↓↓下拉刷新"
+                android:textSize="16dp"
+                android:padding="5dp"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/myFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </LinearLayout>
+
+    </com.qiuyi.cn.orangemodule.myview.MyViewGroup>
+
+</LinearLayout>

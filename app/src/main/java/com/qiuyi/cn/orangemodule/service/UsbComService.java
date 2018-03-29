@@ -84,6 +84,7 @@ public class UsbComService extends Service{
                             usbDetection();
                         }
                         if(usbDeviceCallback!=null && n>=3){
+
                             usbDeviceCallback.dataChanged(usbDeviceList);
                             serviceRunning = false;
                         }
@@ -145,6 +146,7 @@ public class UsbComService extends Service{
         }
 
         usbDeviceList.clear();
+
         devicelist = usbManager.getDeviceList();
         Iterator<UsbDevice> deviceIterator = devicelist.values().iterator();
 
@@ -161,6 +163,7 @@ public class UsbComService extends Service{
                 continue;
             }
             Log.e("device",device.getVendorId() +"-"+device.getProductId());
+
             //检测是否有权限
             if(usbManager.hasPermission(device)){
                 Log.e(TAG, "已经获得权限");

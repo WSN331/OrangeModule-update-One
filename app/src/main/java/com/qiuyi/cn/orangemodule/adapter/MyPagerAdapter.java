@@ -18,15 +18,17 @@ import java.util.List;
 public class MyPagerAdapter extends PagerAdapter{
 
     private List<BasePager> listPager;
+    private String[] myTitle;
 
-    public MyPagerAdapter(List<BasePager> listPager){
+    public MyPagerAdapter(List<BasePager> listPager,String[] myTitle){
         this.listPager = listPager;
+        this.myTitle = myTitle;
     }
 
     //标题的绑定
     @Override
     public CharSequence getPageTitle(int position) {
-        return MainFragmentSmartHome.titles[position];
+        return myTitle[position];
     }
 
     @Override
@@ -46,18 +48,37 @@ public class MyPagerAdapter extends PagerAdapter{
         //得到每一个界面
         BasePager basePager = listPager.get(position);
 
+        ViewGroup parent = (ViewGroup) basePager.mRootView.getParent();
+        if(parent != null){
+            parent.removeAllViews();
+        }
+
         //初始化数据
         basePager.initData();
 
         container.addView(basePager.mRootView);
 
+/*        basePager.mRootView.setTag(position);*/
+
         return basePager.mRootView;
 
     }
 
+/*    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }*/
+
     //切换移除
-    @Override
+/*    @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View) object);
+    }*/
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        ((ViewGroup) container).removeView((View) object);
+
+        object=null;
     }
 }

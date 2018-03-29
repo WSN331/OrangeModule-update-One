@@ -51,16 +51,53 @@
                     </LinearLayout>-->
 
             <!--上半部分-->
-    <RelativeLayout
+    <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_weight="1"
         android:layout_height="0dp">
 
+
+        <!--android:background="@drawable/framework"-->
+        <!--android:elevation="40dp"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:layout_marginStart="39dp"-->
+        <!--框架提示-->
+        <LinearLayout
+            android:id="@+id/frame"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/linearLayout2">
+            <com.qiuyi.cn.orangemodule.myview.BatteryView
+                android:id="@+id/horizontalBattery"
+                android:layout_width="60dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:background="#00000000"
+                android:gravity="center"
+                app:batteryPower="0"
+                app:batteryColor="@android:color/white"
+                app:batteryOrientation="vertical"
+                />
+            <TextView
+                android:textColor="#ffffff"
+                android:id="@+id/tv_electricity"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="电量:0%"/>
+        </LinearLayout>
+
+
         <!--文字提示-->
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="wrap_content"
+            android:layout_weight="2"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingLeft="20dp"
@@ -89,67 +126,38 @@
 
             <LinearLayout
                 android:orientation="vertical"
+                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
                     android:text="室外空气 轻度污染"
                     android:textColor="#ffffff"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
                     android:text="周边水质 不可直饮"
                     android:textColor="#ffffff"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
                     android:text="环境温度 潮湿"
                     android:textColor="#ffffff"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
         </LinearLayout>
 
-        <!--框架提示-->
-        <LinearLayout
-            android:id="@+id/frame"
-            android:background="@drawable/framework"
-            android:gravity="center"
-            android:elevation="40dp"
-            android:layout_marginTop="20dp"
-            android:orientation="vertical"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/linearLayout2"
-            android:layout_marginStart="39dp">
-            <com.qiuyi.cn.orangemodule.myview.BatteryView
-                android:id="@+id/horizontalBattery"
-                android:layout_width="30dp"
-                android:layout_height="14dp"
-                android:layout_marginTop="5dp"
-                android:background="#00000000"
-                android:gravity="center"
-                app:batteryPower="0"
-                app:batteryColor="@android:color/black"
-                app:batteryOrientation="horizontal"
-                />
-            <TextView
-                android:textColor="#ffffff"
-                android:id="@+id/tv_electricity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="电量:0%"/>
-        </LinearLayout>
-    </RelativeLayout>
+
+    </LinearLayout>
 
             <!--下半部分-->
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2">
+                android:layout_weight="2.5">
 
-                <RelativeLayout
+<!--                <RelativeLayout
                     android:background="@drawable/background"
                     android:orientation="vertical"
                     android:layout_marginLeft="10dp"
@@ -170,7 +178,7 @@
                         android:src="@drawable/set"
                         android:layout_width="20dp"
                         android:layout_height="20dp" />
-                </RelativeLayout>
+                </RelativeLayout>-->
 
                 <FrameLayout
                     android:id="@+id/equipment_content"

@@ -12,5 +12,24 @@
         <!--电池电量-->
         <attr name="batteryPower" format="integer"/>
     </declare-styleable>
+
+    <!--自定义EditText-->
+    <declare-styleable name="MyEditTextPassword">
+        <attr name="borderWidth" format="dimension"/>
+        <attr name="borderColor" format="color"/>
+        <attr name="borderRadius" format="dimension"/>
+        <attr name="passwordLength" format="integer"/>
+        <attr name="passwordWidth" format="dimension"/>
+        <attr name="passwordColor" format="color"/>
+        <attr name="passwordRadius" format="dimension"/>
+    </declare-styleable>
+
+    <!--自定义圆环-->
+    <declare-styleable name="CircleBar">
+        <!--圆框的颜色-->
+        <attr name="outColor" format="color"/>
+        <!--字体大小-->
+        <attr name="textSize" format="integer"/>
+    </declare-styleable>
 </resources>
 

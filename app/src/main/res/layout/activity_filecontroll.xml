@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--标题栏-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="#aaaaaa">
+            <ImageView
+                android:id="@+id/img_more"
+                android:src="@drawable/more1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/tv_drop"
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/drop1"
+                android:textSize="20dp"
+                android:textColor="#fff"
+                android:text="文件管理"/>
+        </RelativeLayout>
+        <FrameLayout
+            android:id="@+id/myView"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+        </FrameLayout>
+
+        <RadioGroup
+            android:background="#aaa"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <RadioButton
+                android:textColor="#fff"
+                android:button="@null"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="查找"
+                android:drawableTop="@drawable/search2"
+                android:layout_width="0dp"
+                android:layout_height="40dp" />
+            <RadioButton
+                android:id="@+id/rb_reduction"
+                android:textColor="#fff"
+                android:button="@null"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="备份还原"
+                android:drawableTop="@drawable/backup1"
+                android:layout_width="0dp"
+                android:layout_height="40dp" />
+            <RadioButton
+                android:textColor="#fff"
+                android:button="@null"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:drawableTop="@drawable/collect1"
+                android:text="收藏夹"
+                android:layout_width="0dp"
+                android:layout_height="40dp" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/drawerLayout_listView"
+        android:layout_gravity="left"
+        android:background="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</android.support.v4.widget.DrawerLayout>

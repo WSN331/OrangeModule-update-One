@@ -1,5 +1,6 @@
 package com.qiuyi.cn.orangemodule;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,8 +12,15 @@ import com.qiuyi.cn.orangemodule.bean.TabBottom;
 import com.qiuyi.cn.orangemodule.fragment.MainFragmentEquipment;
 import com.qiuyi.cn.orangemodule.fragment.MainFragmentMyMessage;
 import com.qiuyi.cn.orangemodule.fragment.MainFragmentSmartHome;
+import com.qiuyi.cn.orangemodule.fragment.MainFragmentTalk;
 import com.qiuyi.cn.orangemodule.myview.MyViewPager;
+import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_Service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +30,9 @@ import butterknife.ButterKnife;
 public class MainActivity extends FragmentActivity{
 
     //选中的图案
-    private static final int[] SELECTED_IMAGES = {R.drawable.equipment2,R.drawable.smart2,R.drawable.mymsg2};
+    private static final int[] SELECTED_IMAGES = {R.drawable.equipment2,R.drawable.talk4,R.drawable.smart2};
     //未选中的图案
-    private static final int[] UNSELECTED_IMAGES = {R.drawable.equipment1,R.drawable.smart1,R.drawable.mymsg1};
+    private static final int[] UNSELECTED_IMAGES = {R.drawable.equipment1,R.drawable.talk3,R.drawable.smart1};
 
     //fragment的三个部分存放处
     @BindView(R.id.view_pager)
@@ -43,17 +51,36 @@ public class MainActivity extends FragmentActivity{
     //Tablayout底部的三个容器
     private List<TabLayout.Tab> tabList;
 
+
+    //全局静态变量存储所有获取的文件数据
+    public static List<FileBean> MY_ALLFILES = new ArrayList<>();//全部文件
+    public static List<MusicBean> listMusics = new ArrayList<>();//音乐
+    public static List<VideoBean> listVideos = new ArrayList<>();//视频
+    public static List<ImageBean> listImages = new ArrayList<>();//图片
+    public static List<FileBean> listFiles = new ArrayList<>();//文件
+    public static List<FileBean> listFileZars = new ArrayList<>();//压缩包
+
+    //U盘全部文件
+    public static List<File> listUPANAllFiles = new ArrayList<>();//全部文件
+    public static List<File> listUPANMusics = new ArrayList<>();//音乐
+    public static List<File> listUPANVideos = new ArrayList<>();//视频
+    public static List<File> listUPANImages = new ArrayList<>();//图片
+    public static List<File> listUPANFiles = new ArrayList<>();//文件
+    public static List<File> listUPANFileZars = new ArrayList<>();//压缩包
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        startService(new Intent(this, FindAllFile_Service.class));
 
         //初始化ViewPager
         initViewPager();
         //初始化底部栏
         initTabLayout();
+
 
     }
 
@@ -120,8 +147,9 @@ public class MainActivity extends FragmentActivity{
     private void initViewPager() {
         fragmentList = new ArrayList<>();
         fragmentList.add(new MainFragmentEquipment());
+        fragmentList.add(new MainFragmentTalk());
         fragmentList.add(new MainFragmentSmartHome());
-        fragmentList.add(new MainFragmentMyMessage());
+
 
         myFragmentAdapter = new MyFragmentAdapter(getSupportFragmentManager(),fragmentList);
 

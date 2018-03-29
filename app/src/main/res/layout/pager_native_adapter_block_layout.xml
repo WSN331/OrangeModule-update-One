@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:text="QQ"
+        android:textSize="10dp"
+        android:padding="5dp"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:background="@drawable/native_text"
+        android:layout_width="60dp"
+        android:layout_height="30dp" />
+
+</LinearLayout>

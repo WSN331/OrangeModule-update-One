@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--标题栏-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="#aaaaaa">
+            <ImageView
+                android:id="@+id/img_back"
+                android:src="@drawable/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+            <RadioGroup
+                android:background="@drawable/radiogroup"
+                android:layout_centerInParent="true"
+                android:orientation="horizontal"
+                android:layout_margin="5dp"
+                android:layout_width="100dp"
+                android:layout_height="40dp">
+
+                <RadioButton
+                    android:id="@+id/rb_backup"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="备份"
+                    android:button="@null"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+                <RadioButton
+                    android:id="@+id/rb_restore"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="还原"
+                    android:button="@null"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+
+            </RadioGroup>
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/fm"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </FrameLayout>
+    </LinearLayout>
+
+
+</LinearLayout>
+

@@ -415,7 +415,7 @@ public class DevicePager extends BasePager{
                                         //框架模块
                                         if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
                                             n++;
-/*                                            if(n==1){
+                                            if(n==1){
 
                                                 //框架模块
                                                 Bundle bundle = new Bundle();
@@ -425,7 +425,7 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }*/
+                                            }
 /*                                            if(n==1){
                                                 //空气模块
                                                 Bundle bundle = new Bundle();
@@ -436,7 +436,7 @@ public class DevicePager extends BasePager{
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
                                             }*/
-                                            if(n==1){
+/*                                            if(n==1){
                                                 //水质模块
                                                 Bundle bundle = new Bundle();
                                                 bundle.putParcelable("usbDevice",nowDevice);
@@ -445,7 +445,7 @@ public class DevicePager extends BasePager{
                                                 newIntent.putExtras(bundle);
                                                 //启动接收数据服务
                                                 mActivity.startService(newIntent);
-                                            }
+                                            }*/
 
                                         }
                                         //甲醛模块

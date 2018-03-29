@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.ShoppingCarActivity;
@@ -48,10 +50,10 @@ public class MainFragmentSmartHome extends BaseFragment{
     private MyPagerAdapter myAdapter;
 
     @Override
-    public View initView() {
+    public void initView(FrameLayout addView) {
         View view = View.inflate(mActivity, R.layout.fragment_smarthome,null);
         ButterKnife.bind(this,view);
-        return view;
+        addView.addView(view);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class MainFragmentSmartHome extends BaseFragment{
         //初始化Pager
         initPager();
 
-        myAdapter = new MyPagerAdapter(listPager);
+        myAdapter = new MyPagerAdapter(listPager,titles);
         myViewPager.setAdapter(myAdapter);
         tabLayout.setupWithViewPager(myViewPager);
 

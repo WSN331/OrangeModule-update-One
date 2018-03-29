@@ -50,7 +50,7 @@ public class UsbPager extends BasePager{
     public void initData() {
         productList = new ArrayList<>();
 
-        //图片
+        //native_img
         Product imageProduct = new Product(R.drawable.paq7,null,null,null, Constant.module_myflag[0]);
         productList.add(imageProduct);
         //标题

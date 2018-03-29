@@ -2,6 +2,7 @@ package com.qiuyi.cn.orangemodule.fragment;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,10 +35,10 @@ public class MainFragmentMyMessage extends BaseFragment{
     private UserGet nowUser = null;
 
     @Override
-    public View initView() {
+    public void initView(FrameLayout addView) {
         View view = View.inflate(mActivity, R.layout.fragment_mymessage,null);
         ButterKnife.bind(this,view);
-        return view;
+        addView.addView(view);
     }
 
     @Override

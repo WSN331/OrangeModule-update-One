@@ -11,6 +11,7 @@ import android.view.MotionEvent;
  * //禁用滑动效果的ViewPager
  */
 public class MyViewPager extends ViewPager{
+
     public MyViewPager(Context context) {
         super(context);
     }

@@ -6,6 +6,17 @@
         android:name="android.hardware.usb.host"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!--创建文件与删除文件权限-->
@@ -40,6 +51,29 @@
         <activity android:name=".activity.PayendActivity"/>
         <activity android:name=".activity.UdiskActivity"/>
         <activity android:name=".activity.UserMoreMsgActivity"/>
+        <activity android:name=".activity.FileControllActivity"/>
+        <activity android:name=".activity.FileShowActivity"/>
+        <activity android:name=".activity.BkrtActivity"/>
+        <activity android:name=".activity.SecretActivity"/>
+        <activity android:name=".activity.SecretContentActivity"/>
+        <activity android:name=".activity.AllFileShowActivity"/>
+        <activity android:name=".activity.UFileShowActivity"/>
+        <activity android:name=".upan.UAllFileShowActivity"/>
+        <activity android:name=".upan.readUSBActivity"/>
+        <activity android:name=".upan.writeUSBActivity"/>
+
+
+        <service android:name=".util.FileManager.service.FindUpanMsg_Service"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--查找文件-->
+        <service android:name=".util.FileManager.service.FindFileMsg_Service"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--查找所有文件-->
+        <service android:name=".util.FileManager.service.FindAllFile_Service"
+            android:enabled="true"
+            android:exported="true"/>
 
         <!--检测usb新模块插入-->
         <service android:name=".service.UsbComService"

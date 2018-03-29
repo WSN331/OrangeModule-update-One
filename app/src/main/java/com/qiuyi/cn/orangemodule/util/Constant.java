@@ -1,5 +1,7 @@
 package com.qiuyi.cn.orangemodule.util;
 
+import android.hardware.usb.UsbManager;
+
 import com.qiuyi.cn.orangemodule.R;
 
 /**
@@ -43,4 +45,45 @@ public class Constant {
     //滑动图片
     public static final int[] slid_images = {R.drawable.paq1, R.drawable.paq2, R.drawable.paq3,
             R.drawable.paq4, R.drawable.paq5};
+
+    //侧边栏
+    public static final int[] IMAGES = {R.drawable.panda,R.drawable.shopping,R.drawable.talk,R.drawable.help,R.drawable.setting};
+    public static final String[] TEXTSHOW = {"我的头像","我的商城","论坛","帮助和反馈","设置"};
+
+    //文件管理-native
+    public static final int[] NATIVE_IMAGES ={R.drawable.native_img,R.drawable.native_audio,
+    R.drawable.native_doc,R.drawable.native_music,R.drawable.native_zar};
+
+    //U盘-upan
+    public static final int[] UPAN_IMAGES = {R.drawable.upan_img,R.drawable.upan_audio,
+    R.drawable.upan_doc,R.drawable.upan_music,R.drawable.upan_zar};
+
+    public static final String[] NATIVE_TITLE={"图片","视频","文档","音乐","压缩包","所有文件"};
+    public static final String[] UPAN_TITLE={"图片","视频","文档","音乐","压缩包","所有文件"};
+
+    public static final int[] NATIVE_SIZE = new int[6];
+    public static final int[] UPAN_SIZE = new int[6];
+
+    //FindFileMsg
+    public static final String FINDFILE_MSG = "com.qiuyi.cn.findfileMsg";
+    //FindAllMsg
+    public static final String FINDALL_MSG = "com.qiuyi.cn.findAllfiles";
+    //FindUpanMsg
+    public static final String FINDUPAN_MSG = "com.qiuyi.cn.findUPANfiles";
+
+    //UpanRefresh
+    public static final String UPANREFRESH = "com.qiuyi.cn.refreshUPAN";
+    public static final String NATIVEFRESH = "com.qiuyi.cn.refreshNATIVE";
+    //用来存储U盘信息
+    public static Long UPAN_MEMORYSIZE = Long.valueOf(0);//所有空间
+    public static Long UPAN_AVAILSIZE = Long.valueOf(0);//已经使用的空间
+
+
+    //USB相关权限
+    public static final String[] ACTION_USB = {
+            //USB插入权限
+            UsbManager.ACTION_USB_DEVICE_ATTACHED,
+            //USB拔出权限
+            UsbManager.ACTION_USB_DEVICE_DETACHED
+    };
 }
