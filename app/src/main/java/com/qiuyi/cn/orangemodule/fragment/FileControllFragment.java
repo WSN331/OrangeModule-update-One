@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Created by Administrator on 2018/3/30.
- * 文件管理
+ * 文件管理主界面
  */
 public class FileControllFragment extends BaseFragment{
 
