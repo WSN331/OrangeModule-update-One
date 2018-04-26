@@ -152,6 +152,9 @@ public class MessageUtil {
             data[0] = data2List[3];
             //电量
             data[1] = data2List[4].substring(1);
+            if(data[1].equals("00")){
+                data[1] = "100";
+            }
             //连接状态
             data[2] = data2List[5];
         }

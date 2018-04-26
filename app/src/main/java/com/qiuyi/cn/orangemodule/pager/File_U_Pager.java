@@ -25,6 +25,7 @@ import com.qiuyi.cn.orangemodule.upan.UAllFileShowActivity;
 import com.qiuyi.cn.orangemodule.activity.UFileShowActivity;
 import com.qiuyi.cn.orangemodule.adapter.NativiAdapter;
 import com.qiuyi.cn.orangemodule.bean.FileType;
+import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 
@@ -177,7 +178,7 @@ public class File_U_Pager extends BaseRefreshPager{
                             }
                         }else if(fileType.getShowType()==3){
                             //这里是进入所有文件
-                            Intent intent = new Intent(mActivity,UAllFileShowActivity.class);
+                            Intent intent = new Intent(mActivity,FileActivity.class);
                             mActivity.startActivity(intent);
                         }
                     }
@@ -213,7 +214,6 @@ public class File_U_Pager extends BaseRefreshPager{
     public void initData() {
         super.initData();
 
-        Log.e("执行顺序","1");
 
         initBroadCast();
         initPermission();
@@ -296,8 +296,6 @@ public class File_U_Pager extends BaseRefreshPager{
     //构造数据
     private void initAddData() {
 
-        Log.e("执行顺序","2");
-
         myFileTypes = new ArrayList<>();
 
         for(int i=0;i<5;i++){
@@ -339,30 +337,26 @@ public class File_U_Pager extends BaseRefreshPager{
     private File currentFolder = null; //U盘根目录
     //查找U盘，并开启服务如果查找到了
     private void findStorage() {
-        Log.e("执行顺序","31");
         //存储得到的文件路径
         String[] result = null;
         //得到存储管理
         StorageManager storageManager = (StorageManager) mActivity.getSystemService(Context.STORAGE_SERVICE);
         //利用反射调用storageManager的系统方法
         try {
-            Log.e("执行顺序","32");
             //利用反射
             Method method = StorageManager.class.getMethod("getVolumePaths");
             method.setAccessible(true);
             try {
                 result = (String[]) method.invoke(storageManager);
 
-                Log.e("执行顺序","33"+result.length);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-            Log.e("执行顺序","34");
             for (int i = 0; i < result.length; i++) {
                 Log.e("path----> ", result[i] + "");
                 if (result[i] != null && result[i].startsWith("/storage") && !result[i].startsWith("/storage/emulated/0")) {
                     currentFolder = new File(result[i]);
-                    Log.e("执行顺序","35");
+
                     Constant.UPAN_AVAILSIZE = currentFolder.getUsableSpace();
                     Constant.UPAN_MEMORYSIZE = currentFolder.getTotalSpace();
                     //启动查找U盘文件的服务
@@ -370,7 +364,7 @@ public class File_U_Pager extends BaseRefreshPager{
                     intent.putExtra("Folder",result[i]);
                     mActivity.startService(intent);
 
-                    Log.e("执行顺序","3");
+
                 }
             }
         } catch (Exception e) {

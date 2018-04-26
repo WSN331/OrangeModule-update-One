@@ -53,10 +53,10 @@ public class MainFragmentEquipment extends BaseFragment{
 
     //初始化设备模块的界面
     @Override
-    public void initView(FrameLayout mAddView) {
+    public View initView() {
         View view = View.inflate(mActivity, R.layout.fragment_equipment,null);
         ButterKnife.bind(this,view);
-        mAddView.addView(view);
+        return view;
     }
 
     //将模块化功能界面添加到现在的界面中
@@ -93,9 +93,9 @@ public class MainFragmentEquipment extends BaseFragment{
             String[] frameData = intent.getStringArrayExtra("frame");
 
             if (frameData != null && frameData.length>=3) {
-                frame.setBackgroundResource(R.drawable.framework2);
+                //frame.setBackgroundResource(R.drawable.framework2);
                 //电量
-                String text1 = frameData[1] + "%";;
+                String text1 = frameData[1] + "%";
                 //电压
                 String text2 = frameData[0] + "mv";
                 //状态

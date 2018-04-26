@@ -5,14 +5,26 @@ package com.qiuyi.cn.orangemodule.bean;
  * 还原备份的条目
  */
 public class MyItemFile {
+
+    private int icon;
+
     private String name;
     private String size;
 
     public MyItemFile(){}
 
-    public MyItemFile(String name, String size) {
+    public MyItemFile(String name,int icon, String size) {
         this.name = name;
         this.size = size;
+        this.icon = icon;
+    }
+
+    public int getIcon() {
+        return icon;
+    }
+
+    public void setIcon(int icon) {
+        this.icon = icon;
     }
 
     public String getName() {

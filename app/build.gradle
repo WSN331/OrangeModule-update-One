@@ -39,4 +39,8 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.0.1'
 
     compile 'com.github.mjdev:libaums:+'
+
+    compile 'com.github.BestLOL:AllMyDemo:v1.0.0'
+
+    compile 'com.github.satyan:sugar:1.5'
 }

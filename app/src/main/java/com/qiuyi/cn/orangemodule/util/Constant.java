@@ -70,10 +70,17 @@ public class Constant {
     public static final String FINDALL_MSG = "com.qiuyi.cn.findAllfiles";
     //FindUpanMsg
     public static final String FINDUPAN_MSG = "com.qiuyi.cn.findUPANfiles";
+    //FindUpanBF
+    public static final String FINDUPAN_BFMSG = "com.qiuyi.cn.findUPANfilesBF";
 
     //UpanRefresh
     public static final String UPANREFRESH = "com.qiuyi.cn.refreshUPAN";
     public static final String NATIVEFRESH = "com.qiuyi.cn.refreshNATIVE";
+
+    //备份还原
+    public static final String BACKUP = "com.qiuyi.cm.backupFile";
+    public static final String RESTORE = "com.qiuyi.cm.restoreFile";
+
     //用来存储U盘信息
     public static Long UPAN_MEMORYSIZE = Long.valueOf(0);//所有空间
     public static Long UPAN_AVAILSIZE = Long.valueOf(0);//已经使用的空间
@@ -86,4 +93,13 @@ public class Constant {
             //USB拔出权限
             UsbManager.ACTION_USB_DEVICE_DETACHED
     };
+
+
+    //手机本地备份
+    public static final String[] BACKUPMSG = {"照片","视频","文档","音乐","联系人","应用"};
+
+    //选中的图案
+    private static final int[] SELECTED_IMAGES = {R.drawable.equipment2,R.drawable.talk4,R.drawable.smart2};
+    //未选中的图案
+    private static final int[] UNSELECTED_IMAGES = {R.drawable.equipment1,R.drawable.talk3,R.drawable.smart1};
 }

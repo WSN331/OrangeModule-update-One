@@ -258,6 +258,7 @@ public class readUSBActivity extends Activity implements SwipeRefreshLayout.OnRe
     //界面刷新
     @Override
     public void onRefresh() {
+
         mySwipeRefreshLayout.setRefreshing(true);
         //重新获取当前页
         getAllFiles();

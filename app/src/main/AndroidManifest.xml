@@ -23,6 +23,11 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <!--往sdcard中写入数据的权限-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- 读联系人权限 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- 写联系人权限 -->
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+
 
 
     <application
@@ -43,6 +48,12 @@
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
             </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"
+                android:resource="@xml/device_filter" />
         </activity>
         <activity android:name=".activity.GoodsActivity"/>
         <activity android:name=".activity.ShoppingCarActivity"/>
@@ -61,8 +72,30 @@
         <activity android:name=".upan.UAllFileShowActivity"/>
         <activity android:name=".upan.readUSBActivity"/>
         <activity android:name=".upan.writeUSBActivity"/>
+        <activity android:name=".activity.SearchActivity"/>
+        <activity android:name=".activity.CollectionActivity"/>
+        <activity android:name=".upansaf.ui.FileActivity"/>
+
+        <meta-data android:name="DATABASE" android:value="OrangeModule.db"/>
+        <meta-data android:name="VERSION" android:value="2"/>
+        <meta-data android:name="QUERY_LOG" android:value="true"/>
+        <meta-data android:name="DOMAIN_PACKAGE_NAME"  android:value="com.qiuyi.cn.orangemodule.upansaf.db.bean"/>
 
 
+        <!--从U盘中查找备份的文件-->
+        <service android:name=".util.FileManager.service.FindUpanRestore_Service"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <!--从U盘中查找联系人-->
+        <service android:name=".util.FileManager.service.FindUpanConstacts"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--查找联系人-->
+        <service android:name=".util.FileManager.service.FindContacts"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--查找U盘文件-->
         <service android:name=".util.FileManager.service.FindUpanMsg_Service"
             android:enabled="true"
             android:exported="true"/>
@@ -72,6 +105,10 @@
             android:exported="true"/>
         <!--查找所有文件-->
         <service android:name=".util.FileManager.service.FindAllFile_Service"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--查找所有文件2-->
+        <service android:name=".util.FileManager.service.FindAllFile_II_Service"
             android:enabled="true"
             android:exported="true"/>
 

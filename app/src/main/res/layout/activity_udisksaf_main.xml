@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_file"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity">
+
+
+    <RelativeLayout
+        android:id="@+id/bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#eee"
+        android:orientation="horizontal"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:id="@+id/pre_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_debug"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="调试信息"
+            android:textSize="20sp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/pre_folder"
+            android:layout_toEndOf="@+id/pre_folder"/>
+
+
+        <ImageView
+            android:id="@+id/img_search"
+            android:gravity="center"
+            android:background="#ccc"
+            android:src="@drawable/search2"
+            android:padding="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="87dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+        <!--新建文件夹-->
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/create_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/create"
+            android:drawableTop="@drawable/create_select"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+
+        <!--全选-->
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/selectAll_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/selectAll"
+            android:drawableTop="@drawable/selectall_select"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+<!--        <TextView
+            android:id="@+id/tv_writeToUp"
+            android:text="writeToUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />-->
+    </RelativeLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/bar"
+        android:layout_above="@+id/ll_1"
+        android:layout_alignParentStart="true">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            ></android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_1"
+        android:visibility="gone"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+
+        <TextView
+            android:id="@+id/delete_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:drawableTop="@drawable/remove_select"/>
+
+        <TextView
+            android:id="@+id/cut_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cut"
+            android:drawableTop="@drawable/cut_select"/>
+        <TextView
+            android:id="@+id/copy_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/copy"
+            android:drawableTop="@drawable/copy_select"/>
+
+        <!--重命名-->
+        <TextView
+            android:id="@+id/rename_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/rename"
+            android:drawableTop="@drawable/rename_select"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_2"
+        android:visibility="gone"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+
+        <TextView
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:drawableTop="@drawable/cancel_select"/>
+
+        <TextView
+            android:id="@+id/paste_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/paste"
+            android:drawableTop="@drawable/paste_select"/>
+
+    </LinearLayout>
+
+<!--    <LinearLayout
+        android:id="@+id/ll_3"
+        android:visibility="invisible"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+
+
+
+&lt;!&ndash;        <TextView
+            android:id="@+id/refresh_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/refresh"
+            android:drawableTop="@drawable/refresh_select"/>&ndash;&gt;
+
+&lt;!&ndash;        <TextView
+            android:id="@+id/newUdisk_btn"
+            android:text="新U盘"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/udisk_select"/>&ndash;&gt;
+&lt;!&ndash;        <TextView
+            android:id="@+id/equal_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/equal"
+            android:drawableTop="@drawable/cloud_select"/>&ndash;&gt;
+    </LinearLayout>-->
+
+<!--    <LinearLayout
+        android:id="@+id/ll_show"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/pb_show"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_show"
+            android:padding="5dp"
+            android:text="正在上传..."
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>-->
+
+
+</RelativeLayout>

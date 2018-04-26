@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <RelativeLayout
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/img_selectAll"
+                android:src="@drawable/cf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/bt_selectAll"
+                android:text="全选"
+                android:visibility="gone"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/pager_recently_selectall_bt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:background="@drawable/mytext"
+            android:gravity="center"
+            android:layout_weight="7"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="30dp">
+
+            <ImageView
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/search"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+
+            <EditText
+                android:id="@+id/et_search"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:hint="请输入搜索关键字"
+                android:layout_margin="10dp"
+                android:textSize="16dp"
+                android:textColorHint="#aaaaaa"
+                android:theme="@style/MySearchEditText"
+                android:textCursorDrawable="@drawable/edit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </LinearLayout>
+    </LinearLayout>
+    <View
+        android:background="#cccccc"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--下面部分-->
+        <LinearLayout
+            android:id="@+id/ll_bottom"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_margin="20dp"
+                android:text="按来源查找"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <View
+                android:background="#cccccc"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+            <LinearLayout
+                android:padding="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_camera"
+                    android:text="相机"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:background="@drawable/origin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_qq"
+                    android:text="QQ"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:background="@drawable/origin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_wechat"
+                    android:text="微信"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:background="@drawable/origin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tv_screen"
+                    android:text="截屏"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:background="@drawable/origin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <View
+                android:background="#cccccc"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rl_show"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/ll_pager_native_bom">
+            </android.support.v7.widget.RecyclerView>
+
+            <LinearLayout
+                android:id="@+id/ll_pager_native_bom"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:background="@drawable/pager_recently"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                >
+                <TextView
+                    android:id="@+id/tv_delete"
+                    android:text="删除"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_copytoUdisk"
+                    android:text="复制到U盘"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_copytoSD"
+                    android:text="复制到手机"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_cancel"
+                    android:text="取消"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

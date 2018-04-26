@@ -35,10 +35,10 @@ public class MainFragmentMyMessage extends BaseFragment{
     private UserGet nowUser = null;
 
     @Override
-    public void initView(FrameLayout addView) {
+    public View initView() {
         View view = View.inflate(mActivity, R.layout.fragment_mymessage,null);
         ButterKnife.bind(this,view);
-        addView.addView(view);
+        return view;
     }
 
     @Override

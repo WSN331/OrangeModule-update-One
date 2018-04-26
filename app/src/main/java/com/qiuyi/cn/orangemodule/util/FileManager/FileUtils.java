@@ -1,12 +1,18 @@
 package com.qiuyi.cn.orangemodule.util.FileManager;
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.storage.StorageManager;
+import android.util.Log;
 
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.util.Constant;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -235,5 +241,44 @@ public class FileUtils {
 
         return totalBlocks * blockSize;
     }
+
+
+    /**
+     * 获取指定文件大小
+     *
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public static long getFileSize(File file) throws Exception {
+        long size = 0;
+        if (file.exists()) {
+            FileInputStream fis = null;
+            fis = new FileInputStream(file);
+            size = fis.available();
+        }
+        return size;
+    }
+
+    /**
+     * 获取指定文件夹
+     *
+     * @param f
+     * @return
+     * @throws Exception
+     */
+    public static long getFileSizes(File f) throws Exception {
+        long size = 0;
+        File flist[] = f.listFiles();
+        for (int i = 0; i < flist.length; i++) {
+            if (flist[i].isDirectory()) {
+                size = size + getFileSizes(flist[i]);
+            } else {
+                size = size + getFileSize(flist[i]);
+            }
+        }
+        return size;
+    }
+
 
 }

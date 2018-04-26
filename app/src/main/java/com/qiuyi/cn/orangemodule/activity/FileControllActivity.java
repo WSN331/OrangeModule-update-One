@@ -66,9 +66,7 @@ public class FileControllActivity extends BaseActivity{
     private List<BasePager> listPager;
     private MyPagerAdapter myAdapter;
 
-
-
-
+    
     /* 继承标题等添加TabLayout+ViewPager*/
     @Override
     public void addPagerView(FrameLayout mAddView) {

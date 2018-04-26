@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class MyFileManager {
 
     private static Context mContext;
+    private static String rootSDpath = null;
 
     private MyFileManager(){
     }
@@ -56,6 +57,7 @@ public class MyFileManager {
 
     public static MyFileManager getInstance(Context context){
         mContext = context;
+        rootSDpath = Environment.getExternalStorageDirectory().getAbsolutePath();
         return MyFileManagerHolder.myFileManager;
     }
 
@@ -69,14 +71,19 @@ public class MyFileManager {
 
         try {
             cursor = mContext.getContentResolver()
-                    .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,null,null,null,MediaStore.Images.Media.DATE_TAKEN+" desc");
+                    .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,null,"",null,MediaStore.Images.Media.DATE_TAKEN+" desc");
 
             if(cursor.moveToFirst()){
                 do {
-                    //名字
-                    String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                     //路径
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    //Log.e("path", path);
+                    if(!path.contains(rootSDpath)){
+                        continue;
+                    }
+                    //名字
+                    String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+
                     //日期
                     Long date = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN));
                     //大小
@@ -138,6 +145,14 @@ public class MyFileManager {
                     .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null, MediaStore.Audio.Media.DATE_MODIFIED+" desc");
             if(cursor.moveToFirst()){
                 do {
+
+                    //路径
+                    String music_path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                    //Log.e("path-music", music_path);
+                    if(!music_path.contains(rootSDpath)){
+                        continue;
+                    }
+
                     //歌曲id
                     String music_id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     //歌曲名
@@ -153,8 +168,6 @@ public class MyFileManager {
                     }
                     //修改日期
                     Long music_date = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED));
-                    //路径
-                    String music_path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     //歌手名
                     String music_artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
 
@@ -191,10 +204,16 @@ public class MyFileManager {
                     .query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Video.Media.DATE_TAKEN+" desc");
             if(cursor.moveToFirst()){
                 do {
+                    String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));// 路径
+                    if(!path.contains(rootSDpath)){
+                        continue;
+                    }
+
+
                     String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));// 视频的id
                     String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)); // 视频名称
                     String resolution = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.RESOLUTION)); //分辨率
-                    String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));// 路径
+
                     long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));// 大小
                     if(size == 0){
                         continue;
@@ -234,6 +253,11 @@ public class MyFileManager {
             if(cursor.moveToFirst()){
                 do {
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+
+                    if(!path.contains(rootSDpath)){
+                        continue;
+                    }
+
 
                     //根据路径获取文件图片
                     if (FileUtils.getFileType(path) == fileType) {
@@ -334,13 +358,25 @@ public class MyFileManager {
     * */
     public List<File> getUpanFiles(File newFile){
 
-        Log.e("执行顺序","5");
         List<File> allFiles = new ArrayList<>();
 
         if(newFile!=null){
             allFiles = getAllFiles(newFile);
+            allFiles.addAll(getAllDirectory(newFile));
         }
         return allFiles;
+    }
+
+    //获取U盘所有文件夹
+    private List<File> getAllDirectory(File currentFolder){
+        List<File> allDirectoryFiles = new ArrayList<>();
+        for(File direcFile:currentFolder.listFiles()){
+            if(direcFile.isDirectory()){
+                allDirectoryFiles.add(direcFile);
+                allDirectoryFiles.addAll(getAllDirectory(direcFile));
+            }
+        }
+        return allDirectoryFiles;
     }
 
     //获取所有U盘文件
@@ -351,19 +387,19 @@ public class MyFileManager {
 
         for(final File file:currentFolder.listFiles()){
             if(file.isDirectory()){
-                newFiles.addAll(getAllFiles(file));
-/*                partions.add(new Callable<List<File>>() {
+                //newFiles.addAll(getAllFiles(file));
+                partions.add(new Callable<List<File>>() {
                     @Override
                     public List<File> call() throws Exception {
                         return getAllFiles(file);
                     }
-                });*/
+                });
             }else{
                 newFiles.add(file);
             }
         }
 
-/*        if(partions.size()>0) {
+        if(partions.size()>0) {
             //启动并发
             ExecutorService executorPool = Executors.newCachedThreadPool();
             List<FutureTask<List<File>>> listTask = new ArrayList<>();
@@ -385,10 +421,14 @@ public class MyFileManager {
                 }
             }
 
-        }*/
-        Log.e("执行顺序","6");
+        }
         return newFiles;
     }
+
+
+
+
+
 
 /*    //得到U盘下的所有文件
     private void getAllFiles(File currentFolder) {

@@ -4,8 +4,11 @@ import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,7 +26,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2018/3/21.
  */
-public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener{
+public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
 
     private Context context;
     //有几个标题
@@ -37,9 +40,50 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     private List<FileBean> sorListFile;
 
 
+
     private FileItemClick fileItemClick;
+
+    //存储所有选中的位置
+    private boolean[] flag;
+    //判断当前checkBox是否显示
+    private boolean isShowCheckBox = false;
+
+    public boolean[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean[] flag) {
+        this.flag = flag;
+    }
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
+    }
+
+    public void setShowCheckBox(boolean showCheckBox) {
+        isShowCheckBox = showCheckBox;
+    }
+
+    //选中全部
+    public void selectAll(){
+        for(int i=0;i<sorListFile.size();i++){
+            flag[i] = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    //取消全选
+    public void noSelect(){
+        for (int i=0;i<sorListFile.size();i++){
+            flag[i] = false;
+        }
+        notifyDataSetChanged();
+    }
+
+
     public interface FileItemClick{
         void openFile(View view, int position, List<FileBean> allFileBean);
+        void onLongClick(View view,int position,List<FileBean> allFileBean);
     }
 
     public void setOnFileItemClick(FileItemClick myClick){
@@ -51,6 +95,20 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         if(fileItemClick!=null){
             fileItemClick.openFile(view, (int) view.getTag(),sorListFile);
         }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        if(fileItemClick!=null){
+            fileItemClick.onLongClick(view, (int) view.getTag(),sorListFile);
+        }
+        return false;
+    }
+
+    //页面刷新
+    public void ReFresh(){
+        flag = new boolean[sorListFile.size()];
+        notifyDataSetChanged();
     }
 
 
@@ -89,6 +147,8 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         //重新排序
         sorListFile = newSort(textItemCount,listFile);
+
+        flag = new boolean[sorListFile.size()];
 
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -176,15 +236,15 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         RecyclerView.ViewHolder mViewHolder = null;
         if(viewType == 0){
             //标题栏
-            view = View.inflate(context,R.layout.pager_recently_adapter_title_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_title_layout,null);
             mViewHolder = new titleViewHolder(view);
         }else if(viewType == 1){
             //文件展示部分 图片文件
-            view = View.inflate(context,R.layout.pager_recently_adapter_image_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_image_layout,null);
             mViewHolder = new myImageView(view);
         }else if(viewType == 2){
             //文本文件，压缩包
-            view = View.inflate(context,R.layout.pager_recently_adapter_file_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_file_layout,null);
             mViewHolder = new myFileView(view);
         }else{
             //间隔
@@ -192,12 +252,13 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             mViewHolder = new linePart(view);
         }
         view.setOnClickListener(this);
+        view.setOnLongClickListener(this);
         return mViewHolder;
     }
 
     //4 数据填充判断
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         FileBean info = sorListFile.get(position);
 
@@ -207,6 +268,31 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             titleViewHolder myholder = (titleViewHolder) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_ad_title.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_ad_title.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_ad_title.setOnCheckedChangeListener(null);
+            myholder.cb_ad_title.setChecked(flag[position]);
+            myholder.cb_ad_title.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    for(int i=position;i<sorListFile.size();i++){
+                        if(getItemViewType(i)==3){
+                            flag[i] = b;
+                            break;
+                        }
+                        flag[i] = b;
+                    }
+                    /*flag[position] = b;*/
+                    Log.e("change", b+"");
+                    notifyDataSetChanged();
+                }
+            });
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==1){
@@ -214,12 +300,45 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             myImageView myholder = (myImageView) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_ad_img.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_ad_img.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_ad_img.setOnCheckedChangeListener(null);
+            myholder.cb_ad_img.setChecked(flag[position]);
+            myholder.cb_ad_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+                }
+            });
+
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==2){
             //文件
             myFileView myholder = (myFileView) holder;
             myholder.onBind(info);
+
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_item.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_item.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_item.setOnCheckedChangeListener(null);
+            myholder.cb_item.setChecked(flag[position]);
+            myholder.cb_item.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+
+                    isToSelectFileAll(position,sorListFile,flag);
+                }
+            });
 
             myholder.itemView.setTag(position);
         }
@@ -230,6 +349,31 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             myholder.itemView.setTag(position);
         }
 
+    }
+
+    //File是否全部选中
+    private void isToSelectFileAll(int position, List<FileBean> allFileBean, boolean[] flag) {
+        int rooti = position-1;
+        int rootj = position+1;
+        while(allFileBean.get(rooti).getFiletype()!=0){
+            rooti--;
+        }
+        while (allFileBean.get(rootj).getFiletype()!=3){
+            rootj++;
+        }
+
+        flag[rooti] = true;
+        flag[rootj] = true;
+
+        for (int i=rooti+1;i<rootj;i++){
+            if(!flag[i]){
+                flag[rooti] = false;
+                flag[rootj] = false;
+                break;
+            }
+        }
+
+        notifyDataSetChanged();
     }
 
     //1
@@ -247,27 +391,26 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     //标题栏
     class titleViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imgFlag;
-        private TextView myTitle;
-        private TextView fileDate;
+        private TextView tv_ad_title;
+        private CheckBox cb_ad_title;
+
 
         public titleViewHolder(View itemView) {
             super(itemView);
-            imgFlag = itemView.findViewById(R.id.imgFlag);
-            myTitle = itemView.findViewById(R.id.mtTitle);
-            fileDate = itemView.findViewById(R.id.fileDate);
+            tv_ad_title = itemView.findViewById(R.id.tv_ad_title);
+            cb_ad_title = itemView.findViewById(R.id.cb_ad_title);
         }
 
         public void onBind(FileBean fileInfo){
-            imgFlag.setImageResource(R.drawable.filename);
+            /*imgFlag.setImageResource(R.drawable.filename);
             //fileInfo.getPath()
-/*            Glide.with(context)
+            Glide.with(context)
                     .load(R.drawable.qq)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imgFlag);*/
-            myTitle.setText("文件");
+                    .into(imgFlag);
+            myTitle.setText("文件");*/
 
-            fileDate.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date(fileInfo.getTime()*1000L)));
+            tv_ad_title.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date(fileInfo.getTime()*1000L)));
         }
     }
 
@@ -275,10 +418,12 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     class myImageView extends RecyclerView.ViewHolder{
 
         private ImageView myImageView;
+        private CheckBox cb_ad_img;
 
         public myImageView(View itemView) {
             super(itemView);
             myImageView = itemView.findViewById(R.id.myImageView);
+            cb_ad_img = itemView.findViewById(R.id.cb_ad_img);
         }
 
         public void onBind(FileBean info){
@@ -295,12 +440,14 @@ public class FileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         private TextView fileName,fileSize;
         private ImageView imageView;
+        private CheckBox cb_item;
 
         public myFileView(View itemView) {
             super(itemView);
             fileName = itemView.findViewById(R.id.fileName);
             fileSize = itemView.findViewById(R.id.fileSize);
             imageView = itemView.findViewById(R.id.imageView);
+            cb_item = itemView.findViewById(R.id.cb_item);
         }
 
         public void onBind(FileBean info){

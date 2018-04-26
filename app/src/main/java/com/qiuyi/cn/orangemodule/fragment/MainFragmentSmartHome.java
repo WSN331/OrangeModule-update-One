@@ -50,10 +50,10 @@ public class MainFragmentSmartHome extends BaseFragment{
     private MyPagerAdapter myAdapter;
 
     @Override
-    public void initView(FrameLayout addView) {
+    public View initView() {
         View view = View.inflate(mActivity, R.layout.fragment_smarthome,null);
         ButterKnife.bind(this,view);
-        addView.addView(view);
+        return view;
     }
 
     @Override

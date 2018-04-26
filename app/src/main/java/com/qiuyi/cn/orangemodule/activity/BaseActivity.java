@@ -45,14 +45,7 @@ public abstract class BaseActivity extends BasePermission{
     //备份还原
     private RadioButton rb_reduction;
 
-    //需要申请的权限
-    //基本权限
-    private static final String[] ACTION_PERMISSION = {
-            //存储权限
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            //读取权限
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +57,7 @@ public abstract class BaseActivity extends BasePermission{
         addPagerView(mAddView);
 
         //得到基础权限
-        getBasePermission();
+        //getBasePermission();
 
         initData();
     }
@@ -128,7 +121,7 @@ public abstract class BaseActivity extends BasePermission{
             @Override
             public void onClick(View view) {
 
-                new MyPopWindow(getApplicationContext(), new MyPopWindow.OnItemClickListener() {
+/*                new MyPopWindow(getApplicationContext(), new MyPopWindow.OnItemClickListener() {
                     @Override
                     public void onItemClick(PopupWindow popupWindow, int position) {
                         switch (position){
@@ -148,7 +141,7 @@ public abstract class BaseActivity extends BasePermission{
                                 break;
                         }
                     }
-                }).setText("首页").showAsDropDown(myTextView);
+                }).setText("首页").showAsDropDown(myTextView);*/
             }
         });
 
@@ -173,31 +166,11 @@ public abstract class BaseActivity extends BasePermission{
         }
     }
 
-    //去到主模块
+/*    //去到主模块
     private void goToMainControll(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-    }
+    }*/
 
-    //获取基础权限
-    private void getBasePermission(){
-        //调用父类方法
-        requestToPermission(ACTION_PERMISSION, new BasePermissionListener() {
-            @Override
-            public void onGranted() {
-                //所有授权成功
-                Log.e("USB","基础权限授权成功");
-            }
-            @Override
-            public void onGrantedSuccess(List<String> grantedPermission) {
-                //获取成功的授权
-                Log.e("USB","部分基础权限授权成功");
-            }
-            @Override
-            public void onDenied(List<String> deniedPermission) {
-                //获取失败的授权
-                Log.e("USB","部分基础权限授权失败");
-            }
-        });
-    }
+
 }

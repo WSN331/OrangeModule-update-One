@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
@@ -49,7 +50,6 @@ public class FindAllFile_Service extends Service{
             }
         }).start();
 
-
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -74,6 +74,8 @@ public class FindAllFile_Service extends Service{
             myAllFiles = futureTask.get();
 
             MainActivity.MY_ALLFILES = myAllFiles;
+
+            Log.e("sousuo","结束");
 
             Intent intent = new Intent(Constant.FINDALL_MSG);
             intent.putExtra("findallmsg",true);

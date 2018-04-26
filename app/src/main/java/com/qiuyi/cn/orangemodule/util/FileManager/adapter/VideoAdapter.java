@@ -4,8 +4,11 @@ import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +27,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2018/3/21.
  */
-public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener{
+public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
 
     private Context context;
     //有几个标题
@@ -38,8 +41,48 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<VideoBean> sorListFile;
 
     private VideoItemClick videoItemClick;
+
+    //存储所有选中的位置
+    private boolean[] flag;
+    //判断当前checkBox是否显示
+    private boolean isShowCheckBox = false;
+
+    public boolean[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean[] flag) {
+        this.flag = flag;
+    }
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
+    }
+
+    public void setShowCheckBox(boolean showCheckBox) {
+        isShowCheckBox = showCheckBox;
+    }
+
+    //选中全部
+    public void selectAll(){
+        for(int i=0;i<sorListFile.size();i++){
+            flag[i] = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    //取消全选
+    public void noSelect(){
+        for (int i=0;i<sorListFile.size();i++){
+            flag[i] = false;
+        }
+        notifyDataSetChanged();
+    }
+
+
     public interface VideoItemClick{
         void openVideo(View view, int position, List<VideoBean> allVideoBean);
+        void onLongClick(View view,int position,List<VideoBean> allVideoBean);
     }
 
     public void setOnVideoItemClick(VideoItemClick myClick){
@@ -51,6 +94,20 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if(videoItemClick!=null){
             videoItemClick.openVideo(view, (int) view.getTag(),sorListFile);
         }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        if(videoItemClick!=null){
+            videoItemClick.onLongClick(view, (int) view.getTag(),sorListFile);
+        }
+        return false;
+    }
+
+    //页面刷新
+    public void ReFresh(){
+        flag = new boolean[sorListFile.size()];
+        notifyDataSetChanged();
     }
 
     //新排序
@@ -87,6 +144,8 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         //重新排序
         sorListFile = newSort(textItemCount,listFile);
+
+        flag = new boolean[sorListFile.size()];
 
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -174,15 +233,15 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         RecyclerView.ViewHolder mViewHolder = null;
         if(viewType == 0){
             //标题栏
-            view = View.inflate(context,R.layout.pager_recently_adapter_title_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_title_layout,null);
             mViewHolder = new titleViewHolder(view);
         }else if(viewType == 1){
             //文件展示部分 图片文件
-            view = View.inflate(context,R.layout.pager_recently_adapter_image_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_image_layout,null);
             mViewHolder = new myImageView(view);
         }else if(viewType == 2){
             //文本文件，压缩包
-            view = View.inflate(context,R.layout.pager_recently_adapter_newfile_layout,null);
+            view = View.inflate(context,R.layout.pager_adapter_file_layout,null);
             mViewHolder = new myFileView(view);
         }else{
             //间隔
@@ -190,12 +249,13 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mViewHolder = new linePart(view);
         }
         view.setOnClickListener(this);
+        view.setOnLongClickListener(this);
         return mViewHolder;
     }
 
     //4 数据填充判断
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         VideoBean info = sorListFile.get(position);
 
@@ -205,6 +265,32 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             titleViewHolder myholder = (titleViewHolder) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_ad_title.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_ad_title.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_ad_title.setOnCheckedChangeListener(null);
+            myholder.cb_ad_title.setChecked(flag[position]);
+            myholder.cb_ad_title.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    for(int i=position;i<sorListFile.size();i++){
+                        if(getItemViewType(i)==3){
+                            flag[i] = b;
+                            break;
+                        }
+                        flag[i] = b;
+                    }
+                    /*flag[position] = b;*/
+                    Log.e("change", b+"");
+                    notifyDataSetChanged();
+                }
+            });
+
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==1){
@@ -212,12 +298,45 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             myImageView myholder = (myImageView) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_ad_img.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_ad_img.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_ad_img.setOnCheckedChangeListener(null);
+            myholder.cb_ad_img.setChecked(flag[position]);
+            myholder.cb_ad_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+                }
+            });
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==2){
             //文件
             myFileView myholder = (myFileView) holder;
             myholder.onBind(info);
+
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_item.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_item.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_item.setOnCheckedChangeListener(null);
+            myholder.cb_item.setChecked(flag[position]);
+            myholder.cb_item.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+
+                    isToSelectVideoAll(position,sorListFile,flag);
+                }
+            });
+
 
             myholder.itemView.setTag(position);
         }
@@ -228,6 +347,30 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             myholder.itemView.setTag(position);
         }
 
+    }
+
+    //Video是否全部选中
+    private void isToSelectVideoAll(int position, List<VideoBean> allVideoBean, boolean[] flag) {
+        int rooti = position-1;
+        int rootj = position+1;
+        while(allVideoBean.get(rooti).getFiletype()!=0){
+            rooti--;
+        }
+        while (allVideoBean.get(rootj).getFiletype()!=3){
+            rootj++;
+        }
+
+        flag[rooti] = true;
+        flag[rootj] = true;
+
+        for (int i=rooti+1;i<rootj;i++){
+            if(!flag[i]){
+                flag[rooti] = false;
+                flag[rootj] = false;
+                break;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     //1
@@ -245,27 +388,25 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     //标题栏
     class titleViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imgFlag;
-        private TextView myTitle;
-        private TextView fileDate;
+        private TextView tv_ad_title;
+        private CheckBox cb_ad_title;
 
         public titleViewHolder(View itemView) {
             super(itemView);
-            imgFlag = itemView.findViewById(R.id.imgFlag);
-            myTitle = itemView.findViewById(R.id.mtTitle);
-            fileDate = itemView.findViewById(R.id.fileDate);
+            tv_ad_title = itemView.findViewById(R.id.tv_ad_title);
+            cb_ad_title = itemView.findViewById(R.id.cb_ad_title);
         }
 
         public void onBind(VideoBean fileInfo){
-            imgFlag.setImageResource(R.drawable.video);
+/*            imgFlag.setImageResource(R.drawable.video);
             //fileInfo.getPath()
-/*            Glide.with(context)
+            Glide.with(context)
                     .load(R.drawable.qq)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imgFlag);*/
-            myTitle.setText("视频");
+                    .into(imgFlag);
+            myTitle.setText("视频");*/
 
-            fileDate.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date(fileInfo.getDate())));
+            tv_ad_title.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date(fileInfo.getDate())));
         }
     }
 
@@ -273,10 +414,12 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     class myImageView extends RecyclerView.ViewHolder{
 
         private ImageView myImageView;
+        private CheckBox cb_ad_img;
 
         public myImageView(View itemView) {
             super(itemView);
             myImageView = itemView.findViewById(R.id.myImageView);
+            cb_ad_img = itemView.findViewById(R.id.cb_ad_img);
         }
 
         public void onBind(VideoBean info){
@@ -291,22 +434,22 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     //文件存放
     class myFileView extends RecyclerView.ViewHolder{
 
-        private TextView fileName,fileSize,fileDuration;
+        private TextView fileName,fileSize;
         private ImageView imageView;
+        private CheckBox cb_item;
 
         public myFileView(View itemView) {
             super(itemView);
             fileName = itemView.findViewById(R.id.fileName);
             fileSize = itemView.findViewById(R.id.fileSize);
-            fileDuration = itemView.findViewById(R.id.fileDuration);
             imageView = itemView.findViewById(R.id.imageView);
+            cb_item = itemView.findViewById(R.id.cb_item);
         }
 
         public void onBind(VideoBean info){
 
             fileName.setText(info.getName());
             fileSize.setText(Formatter.formatFileSize(context,info.getSize()));
-            fileDuration.setText(ConstantValue.timeParse(info.getDuration()));
             Glide.with(context)
                     .load(R.drawable.mp4)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

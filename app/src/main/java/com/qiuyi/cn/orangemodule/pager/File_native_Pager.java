@@ -67,9 +67,6 @@ import butterknife.ButterKnife;
  */
 public class File_native_Pager extends BaseRefreshPager{
 
-
-
-
     @BindView(R.id.native_recycler)
     RecyclerView myNativeRl;
 
@@ -102,6 +99,7 @@ public class File_native_Pager extends BaseRefreshPager{
         mActivity.registerReceiver(refreshNative,filterRf);
     }
 
+
     private BroadcastReceiver refreshNative = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -124,9 +122,9 @@ public class File_native_Pager extends BaseRefreshPager{
                 listFileZars = MainActivity.listFileZars;
 
                 Constant.NATIVE_SIZE[0] = listImages.size();
-                Constant.NATIVE_SIZE[1] = listMusics.size();
-                Constant.NATIVE_SIZE[2] = listVideos.size();
-                Constant.NATIVE_SIZE[3] = listFiles.size();
+                Constant.NATIVE_SIZE[1] = listVideos.size();
+                Constant.NATIVE_SIZE[2] = listFiles.size();
+                Constant.NATIVE_SIZE[3] = listMusics.size();
                 Constant.NATIVE_SIZE[4] = listFileZars.size();
                 Constant.NATIVE_SIZE[5] = (listImages.size()+listMusics.size()+listVideos.size()
                         + listFiles.size()+listFileZars.size());
@@ -160,7 +158,7 @@ public class File_native_Pager extends BaseRefreshPager{
                             }
 
                             if(intent!=null){
-                                mActivity.startActivity(intent);
+                                mActivity.startActivityForResult(intent,1);
                             }
                         }else if(fileType.getShowType()==3){
                             //这里是进入所有文件
@@ -182,6 +180,8 @@ public class File_native_Pager extends BaseRefreshPager{
 
         }
     };
+
+
 
 
     @Override

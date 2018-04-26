@@ -26,15 +26,33 @@
             android:layout_height="match_parent"
             android:layout_toEndOf="@+id/imgFlag" />
 
-        <TextView
-            android:id="@+id/fileDate"
-            android:gravity="center"
-            android:text="今天"
-            android:textSize="18dp"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_marginRight="10dp"
+            android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true" />
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/fileDate"
+                android:text="今天"
+                android:textSize="18dp"
+                android:gravity="center"
+                android:paddingRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                 />
+            <CheckBox
+                android:id="@+id/cb_title"
+                android:visibility="gone"
+                android:button="@null"
+                android:background="@drawable/backup_checkstyle"
+                android:gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
+        </LinearLayout>
+
+
+
     </RelativeLayout>
 
 

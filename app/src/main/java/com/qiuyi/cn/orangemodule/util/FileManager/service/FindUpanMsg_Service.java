@@ -11,6 +11,7 @@ import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
+import com.qiuyi.cn.orangemodule.util.FileManager.MyFileHelper;
 import com.qiuyi.cn.orangemodule.util.FileManager.MyFileManager;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
@@ -44,7 +45,12 @@ public class FindUpanMsg_Service extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        final String floder = intent.getStringExtra("Folder");
+        MyFileHelper helper = new MyFileHelper(getApplicationContext());
+        final String floder = helper.findUdiskPath().toString();
+
+        if(floder==null){
+            startActivity(new Intent(this,MainActivity.class));
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -69,7 +75,6 @@ public class FindUpanMsg_Service extends Service{
 
         myFileManager = MyFileManager.getInstance(this);
 
-        Log.e("执行顺序","4");
 
         allFiles = myFileManager.getUpanFiles(new File(floder));
 

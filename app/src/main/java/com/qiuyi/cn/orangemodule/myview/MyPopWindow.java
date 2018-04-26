@@ -58,7 +58,6 @@ public class MyPopWindow extends PopupWindow implements View.OnClickListener{
         return this;
     }
 
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -78,7 +77,7 @@ public class MyPopWindow extends PopupWindow implements View.OnClickListener{
     }
 
     public interface  OnItemClickListener{
-        void onItemClick(PopupWindow popupWindow, int position);
+        void onItemClick(MyPopWindow popupWindow, int position);
     }
 
 

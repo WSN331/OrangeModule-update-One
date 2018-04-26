@@ -86,7 +86,9 @@ public class UsbService extends Service {
                     //这里执行与Activity的交互操作
                     initData = MessageUtil.byte2String(receiveBytes);
 
-                    Log.e("eeeeee", "这里是数据"+initData.split("\r\n")[0]+"长度:"+initData.split("\r\n")[0].length());
+                    //Log.e("framework", "字节："+receiveBytes.toString()+"");
+                   //Log.e("framework", "字节->16进制字符串: "+MessageUtil.bytesToHex(receiveBytes).split("\r\n")[0]+" 长度:"+MessageUtil.bytesToHex(receiveBytes).split("\r\n")[0].length());
+                    Log.e("framework", "字节->字符串"+initData.split("\r\n")[0]+" 长度:"+initData.split("\r\n")[0].length());
 
                     if (initData.startsWith("EF") && initData.split("\r\n")[0].length()==21) {
                         frameList = null;

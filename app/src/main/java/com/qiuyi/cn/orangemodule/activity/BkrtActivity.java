@@ -5,20 +5,32 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 
+import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.fragment.BackUpFragment;
 import com.qiuyi.cn.orangemodule.fragment.RestoreFragment;
+import com.qiuyi.cn.orangemodule.util.FileManager.MyFileHelper;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Administrator on 2018/3/18.
  * 备份还原
  */
 public class BkrtActivity extends Activity implements View.OnClickListener{
+
+    //联系人存储的文件名
+    public static final String PHONE_FILE = "Contacts.txt";
+
+    //文件操作方法
+    private MyFileHelper myFileHelper;
 
     private ImageView img_back;
     private RadioButton rb_backup;
@@ -42,6 +54,8 @@ public class BkrtActivity extends Activity implements View.OnClickListener{
         rb_backup.setOnClickListener(this);
         rb_restore.setOnClickListener(this);
 
+        myFileHelper = new MyFileHelper(getApplicationContext());
+
         changeFragment(new BackUpFragment());
     }
 
@@ -56,7 +70,13 @@ public class BkrtActivity extends Activity implements View.OnClickListener{
                 changeFragment(new BackUpFragment());
                 break;
             case R.id.rb_restore:
-                changeFragment(new RestoreFragment());
+                if(MainActivity.isHaveUpan){
+                    changeFragment(new RestoreFragment());
+                }else{
+                    new AlertDialog.Builder(this)
+                            .setTitle("U盘")
+                            .setMessage("请插入U盘").show();
+                }
                 break;
             default:
                 break;

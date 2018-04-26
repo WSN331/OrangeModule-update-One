@@ -1,15 +1,21 @@
 package com.qiuyi.cn.orangemodule.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.qiuyi.cn.orangemodule.R;
+import com.qiuyi.cn.orangemodule.activity.UdiskActivity;
 import com.qiuyi.cn.orangemodule.util.FileUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.OnClick;
@@ -21,11 +27,14 @@ import butterknife.OnClick;
  */
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
 
+    Context context;
+
     //要展示的文件
     private List<File> fileList;
     private OnItemClick itemClick;
 
-    public FileAdapter(List<File> fileList){
+    public FileAdapter(Context context, List<File> fileList) {
+        this.context = context;
         this.fileList = fileList;
     }
 
@@ -75,15 +84,74 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> im
             String name = file.getName();
             //得到文件后缀
             String end = name.substring(name.lastIndexOf(".")+1).toLowerCase();
+
+            long blockSize = 0;
+
             if(file.isDirectory()){
                 holder.iv_icon.setImageResource(R.drawable.folder);
+
+                try {
+                    blockSize = getFileSizes(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }else{
                 holder.iv_icon.setImageResource(FileUtil.getFileIcon(end));
+
+                try {
+                    blockSize = getFileSize(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
             holder.tv_name.setText(name);
 
+            holder.tv_size.setText(Formatter.formatFileSize(context,blockSize));
+
+            holder.tv_time.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Date(file.lastModified())));
+
             holder.itemView.setTag(position);
         }
+    }
+
+
+    /**
+     * 获取指定文件大小
+     *
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    private static long getFileSize(File file) throws Exception {
+        long size = 0;
+        if (file.exists()) {
+            FileInputStream fis = null;
+            fis = new FileInputStream(file);
+            size = fis.available();
+        }
+        return size;
+    }
+
+    /**
+     * 获取指定文件夹
+     *
+     * @param f
+     * @return
+     * @throws Exception
+     */
+    private static long getFileSizes(File f) throws Exception {
+        long size = 0;
+        File flist[] = f.listFiles();
+        for (int i = 0; i < flist.length; i++) {
+            if (flist[i].isDirectory()) {
+                size = size + getFileSizes(flist[i]);
+            } else {
+                size = size + getFileSize(flist[i]);
+            }
+        }
+        return size;
     }
 
 
@@ -96,12 +164,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> im
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView iv_icon;
-        TextView tv_name;
+        TextView tv_name,tv_size,tv_time;
 
         public ViewHolder(View itemView) {
             super(itemView);
             iv_icon = itemView.findViewById(R.id.iv_icon);
             tv_name = itemView.findViewById(R.id.tv_name);
+            tv_size = itemView.findViewById(R.id.tv_size);
+            tv_time = itemView.findViewById(R.id.tv_time);
         }
 
     }

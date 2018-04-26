@@ -5,8 +5,11 @@ import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,7 +40,7 @@ import java.util.Set;
  * Created by Administrator on 2018/3/14.
  * 最近模块的Adapter
  */
-public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener{
+public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
 
     private Context context;
     private List<FileBean> listFile;
@@ -56,8 +59,51 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     private FileItemClick fileItemClick;
+
+    //存储所有选中的位置
+    private boolean[] flag;
+    //判断当前checkBox是否显示
+    private boolean isShowCheckBox = false;
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
+    }
+
+    public void setShowCheckBox(boolean showCheckBox) {
+        isShowCheckBox = showCheckBox;
+    }
+
+    public boolean[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean[] flag) {
+        this.flag = flag;
+    }
+
+    //选中全部
+    public void selectAll(){
+        for(int i=0;i<sorListFile.size();i++){
+            flag[i] = true;
+        }
+        notifyDataSetChanged();
+    }
+
+    //取消全选
+    public void noSelect(){
+        for (int i=0;i<sorListFile.size();i++){
+            flag[i] = false;
+        }
+        notifyDataSetChanged();
+    }
+
+
     public interface FileItemClick{
+
         void openFile(View view, int position, List<FileBean> allFileBean);
+
+        void onLongClick(View view,int position,List<FileBean> allFileBean);
+
     }
 
     public void setOnFileItemClick(FileItemClick myClick){
@@ -69,6 +115,20 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if(fileItemClick!=null){
             fileItemClick.openFile(view, (int) view.getTag(),sorListFile);
         }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        if(fileItemClick!=null){
+            fileItemClick.onLongClick(view, (Integer) view.getTag(),sorListFile);
+        }
+        return false;
+    }
+
+    //页面刷新
+    public void ReFresh(){
+        flag = new boolean[sorListFile.size()];
+        notifyDataSetChanged();
     }
 
 
@@ -162,9 +222,11 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 if(sameType.size() > 2){
                     sorListFile.addAll(sameType);
+                    //map.add(,nowlist.size())
                 }
             }
         }
+        flag = new boolean[sorListFile.size()];
     }
 
 
@@ -185,7 +247,7 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if(allNumber == 1){
             imgNumIdentical = 1;
             sortList.add(1);
-            return 1;//
+            return 1;
         }
         while(i <= allNumber-2 && allNumber >= 2){
             FileBean one = listFile.get(i);
@@ -260,13 +322,13 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mViewHolder = new linePart(view);
         }
         view.setOnClickListener(this);
-
+        view.setOnLongClickListener(this);
         return mViewHolder;
     }
 
     //4 数据填充判断
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         FileBean info = sorListFile.get(position);
 
         //调用getType来判断
@@ -275,6 +337,31 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             titleViewHolder myholder = (titleViewHolder) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_title.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_title.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_title.setOnCheckedChangeListener(null);
+            myholder.cb_title.setChecked(flag[position]);
+            myholder.cb_title.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    for(int i=position;i<sorListFile.size();i++){
+                        if(getItemViewType(i)==3){
+                            flag[i] = b;
+                            break;
+                        }
+                        flag[i] = b;
+                    }
+                    /*flag[position] = b;*/
+                    Log.e("change", b+"");
+                    notifyDataSetChanged();
+                }
+            });
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==1){
@@ -282,12 +369,48 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             myImageView myholder = (myImageView) holder;
             myholder.onBind(info);
 
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_img.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_img.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_img.setOnCheckedChangeListener(null);
+            myholder.cb_img.setChecked(flag[position]);
+            myholder.cb_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+
+                    isToSelectAll(position,sorListFile,flag);
+                }
+            });
+
+
             myholder.itemView.setTag(position);
         }
         if(getItemViewType(position)==2){
             //文件
             myFileView myholder = (myFileView) holder;
             myholder.onBind(info);
+
+            //checkBox显示
+            if(isShowCheckBox){
+                myholder.cb_item.setVisibility(View.VISIBLE);
+            }else{
+                myholder.cb_item.setVisibility(View.INVISIBLE);
+            }
+            myholder.cb_item.setOnCheckedChangeListener(null);
+            myholder.cb_item.setChecked(flag[position]);
+            myholder.cb_item.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    flag[position] = b;
+
+                    isToSelectAll(position,sorListFile,flag);
+                }
+            });
+
 
             myholder.itemView.setTag(position);
         }
@@ -297,6 +420,31 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             myholder.itemView.setTag(position);
         }
+    }
+
+    //单个->全部
+    private void isToSelectAll(int position, List<FileBean> allFileBean, boolean[] flag) {
+        int rooti = position-1;
+        int rootj = position+1;
+        while(allFileBean.get(rooti).getFiletype()!=0){
+            rooti--;
+        }
+        while (allFileBean.get(rootj).getFiletype()!=3){
+            rootj++;
+        }
+
+        flag[rooti] = true;
+        flag[rootj] = true;
+
+        for (int i=rooti+1;i<rootj;i++){
+            if(!flag[i]){
+                flag[rooti] = false;
+                flag[rootj] = false;
+                break;
+            }
+        }
+
+        notifyDataSetChanged();
     }
 
     //1
@@ -331,12 +479,15 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView imgFlag;
         private TextView myTitle;
         private TextView fileDate;
+        private CheckBox cb_title;
 
         public titleViewHolder(View itemView) {
             super(itemView);
             imgFlag = itemView.findViewById(R.id.imgFlag);
             myTitle = itemView.findViewById(R.id.mtTitle);
             fileDate = itemView.findViewById(R.id.fileDate);
+            cb_title = itemView.findViewById(R.id.cb_title);
+
         }
 
         public void onBind(FileBean fileInfo){
@@ -355,16 +506,20 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     class myImageView extends RecyclerView.ViewHolder{
 
         private ImageView myImageView;
+        private CheckBox cb_img;
 
         public myImageView(View itemView) {
             super(itemView);
             myImageView = itemView.findViewById(R.id.myImageView);
+            cb_img = itemView.findViewById(R.id.cb_img);
         }
 
         public void onBind(FileBean info){
             //info.getPath()
             Glide.with(context)
                     .load(info.getPath())
+                    .override(120,120)
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(myImageView);
         }
@@ -375,12 +530,14 @@ public class RecentlyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private TextView fileName,fileSize;
         private ImageView imageView;
+        private CheckBox cb_item;
 
         public myFileView(View itemView) {
             super(itemView);
             fileName = itemView.findViewById(R.id.fileName);
             fileSize = itemView.findViewById(R.id.fileSize);
             imageView = itemView.findViewById(R.id.imageView);
+            cb_item = itemView.findViewById(R.id.cb_item);
         }
 
         public void onBind(FileBean info){

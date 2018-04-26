@@ -133,7 +133,7 @@ public class UdiskActivity extends Activity implements SwipeRefreshLayout.OnRefr
     private void initView() {
 
 
-        fileAdapter = new FileAdapter(usbFileData);
+        fileAdapter = new FileAdapter(this,usbFileData);
         myRecyclerView.setAdapter(fileAdapter);
         //停止刷新并显示
         mySwipeRefreshLayout.setRefreshing(false);

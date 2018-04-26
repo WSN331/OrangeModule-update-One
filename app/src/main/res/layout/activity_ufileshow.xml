@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/bt_selectAll"
+        android:visibility="gone"
+        android:text="全选"
+        android:layout_gravity="right"
+        android:gravity="center"
+        android:background="@drawable/pager_recently_selectall_bt"
+        android:layout_width="60dp"
+        android:layout_height="30dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fileshow_rl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
+
+
+        <LinearLayout
+            android:id="@+id/ll_pager_native_bom"
+            android:visibility="gone"
+            android:orientation="horizontal"
+            android:background="@drawable/pager_recently"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true">
+            <TextView
+                android:id="@+id/tv_delete"
+                android:text="删除"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/tv_copy"
+                android:text="复制到手机"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:text="取消"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

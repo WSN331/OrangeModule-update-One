@@ -14,13 +14,13 @@ import butterknife.ButterKnife;
  */
 public class MainFragmentTalk extends BaseFragment{
 
+
     @Override
-    public void initView(FrameLayout mAddView) {
+    public View initView() {
         View view = View.inflate(mActivity, R.layout.fragment_mytalk,null);
         ButterKnife.bind(this,view);
-        mAddView.addView(view);
+        return view;
     }
-
 
     @Override
     public void initData() {

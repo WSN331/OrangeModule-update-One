@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.UdiskActivity;
 import com.qiuyi.cn.orangemodule.bean.UsbMyDevice;
@@ -27,6 +28,7 @@ import com.qiuyi.cn.orangemodule.service.UsbJQService;
 import com.qiuyi.cn.orangemodule.service.UsbPMService;
 import com.qiuyi.cn.orangemodule.service.UsbService;
 import com.qiuyi.cn.orangemodule.service.UsbWaterService;
+import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
 import com.qiuyi.cn.orangemodule.util.FileOutToWrite;
 import com.qiuyi.cn.orangemodule.util.UsbCommunication;
 
@@ -125,8 +127,6 @@ public class DevicePager extends BasePager{
     private UsbMessageReceiver usbMsg;
     private IntentFilter usbFilter;
 
-
-
     public DevicePager(Activity mActivity) {
         super(mActivity);
     }
@@ -151,16 +151,22 @@ public class DevicePager extends BasePager{
         //绑定服务
         mActivity.bindService(intent,usbComServiceConn, Context.BIND_AUTO_CREATE);
 
-        usbConnect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mActivity,UdiskActivity.class);
-                mActivity.startActivity(intent);
-            }
-        });
+
+        if(MainActivity.isHaveUpan){
+            usbConnect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    MainActivity mainActivity = (MainActivity) mActivity;
+
+                    mainActivity.showFileControll();
 
 
-
+                    /*Intent intent = new Intent(mActivity,FileActivity.class);
+                    mActivity.startActivity(intent);*/
+                }
+            });
+        }
     }
 
     //监听广播数据

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * 权限申请模块
  */
-public class BasePermission extends Activity{
+public class BasePermission extends FragmentActivity{
 
     public Activity myActivity = this;
     private BasePermissionListener myPermissionlistener;

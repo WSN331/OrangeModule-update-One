@@ -8,12 +8,17 @@
         android:text="选择还原项目："
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rl_restore"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swip_restore"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="470dp">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rl_restore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-    </android.support.v7.widget.RecyclerView>
 
     <Button
         android:id="@+id/bt_restore"
