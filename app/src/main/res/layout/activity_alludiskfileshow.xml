@@ -62,7 +62,7 @@
 
                 <TextView
                     android:id="@+id/allfileshow_tv_title"
-                    android:text="手机文件"
+                    android:text="U盘文件"
                     android:layout_centerInParent="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -96,20 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/rl_allfileshow">
 
-            <HorizontalScrollView
-                android:id="@+id/horizontalSV"
-                android:scrollbars="none"
-                android:layout_width="match_parent"
-                android:layout_height="40dp">
-                <LinearLayout
-                    android:id="@+id/ll_show_folder"
-                    android:layout_gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
-            </HorizontalScrollView>
-<!--            <TextView
+            <TextView
                 android:text="nihao"
                 android:id="@+id/tv_floader"
                 android:gravity="center_vertical"
@@ -119,7 +106,7 @@
                 android:textSize="18dp"
                 android:layout_margin="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp" />-->
+                android:layout_height="30dp" />
         </RelativeLayout>
 
 

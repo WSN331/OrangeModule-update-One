@@ -254,8 +254,15 @@ public class FileUtils {
         long size = 0;
         if (file.exists()) {
             FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            size = fis.available();
+            try{
+                fis = new FileInputStream(file);
+                size = fis.available();
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                fis.close();
+            }
+
         }
         return size;
     }

@@ -124,6 +124,8 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         initView();
         initPermission();
+
+
     }
 
     /**

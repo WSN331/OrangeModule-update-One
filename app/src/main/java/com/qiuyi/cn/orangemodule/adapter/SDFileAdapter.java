@@ -2,6 +2,7 @@ package com.qiuyi.cn.orangemodule.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -15,6 +16,7 @@ import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -75,9 +77,17 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void setOnItemClick(SD_OnItemClick itemClick){
         this.itemClick = itemClick;
     }
+
+    //新建文件夹
+    public void addFile(File file) {
+        fileList.add(file);
+        ReFresh();
+    }
+
     public interface SD_OnItemClick{
         void onItemClick(View view,int position);
         void onItemLongClick(View view,int position);
+        void changeCount(int count);
     }
 
     //下面是点击事件
@@ -132,12 +142,18 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 flag[position] = b;
+                int count = 0;
+                for(int i=0;i<flag.length;i++){
+                    if(flag[i]){
+                        count++;
+                    }
+                }
+                itemClick.changeCount(count);
             }
         });
 
         mholder.itemView.setTag(position);
     }
-
 
 
     @Override
@@ -148,19 +164,33 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     class SDFileViewHOlder extends RecyclerView.ViewHolder{
 
-        TextView tv_filename;
+        TextView tv_filename,tv_size,tv_time;
         ImageView iv_file;
         CheckBox cb_item;
 
         public SDFileViewHOlder(View itemView) {
             super(itemView);
             tv_filename = itemView.findViewById(R.id.tv_filename);
+            tv_size = itemView.findViewById(R.id.tv_size);
+            tv_time = itemView.findViewById(R.id.tv_time);
             iv_file = itemView.findViewById(R.id.iv_file);
             cb_item = itemView.findViewById(R.id.cb_item);
         }
 
         public void onBind(File file){
             tv_filename.setText(file.getName());
+
+            tv_time.setText(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(file.lastModified()));
+
+            try {
+                if(file.isDirectory()){
+                    tv_size.setText(Formatter.formatFileSize(context, FileUtils.getFileSizes(file)));
+                }else{
+                    tv_size.setText(Formatter.formatFileSize(context, FileUtils.getFileSize(file)));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             if(file.isDirectory()){
                 Glide.with(context)

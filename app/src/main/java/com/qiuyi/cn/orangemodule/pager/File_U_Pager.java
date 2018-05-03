@@ -26,6 +26,7 @@ import com.qiuyi.cn.orangemodule.activity.UFileShowActivity;
 import com.qiuyi.cn.orangemodule.adapter.NativiAdapter;
 import com.qiuyi.cn.orangemodule.bean.FileType;
 import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
+import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 
@@ -157,19 +158,14 @@ public class File_U_Pager extends BaseRefreshPager{
                             Intent intent = new Intent(mActivity, UFileShowActivity.class);
                             if(position==0){
                                 intent.putExtra("type",0);
-                                intent.putExtra("listUFile", (Serializable)listImages);
                             }else if(position == 1){
                                 intent.putExtra("type",1);
-                                intent.putExtra("listUFile", (Serializable)listVideos);
                             }else if(position == 2){
                                 intent.putExtra("type",2);
-                                intent.putExtra("listUFile", (Serializable)listFiles);
                             }else if(position == 3){
                                 intent.putExtra("type",3);
-                                intent.putExtra("listUFile", (Serializable)listMusics);
                             }else if(position == 4){
                                 intent.putExtra("type",4);
-                                intent.putExtra("listUFile", (Serializable)listFileZars);
                             }else{
                                 intent = null;
                             }
@@ -178,7 +174,7 @@ public class File_U_Pager extends BaseRefreshPager{
                             }
                         }else if(fileType.getShowType()==3){
                             //这里是进入所有文件
-                            Intent intent = new Intent(mActivity,FileActivity.class);
+                            Intent intent = new Intent(mActivity,AllUdiskFileShowActivity.class);
                             mActivity.startActivity(intent);
                         }
                     }

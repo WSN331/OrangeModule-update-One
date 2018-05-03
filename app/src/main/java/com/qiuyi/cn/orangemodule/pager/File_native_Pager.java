@@ -140,25 +140,20 @@ public class File_native_Pager extends BaseRefreshPager{
                             Intent intent = new Intent(mActivity, FileShowActivity.class);
                             if(position==0){
                                 intent.putExtra("type",0);
-                                intent.putExtra("listFile", (Serializable)listImages);
                             }else if(position == 1){
                                 intent.putExtra("type",1);
-                                intent.putExtra("listFile", (Serializable)listVideos);
                             }else if(position == 2){
                                 intent.putExtra("type",2);
-                                intent.putExtra("listFile", (Serializable)listFiles);
                             }else if(position == 3){
                                 intent.putExtra("type",3);
-                                intent.putExtra("listFile", (Serializable)listMusics);
                             }else if(position == 4){
                                 intent.putExtra("type",4);
-                                intent.putExtra("listFile", (Serializable)listFileZars);
                             }else{
                                 intent = null;
                             }
 
                             if(intent!=null){
-                                mActivity.startActivityForResult(intent,1);
+                                mActivity.startActivity(intent);
                             }
                         }else if(fileType.getShowType()==3){
                             //这里是进入所有文件

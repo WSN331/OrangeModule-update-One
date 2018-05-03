@@ -44,6 +44,23 @@ public class DiskWriteToSD {
         }
     }
 
+    /**
+     * 将文件写入本地
+     * @param sourceFile 源文件
+     * @param rootFile 目标文件
+     */
+    public void WriteFileToSD(File sourceFile,File rootFile){
+        if(isSDCardState()){
+            if(sourceFile.isDirectory()){
+                File newFile = new File(rootFile,sourceFile.getName());
+                newFile.mkdirs();
+                writeToSD1(sourceFile,newFile);
+            }else{
+                writeToSD2(sourceFile,rootFile);
+            }
+        }
+    }
+
     //创建保存U盘文件的目录:照片，视频，文档，音乐，联系人
     public File getSDCardFile(String fileName){
         File myFileToRead = null;

@@ -41,8 +41,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by Administrator on 2018/4/9.
@@ -174,22 +176,82 @@ public class WriteToUdisk extends Activity{
         currentFolder = DocumentFile.fromTreeUri(context, rootUri);
     }
 
-
-    //得到DocumentFile所有文件
-    public List<DocumentFile> getAllFile(DocumentFile rootFile){
+    //得到所有DocmentFile文件夹
+    public List<DocumentFile> getAllDocDirectory(DocumentFile rootFile){
         List<DocumentFile> listsFile = new ArrayList<>();
         for(DocumentFile docFile : rootFile.listFiles()){
-            listsFile.add(docFile);
             if(docFile.isDirectory()){
-                listsFile.addAll(getAllFile(docFile));
+                listsFile.add(docFile);
+                listsFile.addAll(getAllDocDirectory(docFile));
             }
         }
         return listsFile;
     }
 
+    //得到DocumentFile所有文件
+    public List<DocumentFile> getAllFile(DocumentFile rootFile){
+
+        List<DocumentFile> listsFile = new ArrayList<>();
+        List<Callable<List<DocumentFile>>> partions = new ArrayList<>();
+
+        for(final DocumentFile docFile : rootFile.listFiles()){
+            listsFile.add(docFile);
+            if(docFile.isDirectory()){
+                partions.add(new Callable<List<DocumentFile>>() {
+                    @Override
+                    public List<DocumentFile> call() throws Exception {
+                        return getDocFileList(docFile);
+                    }
+                });
+            }
+        }
+
+        if(partions.size()>0){
+            //启动并发
+            ExecutorService executorPool = Executors.newCachedThreadPool();
+            List<FutureTask<List<DocumentFile>>> listTask = new ArrayList<>();
+            for (Callable<List<DocumentFile>> callable : partions) {
+                FutureTask<List<DocumentFile>> futureTask = new FutureTask<List<DocumentFile>>(callable);
+                listTask.add(futureTask);
+                executorPool.submit(futureTask);
+            }
+
+            try {
+                for (FutureTask<List<DocumentFile>> task : listTask) {
+                    listsFile.addAll(task.get());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                if(executorPool!=null){
+                    executorPool.shutdown();
+                }
+            }
+        }
+
+        Log.e("allDocFile", "查找完毕1");
+
+        return listsFile;
+    }
+
+    public List<DocumentFile> getDocFileList(DocumentFile currentFolder){
+        List<DocumentFile> newFiles = new ArrayList<>();
+        for(DocumentFile docFile: currentFolder.listFiles()){
+            if(docFile.isDirectory()){
+                newFiles.addAll(getDocFileList(docFile));
+            }else{
+                newFiles.add(docFile);
+            }
+        }
+        return newFiles;
+    }
+
+
+
     //找到相应的DocmentFile包括文件夹
     public DocumentFile getDocFile(List<DocumentFile> listsFile,String name){
         for(DocumentFile docFile:listsFile){
+            Log.e("docName", "getDocFile: "+docFile.getName());
             if(docFile.getName().equals(name)){
                 return docFile;
             }
@@ -297,6 +359,58 @@ public class WriteToUdisk extends Activity{
             if(output!=null){
                 try {
                     output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 移动文件
+     * @param
+     * @param
+     */
+    public static DocumentFile moveFile(Context context, DocumentFile infile, DocumentFile outfile){
+        Log.i("TTTTTT","开始移动");
+        InputStream input = null;
+        OutputStream output = null;
+        try {
+            DocumentFile newFile;
+            if(infile.isDirectory()){
+                newFile = outfile.createDirectory(infile.getName());
+
+                for(DocumentFile file:infile.listFiles()){
+                    moveFile(context,file,newFile);
+                }
+
+            }else{
+                newFile = outfile.createFile(infile.getType(), infile.getName());
+            }
+            OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri());
+            input = context.getContentResolver().openInputStream(infile.getUri());
+            byte[] buf = new byte[1024*4];
+            int len;
+            while((len = input.read(buf))!=-1){
+                out.write(buf,0,len);
+                out.flush();
+            }
+            return newFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }finally{
+            if(output!=null){
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(input!=null){
+                try {
+                    input.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
+import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.adapter.RecentlyAdapter;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
@@ -102,7 +103,23 @@ public class UFileShowActivity extends Activity{
 
         Intent intent = getIntent();
 
-        listFiles = (List<File>) intent.getSerializableExtra("listUFile");
+        switch (intent.getIntExtra("type",0)){
+            case 0:
+                listFiles = MainActivity.listUPANImages;
+                break;
+            case 1:
+                listFiles = MainActivity.listUPANVideos;
+                break;
+            case 2:
+                listFiles = MainActivity.listUPANFiles;
+                break;
+            case 3:
+                listFiles = MainActivity.listUPANMusics;
+                break;
+            case 4:
+                listFiles = MainActivity.listUPANFileZars;
+                break;
+        }
 
         ufileAdapter = new UFileAdapter(this,listFiles,myGridManager);
         myFileShow.setAdapter(ufileAdapter);
@@ -112,7 +129,6 @@ public class UFileShowActivity extends Activity{
             @Override
             public void openFile(View view, int position,List<File> fileLists) {
                 File file = listFiles.get(position);
-
                 boolean isShowBox = ufileAdapter.isShowCheckBox();
 
                 if(isShowBox){

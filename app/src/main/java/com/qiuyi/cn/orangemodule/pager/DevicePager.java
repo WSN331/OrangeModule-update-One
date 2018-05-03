@@ -29,6 +29,7 @@ import com.qiuyi.cn.orangemodule.service.UsbPMService;
 import com.qiuyi.cn.orangemodule.service.UsbService;
 import com.qiuyi.cn.orangemodule.service.UsbWaterService;
 import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
+import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.FileOutToWrite;
 import com.qiuyi.cn.orangemodule.util.UsbCommunication;
 
@@ -157,13 +158,13 @@ public class DevicePager extends BasePager{
                 @Override
                 public void onClick(View view) {
 
-                    MainActivity mainActivity = (MainActivity) mActivity;
+/*                    MainActivity mainActivity = (MainActivity) mActivity;
 
-                    mainActivity.showFileControll();
+                    mainActivity.showFileControll();*/
 
 
-                    /*Intent intent = new Intent(mActivity,FileActivity.class);
-                    mActivity.startActivity(intent);*/
+                    Intent intent = new Intent(mActivity,AllUdiskFileShowActivity.class);
+                    mActivity.startActivity(intent);
                 }
             });
         }

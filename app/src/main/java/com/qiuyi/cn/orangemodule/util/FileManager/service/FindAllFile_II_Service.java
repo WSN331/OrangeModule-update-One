@@ -76,7 +76,7 @@ public class FindAllFile_II_Service extends Service{
                 partions.add(new Callable<List<File>>() {
                     @Override
                     public List<File> call() throws Exception {
-                        return getAllFiles(file);
+                        return getSecondFiles(file);
                     }
                 });
             }else{
@@ -106,6 +106,19 @@ public class FindAllFile_II_Service extends Service{
                 }
             }
 
+        }
+        return newFiles;
+    }
+
+
+    public List<File> getSecondFiles(File currentFolder){
+        List<File> newFiles = new ArrayList<>();
+        for(File file: currentFolder.listFiles()){
+            if(file.isDirectory()){
+                newFiles.addAll(getSecondFiles(file));
+            }else{
+                newFiles.add(file);
+            }
         }
         return newFiles;
     }

@@ -515,10 +515,15 @@ public class MainActivity extends BasePermission implements View.OnClickListener
     //还原主模块
     private void goToMainActivity(Fragment fm) {
         changeFragment(fm);
+
         myTextView.setText("咔咔");
         main_ll.setVisibility(View.VISIBLE);
 
-        isHaveUpan = false;
+        File file = myHelper.findUdiskPath();
+        if(file==null){
+            isHaveUpan = false;
+        }
+
         rl_bottom.setVisibility(View.VISIBLE);
         rg_button.setVisibility(View.INVISIBLE);
 

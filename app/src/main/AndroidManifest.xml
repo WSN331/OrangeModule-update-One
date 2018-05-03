@@ -68,6 +68,7 @@
         <activity android:name=".activity.SecretActivity"/>
         <activity android:name=".activity.SecretContentActivity"/>
         <activity android:name=".activity.AllFileShowActivity"/>
+        <activity android:name=".upanupdate.AllUdiskFileShowActivity"/>
         <activity android:name=".activity.UFileShowActivity"/>
         <activity android:name=".upan.UAllFileShowActivity"/>
         <activity android:name=".upan.readUSBActivity"/>

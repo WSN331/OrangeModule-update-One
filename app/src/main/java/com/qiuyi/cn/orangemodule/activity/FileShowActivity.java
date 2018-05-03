@@ -104,11 +104,9 @@ public class FileShowActivity extends Activity{
     * */
     private void whatTypeToget() {
         Intent intent = getIntent();
-        Serializable info = intent.getSerializableExtra("listFile");
-
         switch (intent.getIntExtra("type",0)){
             case 0:
-                listImages = (List<ImageBean>) info;
+                listImages = MainActivity.listImages;
                 imgAdapter = new ImageAdapter(this,listImages,myGridManager);
                 myFileShow.setAdapter(imgAdapter);
 
@@ -258,7 +256,7 @@ public class FileShowActivity extends Activity{
 
                 break;
             case 1:
-                listVideos = (List<VideoBean>) info;
+                listVideos = MainActivity.listVideos;
                 videoAdapter = new VideoAdapter(this,listVideos,myGridManager);
                 myFileShow.setAdapter(videoAdapter);
 
@@ -407,7 +405,7 @@ public class FileShowActivity extends Activity{
                 });
                 break;
             case 2:
-                listFiles = (List<FileBean>) info;
+                listFiles = MainActivity.listFiles;
                 fileAdapter = new FileAdapter(this,listFiles,myGridManager);
                 myFileShow.setAdapter(fileAdapter);
 
@@ -555,7 +553,7 @@ public class FileShowActivity extends Activity{
                 });
                 break;
             case 3:
-                listMusics = (List<MusicBean>) info;
+                listMusics = MainActivity.listMusics;
                 mucAdapter = new MusicAdapter(this,listMusics,myGridManager);
                 myFileShow.setAdapter(mucAdapter);
 
@@ -703,7 +701,7 @@ public class FileShowActivity extends Activity{
                 });
                 break;
             case 4:
-                listFileZars = (List<FileBean>) info;
+                listFileZars = MainActivity.listFileZars;
                 fileAdapter = new FileAdapter(this,listFileZars,myGridManager);
                 myFileShow.setAdapter(fileAdapter);
 
