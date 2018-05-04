@@ -2,40 +2,18 @@ package com.qiuyi.cn.orangemodule.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.provider.DocumentFile;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.github.mjdev.libaums.fs.FileSystem;
-import com.github.mjdev.libaums.fs.UsbFile;
-import com.github.mjdev.libaums.fs.UsbFileOutputStream;
-import com.github.mjdev.libaums.partition.Partition;
-import com.orm.SugarContext;
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
-import com.qiuyi.cn.orangemodule.activity.BkrtActivity;
-import com.qiuyi.cn.orangemodule.upansaf.db.util.DBUtil;
-import com.qiuyi.cn.orangemodule.upansaf.db.util.PermissionDialog;
-import com.qiuyi.cn.orangemodule.upansaf.ui.presenter.DocumentFilePresenter;
-import com.qiuyi.cn.orangemodule.upansaf.ui.presenter.FilePresenter;
-import com.qiuyi.cn.orangemodule.upansaf.ui.view.FileView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -179,9 +157,11 @@ public class WriteToUdisk extends Activity{
     //得到所有DocmentFile文件夹
     public List<DocumentFile> getAllDocDirectory(DocumentFile rootFile){
         List<DocumentFile> listsFile = new ArrayList<>();
+
+        listsFile.add(rootFile);
+
         for(DocumentFile docFile : rootFile.listFiles()){
             if(docFile.isDirectory()){
-                listsFile.add(docFile);
                 listsFile.addAll(getAllDocDirectory(docFile));
             }
         }
@@ -239,9 +219,8 @@ public class WriteToUdisk extends Activity{
         for(DocumentFile docFile: currentFolder.listFiles()){
             if(docFile.isDirectory()){
                 newFiles.addAll(getDocFileList(docFile));
-            }else{
-                newFiles.add(docFile);
             }
+            newFiles.add(docFile);
         }
         return newFiles;
     }
@@ -249,14 +228,36 @@ public class WriteToUdisk extends Activity{
 
 
     //找到相应的DocmentFile包括文件夹
-    public DocumentFile getDocFile(List<DocumentFile> listsFile,String name){
+    public DocumentFile getDocFile(List<DocumentFile> listsFile,String path){
         for(DocumentFile docFile:listsFile){
-            Log.e("docName", "getDocFile: "+docFile.getName());
-            if(docFile.getName().equals(name)){
+
+            String docPath = changeToPath(docFile.getUri().getPath());
+
+            Log.e("pathCompare", "file "+ path+'\n'+" docfile "+docPath+"\n");
+
+            if(docPath.equals(path) || docPath==path){
                 return docFile;
             }
         }
         return null;
+    }
+
+    //将doc的路径转换为file路径
+    private String changeToPath(String path) {
+
+        String path1 = path.substring(0,path.lastIndexOf(":"));
+        String path11 = path1.substring(path1.lastIndexOf("/"),path1.length());
+        String path2 = path.substring(path.lastIndexOf(":")+1,path.length());
+
+        String pathLast = null;
+        if(!"".equals(path2)){
+            pathLast = "/storage"+path11+"/"+path2;
+        }else{
+            pathLast = "/storage"+path11;
+        }
+
+
+        return pathLast;
     }
 
 
@@ -299,17 +300,18 @@ public class WriteToUdisk extends Activity{
     }
 
     //2 写操作
-    public void writeToSDFile(Context context,File infile,DocumentFile outfile){
+    public DocumentFile writeToSDFile(Context context,File infile,DocumentFile outfile){
         Log.i("TTTTTT","开始移动");
         FileInputStream in = null;
         OutputStream output = null;
+        DocumentFile newFile = null;
         try {
 /*            DocumentFile newFile = null;
             newFile = outfile.findFile(infile.getName());
             if(newFile==null){
                 newFile = outfile.createFile(com.qiuyi.cn.orangemodule.util.FileUtil.getMIMEType(infile), infile.getName());
             }*/
-            DocumentFile newFile = outfile.createFile(com.qiuyi.cn.orangemodule.util.FileUtil.getMIMEType(infile), infile.getName());
+            newFile = outfile.createFile(com.qiuyi.cn.orangemodule.util.FileUtil.getMIMEType(infile), infile.getName());
             output = context.getContentResolver().openOutputStream(newFile.getUri());
             in = new FileInputStream(infile);
             byte[] buf = new byte[1024*4];
@@ -318,6 +320,7 @@ public class WriteToUdisk extends Activity{
                 output.write(buf,0,len);
                 output.flush();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
@@ -336,6 +339,8 @@ public class WriteToUdisk extends Activity{
                 }
             }
         }
+
+        return newFile;
     }
 
     //2 字符串写操作

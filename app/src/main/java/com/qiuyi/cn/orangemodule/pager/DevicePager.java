@@ -9,11 +9,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,19 +19,12 @@ import android.widget.Toast;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
-import com.qiuyi.cn.orangemodule.activity.UdiskActivity;
-import com.qiuyi.cn.orangemodule.bean.UsbMyDevice;
 import com.qiuyi.cn.orangemodule.service.UsbComService;
 import com.qiuyi.cn.orangemodule.service.UsbJQService;
-import com.qiuyi.cn.orangemodule.service.UsbPMService;
 import com.qiuyi.cn.orangemodule.service.UsbService;
-import com.qiuyi.cn.orangemodule.service.UsbWaterService;
-import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
 import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
-import com.qiuyi.cn.orangemodule.util.FileOutToWrite;
 import com.qiuyi.cn.orangemodule.util.UsbCommunication;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 

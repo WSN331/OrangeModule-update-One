@@ -30,15 +30,11 @@ import com.qiuyi.cn.orangemodule.interfaceToutil.UdiskDeleteListener;
 import com.qiuyi.cn.orangemodule.myview.CommomDialog;
 import com.qiuyi.cn.orangemodule.myview.MorePopWindow;
 import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
-import com.qiuyi.cn.orangemodule.myview.MySelectPopWindow;
-import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
 import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +43,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Administrator on 2018/3/27.
@@ -97,6 +95,7 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
 
     //复制到U盘
     private LoadingDialog dialog;
+    private LoadingDialog deleteDialog;
     private WriteToUdisk udiskUtil;//复制到U盘
     private DiskWriteToSD diskWriteToSD;//复制到本地
 
@@ -113,6 +112,13 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                 .setCancelable(false)
                 .setCancelOutside(false)
                 .create();
+
+        deleteDialog = new LoadingDialog.Builder(this)
+                .setMessage("删除中")
+                .setCancelable(false)
+                .setCancelOutside(false)
+                .create();
+
         udiskUtil =  WriteToUdisk.getInstance(this.getApplicationContext(),this);
         diskWriteToSD = new DiskWriteToSD(AllFileShowActivity.this);
 
@@ -222,7 +228,7 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                             /*currentPath += "/"+file.getName();
                             tv_fload.setText(currentPath);*/
                             addFolder(file);
-
+                            currentPath = file.getAbsolutePath();
                             readFileList(file);
                         }else{
                             FileUtilOpen.openFileByPath(getApplicationContext(),file.getPath());
@@ -281,7 +287,26 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                             for(int i = flag.length-1;i>=0;i--){
                                 if(flag[i]){
                                     Log.e("select", "选中："+i);
-                                    doDelete(fileList.get(i));
+
+                                    deleteDialog.show();
+                                    final File defile = fileList.get(i);
+
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            doDelete(defile);
+
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    deleteDialog.dismiss();
+                                                    tv_selectNum.setText("已选(0)");
+                                                }
+                                            });
+                                        }
+                                    }).start();
+
+
                                     fileList.remove(i);
                                 }
                             }
@@ -531,6 +556,7 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                             if(myfile.isDirectory()){
                                 //是个文件夹
                                 File newFile = new File(myfile.getParentFile(),folderName);
+
                                 myfile.renameTo(newFile);
                             }else{
                                 //是个文件
@@ -541,13 +567,15 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                         }
                         onRefresh();
                     }
+
+                    dialog.dismiss();
+
 /*                    rl_select_head.setVisibility(View.GONE);
                     rl_normal_head.setVisibility(View.VISIBLE);
                     ll_pager_native_bom.setVisibility(View.GONE);
 
                     sdfileAdapter.setShowCheckBox(false);
                     sdfileAdapter.ReFresh();*/
-
 
                 }
             }
@@ -746,6 +774,14 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
         size++;
 
         mGallery.addView(newView);
-        myScrollView.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+
+        final Timer timer=new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                myScrollView.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+                timer.cancel();
+            }
+        },100L);
     }
 }

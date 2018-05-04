@@ -119,7 +119,6 @@ public class CommomDialog extends Dialog implements View.OnClickListener{
                     }else{
                         Toast.makeText(mContext,"请输入文件夹名称",Toast.LENGTH_SHORT).show();
                     }
-                    this.dismiss();
                 }
                 break;
         }

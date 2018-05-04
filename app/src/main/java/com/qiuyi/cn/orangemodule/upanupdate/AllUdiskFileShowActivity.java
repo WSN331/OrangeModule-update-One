@@ -29,9 +29,7 @@ import com.qiuyi.cn.orangemodule.interfaceToutil.UdiskDeleteListener;
 import com.qiuyi.cn.orangemodule.myview.CommomDialog;
 import com.qiuyi.cn.orangemodule.myview.MorePopWindow;
 import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
-import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
-import com.qiuyi.cn.orangemodule.util.FileManager.MyFileManager;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
@@ -92,7 +90,7 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
     private DiskWriteToSD diskWriteToSD;//复制到本地
 
     private List<DocumentFile> listDocFile;//U盘下的所有文件（文件+文件夹）
-    private List<DocumentFile> listDocDirectory;//U盘下所有文件夹
+    //rivate List<DocumentFile> listDocDirectory;//U盘下所有文件夹
 
     private SDFileDeleteListener sdFileDeleteListener;
 
@@ -108,8 +106,11 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
 
         listDocFile = new ArrayList<>();
         //listDocDirectory = new ArrayList<>();
+
         //获取所有文件
         getAllDocFile();
+        //获取所有文件夹
+        //getAllDocDirectory();
 
         initView();
 
@@ -149,9 +150,29 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
         }
     }
 
+
+    //在粘贴，删除，新建后对listDocFile进行更新
+    private void addListAllDocFile(DocumentFile newFile) {
+        if(newFile.isDirectory() && newFile.listFiles()!=null){
+            for (DocumentFile docFile:newFile.listFiles()){
+                addListAllDocFile(docFile);
+            }
+        }
+        listDocFile.add(newFile);
+    }
+
     //获得所有Doc文件
     private void getAllDocFile() {
-        new Thread(new Runnable() {
+        listDocFile.clear();
+        listDocFile.add(MainActivity.rootUDFile);
+        listDocFile.addAll(udiskUtil.getAllFile(MainActivity.rootUDFile));
+        Log.e("docFile", "查找完毕");
+
+        for(DocumentFile docFile : listDocFile){
+            Log.e("docName", docFile.getName());
+        }
+
+/*        new Thread(new Runnable() {
             @Override
             public void run() {
                 listDocFile.clear();
@@ -159,8 +180,16 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                 listDocFile.addAll(udiskUtil.getAllFile(MainActivity.rootUDFile));
                 Log.e("docFile", "查找完毕");
             }
-        }).start();
+        }).start();*/
     }
+
+    //获取所有文件夹
+/*    private void getAllDocDirectory(){
+        listDocDirectory = udiskUtil.getAllDocDirectory(MainActivity.rootUDFile);
+        for(DocumentFile docFile : listDocDirectory){
+            Log.e("docName", docFile.getName());
+        }
+    }*/
 
     //读取文件
     private void readFileList(final File currentFolder){
@@ -283,21 +312,29 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                                 Log.e("select", "选中："+i);
                                 deleteDialog.show();
 
-                                final int finalI = i;
+                                //final int finalI = i;
+                                //从当前目录下去找
+
+                                final DocumentFile deleteFile = findDocFile(fileList.get(i));
 
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        DocumentFile deleteFile = findDocFile(fileList.get(finalI));
+                                        //DocumentFile deleteFile = findDocFile(fileList.get(finalI));
                                         doDelete(deleteFile);
+
+                                        listDocFile.remove(deleteFile);
+
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
                                                 deleteDialog.dismiss();
+                                                tv_selectNum.setText("已选(0)");
                                             }
                                         });
                                     }
                                 }).start();
+
                                 fileList.remove(i);
                             }
                         }
@@ -380,14 +417,27 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
 
 
     /**
+     * 这里是一个全部文件的查找
      * 将File文件转换成DocumentFile
      * @param file
      * @return
      */
     private DocumentFile findDocFile(File file){
         /*listDocFile = udiskUtil.getAllFile(MainActivity.rootUDFile);*/
-        return udiskUtil.getDocFile(listDocFile,file.getName());
+        DocumentFile myFile = udiskUtil.getDocFile(listDocFile,file.getPath());
+        //return udiskUtil.getDocFile(listDocFile,file.getPath());
+        return myFile;
     }
+
+/*    *//**
+     *
+     * @param currentFile
+     * @return
+     *//*
+    private DocumentFile findDocFileNew(File currentFile){
+
+    }*/
+
 
 
     /**
@@ -462,21 +512,32 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                 if(myCopyMap!=null && myCopyMap.size()>0){
                     for(final Integer index:myCopyMap.keySet()){
                         final File file = myCopyMap.get(index);
+
                         dialog.show();
+
                         final DocumentFile currentFolder = findDocFile(new File(currentPath));
+                        final DocumentFile befordFile = findDocFile(file);
+
                         if(currentFolder!=null){
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     //写入选中的currentFolder中去
                                     //DocumentFile newFile = findDocFile(file);
-                                    writeToUDick(file,currentFolder);
+                                    DocumentFile newFile = writeToUDick(file,currentFolder);
+
+                                    //将新加入的文件添加到ListDoc中
+                                    addListAllDocFile(newFile);
+
                                     //udiskUtil.moveFile(AllUdiskFileShowActivity.this,newFile,currentFolder);
 
                                     if(flag && whereFrom==2){
                                         //是从剪切过来的
-                                        DocumentFile newFile = findDocFile(file);
-                                        doDelete(newFile);
+                                        if(befordFile!=null){
+                                            doDelete(befordFile);
+
+                                            listDocFile.remove(befordFile);
+                                        }
                                     }else if(flag && whereFrom==1){
                                         sdFileDeleteListener.doDeleteSDFile(file);
                                     }
@@ -495,8 +556,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                             dialog.dismiss();
                             Toast.makeText(AllUdiskFileShowActivity.this,"您的操作太快了，请慢慢来",Toast.LENGTH_SHORT).show();
                         }
-                        getAllDocFile();
                     }
+                    //getAllDocFile();
                 }
             }
         });
@@ -510,6 +571,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
         });
     }
 
+
+
     /**
      * 重命名+新建
      * @param name title
@@ -522,6 +585,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                 if(confirm){
                     //点击了确定按钮
                     if(flag==1){
+                        dialog.dismiss();
+
                         mydialog.show();
                         //新建文件夹
                         DocumentFile findFile = findDocFile(new File(currentPath,folderName));
@@ -532,11 +597,19 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                                 public void run() {
                                     DocumentFile rootFile = findDocFile(new File(currentPath));
                                     final DocumentFile newFile = rootFile.createDirectory(folderName);
+
+                                    //将新建的文件夹加入
+                                    addListAllDocFile(newFile);
+                                    //listDocFile.add(newFile);
+
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            mydialog.dismiss();
+
                                             Log.e("create", "新建文件夹"+newFile.getName());
+                                            onRefresh();
+
+                                            mydialog.dismiss();
                                         }
                                     });
                                 }
@@ -552,6 +625,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                             //找到要重命名的文件夹
                             DocumentFile nowFile = findDocFile(myfile);
 
+                            listDocFile.remove(nowFile);
+
                             if(nowFile.isDirectory()){
                                 //是个文件夹
                                 Log.e("fileName", nowFile.getName());
@@ -562,6 +637,11 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                                 Log.e("fileName", nowFile.getName());
                                 nowFile.renameTo(newName);
                             }
+
+                            dialog.dismiss();
+
+                            addListAllDocFile(nowFile);
+                            //listDocFile.add(nowFile);
                         }
 
                     }
@@ -573,7 +653,7 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                     sdfileAdapter.setShowCheckBox(false);
                     sdfileAdapter.ReFresh();*/
 
-                    getAllDocFile();
+                    //getAllDocFile();
                 }
             }
         }).setTitle(name).show();
@@ -581,14 +661,28 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
 
 
     //将选中的文件写入U盘
-    private void writeToUDick(File file,DocumentFile documentFile) {
+    private DocumentFile writeToUDick(File file,DocumentFile documentFile) {
         if(file.isDirectory()){
             DocumentFile dirFile = documentFile.createDirectory(file.getName());
             for(File newFile:file.listFiles()){
-                writeToUDick(newFile,dirFile);
+                writeToUDick2(newFile,dirFile);
+            }
+            return dirFile;
+        }else{
+            DocumentFile newFile = udiskUtil.writeToSDFile(this,file,documentFile);
+            return newFile;
+        }
+    }
+
+    //将选中文件写入U盘2方法
+    private void writeToUDick2(File file,DocumentFile documentFile) {
+        if(file.isDirectory()){
+            DocumentFile dirFile = documentFile.createDirectory(file.getName());
+            for(File newFile:file.listFiles()){
+                writeToUDick2(newFile,dirFile);
             }
         }else{
-            udiskUtil.writeToSDFile(this,file,documentFile);
+            DocumentFile newFile = udiskUtil.writeToSDFile(this,file,documentFile);
         }
     }
 
@@ -716,7 +810,14 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
     //删除文件
     @Override
     public void doUdiskDelete(File file) {
-        doDelete(findDocFile(file));
+
+        udiskUtil = WriteToUdisk.getInstance(this.getApplicationContext(),this);
+        getAllDocFile();
+        DocumentFile beforeFile  = findDocFile(file);
+
+        doDelete(beforeFile);
+
+        listDocFile.remove(beforeFile);
     }
 
     @Override
