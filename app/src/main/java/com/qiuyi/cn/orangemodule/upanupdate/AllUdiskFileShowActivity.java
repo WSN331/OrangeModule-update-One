@@ -818,6 +818,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
         doDelete(beforeFile);
 
         listDocFile.remove(beforeFile);
+
+        //修改有问题
     }
 
     @Override
