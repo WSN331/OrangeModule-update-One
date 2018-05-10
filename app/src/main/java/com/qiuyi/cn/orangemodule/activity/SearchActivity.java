@@ -1,7 +1,10 @@
 package com.qiuyi.cn.orangemodule.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.provider.DocumentFile;
@@ -15,16 +18,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.adapter.SearchAdapter;
+import com.qiuyi.cn.orangemodule.upansaf.db.bean.CollectionFiles;
 import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
+import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
 import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_II_Service;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
@@ -32,6 +40,8 @@ import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -79,6 +89,10 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
     @BindView(R.id.tv_screen)
     TextView tv_screen;
 
+    //广播
+    public static final String SearchActivity_getSDFile = "com.qiuyi.cn.SearchActivity";
+
+
     //所有文件
     private List<File> listFile;
 
@@ -95,6 +109,9 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
 
     private List<DocumentFile> listDocFile;
 
+    private LoadingDialog searchdialog;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +121,12 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
 
         udiskUtil = WriteToUdisk.getInstance(this.getApplicationContext(),this);
         diskWriteToSD= new DiskWriteToSD(this.getApplicationContext());
+
+        searchdialog = new LoadingDialog.Builder(this)
+                .setMessage("搜索中...")
+                .setCancelable(false)
+                .setCancelOutside(false)
+                .create();
 
         dialog = new LoadingDialog.Builder(this)
                 .setCancelOutside(false)
@@ -132,42 +155,52 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
 
         initListener();
 
+        initBroadCast();
     }
+
+    //广播接收
+    private void initBroadCast() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(SearchActivity_getSDFile);
+        filter.addAction(Constant.FINDUPAN_MSG);
+        registerReceiver(myAllfileDataReceiver,filter);
+    }
+
+    private BroadcastReceiver myAllfileDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getBooleanExtra("findAllSDFile",false)){
+                //所有文件查找完毕
+                listFile = MainActivity.MY_ALLFILLES_II;
+            }
+            if(intent.getBooleanExtra("findOkUpan",false)){
+                //U盘文件查找完毕
+                listFile = MainActivity.listUPANAllFiles;
+            }
+        }
+    };
 
 
     //初始化
     private void initFileData() {
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                listFile = MainActivity.MY_ALLFILLES_II;
-                if(listFile.size()>0 && listFile!=null){
-                    timer.cancel();
-                    Log.e("search","数据接收完毕" );
-                }
-            }
-        },1000,1000);
+        startService(new Intent(SearchActivity.this,FindAllFile_II_Service.class));
     }
 
     private void initUFileData(){
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                listFile = MainActivity.listUPANAllFiles;
-                if(listFile.size()>0 && listFile!=null){
-                    timer.cancel();
-                    Log.e("search","数据接收完毕" );
-                }
-            }
-        },1000,1000);
+        startService(new Intent(SearchActivity.this, FindUpanMsg_Service.class));
     }
 
 
 
     //初始化监听事件
     private void initListener() {
+        img_selectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
         tv_camera.setOnClickListener(this);
         tv_qq.setOnClickListener(this);
         tv_wechat.setOnClickListener(this);
@@ -178,23 +211,42 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
 
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.tv_camera:
-                showRecycler(listFile, ConstantValue.CAMERA_KEY);
-                break;
-            case R.id.tv_qq:
-                showRecycler(listFile, ConstantValue.QQ_IMAGE_KEY);
-                break;
-            case R.id.tv_wechat:
-                showRecycler(listFile, ConstantValue.WECHART_IMAGE_KEY);
-                break;
-            case R.id.tv_screen:
-                showRecycler(listFile, ConstantValue.SCREENSHOT_KEY);
-                break;
-            default:
-                break;
-        }
+    public void onClick(final View view) {
+
+        final Timer timer = new Timer();
+        searchdialog.show();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.e("timer", "timer run");
+                if(listFile!=null){
+                    timer.cancel();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("timer", "timer out");
+                            switch (view.getId()){
+                                case R.id.tv_camera:
+                                    showRecycler(listFile, ConstantValue.CAMERA_KEY);
+                                    break;
+                                case R.id.tv_qq:
+                                    showRecycler(listFile, ConstantValue.QQ_IMAGE_KEY);
+                                    break;
+                                case R.id.tv_wechat:
+                                    showRecycler(listFile, ConstantValue.WECHART_IMAGE_KEY);
+                                    break;
+                                case R.id.tv_screen:
+                                    showRecycler(listFile, ConstantValue.SCREENSHOT_KEY);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            searchdialog.dismiss();
+                        }
+                    });
+                }
+            }
+        },1000);
     }
 
 
@@ -204,8 +256,39 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
             //写点击搜索键后的操作
             Log.e("search","搜索");
 
-            List<File> ufiles = getNativeFile(listFile,mySearch.getText().toString());
-            showInAdapter(ufiles);
+            final Timer timer = new Timer();
+            searchdialog.show();
+/*            new Thread(new Runnable() {
+                @Override
+                public void run() {*/
+
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if(listFile!=null){
+                                final List<File> ufiles = getNativeFile(listFile,mySearch.getText().toString());
+                                timer.cancel();
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(ufiles.size()>0){
+                                            showInAdapter(ufiles,mySearch.getText().toString());
+
+                                        }else{
+                                            Toast.makeText(SearchActivity.this,"对不起，没有您要查找的内容",Toast.LENGTH_SHORT).show();
+                                            ll_bottom.setVisibility(View.VISIBLE);
+                                            rl_show.setVisibility(View.GONE);
+                                        }
+                                        searchdialog.dismiss();
+                                    }
+                                });
+
+                            }
+                        }
+                    },1000);
+/*                }
+            }).start();*/
 
             return true;
         }
@@ -218,7 +301,7 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
         List<File> keyListFile = new ArrayList<>();
         if(listFile.size()>0 && listFile!=null && key!=null && !key.equals("")){
             for(File nativeFile:listFile){
-                if(nativeFile.getPath().toLowerCase().contains(key)){
+                if(nativeFile.getName().toLowerCase().contains(key.toLowerCase())){
                     keyListFile.add(nativeFile);
                 }
             }
@@ -238,19 +321,47 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                     keyListFile.add(filebean);
                 }
             }
-            showInAdapter(keyListFile);
+
+            if(keyListFile.size()>0){
+                showInAdapter(keyListFile,key);
+            }else{
+                Toast.makeText(SearchActivity.this,"对不起，没有您要查找的内容",Toast.LENGTH_SHORT).show();
+                ll_bottom.setVisibility(View.VISIBLE);
+                rl_show.setVisibility(View.GONE);
+            }
+
         }
     }
 
     //调用adapter显示
-    private void showInAdapter(final List<File> keyListFile) {
+    private void showInAdapter(final List<File> keyListFile,String name) {
+
+        Collections.sort(keyListFile, new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                if (f1.isFile()) {
+                    if (f2.isFile()) {
+                        return f1.getName().compareToIgnoreCase(f2.getName());
+                    } else {
+                        return 1;
+                    }
+                } else {
+                    if (f2.isFile()) {
+                        return -1;
+                    } else {
+                        return f1.getName().compareToIgnoreCase(f2.getName());
+                    }
+                }
+            }
+        });
+
 
         myGridManager = new GridLayoutManager(this,4);
         rl_show.setLayoutManager(myGridManager);
-        mySearchAdapter = new SearchAdapter(this,keyListFile,myGridManager);
+        mySearchAdapter = new SearchAdapter(this,keyListFile,myGridManager,name);
         rl_show.setAdapter(mySearchAdapter);
 
-        ll_bottom.setVisibility(View.INVISIBLE);
+        ll_bottom.setVisibility(View.GONE);
         rl_show.setVisibility(View.VISIBLE);
 
         mySearchAdapter.setOnFileItemClick(new SearchAdapter.FileItemClick() {

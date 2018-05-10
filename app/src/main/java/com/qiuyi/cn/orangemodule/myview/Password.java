@@ -78,7 +78,7 @@ public class Password extends EditText{
 
             borderColor = ta.getColor(R.styleable.MyEditTextPassword_borderColor,0x000000);
             borderWidth = ta.getDimensionPixelSize(R.styleable.MyEditTextPassword_borderWidth,8);//px
-            borderRadius = ta.getDimensionPixelSize(R.styleable.MyEditTextPassword_borderColor,6);
+            borderRadius = ta.getDimensionPixelSize(R.styleable.MyEditTextPassword_borderRadius,6);
 
         } catch (Exception e) {
             e.printStackTrace();

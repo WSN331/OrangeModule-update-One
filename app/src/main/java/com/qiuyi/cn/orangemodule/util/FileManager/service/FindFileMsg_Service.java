@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
@@ -49,7 +50,14 @@ public class FindFileMsg_Service extends Service{
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+                long startTime = System.currentTimeMillis();
+
                 getFileList();
+
+                long endTime = System.currentTimeMillis();
+
+                Log.e("文件查找时间", "数据库文件查找时间："+(endTime-startTime));
             }
         }).start();
 
@@ -130,6 +138,7 @@ public class FindFileMsg_Service extends Service{
             Intent intent = new Intent(Constant.FINDFILE_MSG);
             intent.putExtra("findOk",true);
             sendBroadcast(intent);
+            Log.e("fenlei", "查找各个分类完毕");
 
         } catch (Exception e) {
             e.printStackTrace();

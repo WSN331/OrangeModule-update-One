@@ -33,8 +33,8 @@ public class FindUpanRestore_Service extends Service{
 
         executorService = Executors.newCachedThreadPool();
         //文件的存取
-        myFileHelper = new MyFileHelper(getApplicationContext());
-        currentFile = myFileHelper.findUdiskPath();
+        //myFileHelper = new MyFileHelper(getApplicationContext());
+        currentFile = MainActivity.rootUFile;
     }
 
     @Override

@@ -78,6 +78,7 @@ public class UFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public interface FileItemClick{
         void openFile(View view, int position,List<File> listFile);
         void onLongClick(View view,int position,List<File> listFile);
+        void changeCount(int count);
     }
 
     public void setOnFileItemClick(FileItemClick myClick){
@@ -168,6 +169,15 @@ public class UFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     flag[position] = b;
+
+                    int count = 0;
+                    for(int i=0;i<flag.length;i++){
+                        if(flag[i]){
+                            count++;
+                        }
+                    }
+                    fileItemClick.changeCount(count);
+
                 }
             });
 
@@ -190,6 +200,14 @@ public class UFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     flag[position] = b;
+
+                    int count = 0;
+                    for(int i=0;i<flag.length;i++){
+                        if(flag[i]){
+                            count++;
+                        }
+                    }
+                    fileItemClick.changeCount(count);
                 }
             });
 

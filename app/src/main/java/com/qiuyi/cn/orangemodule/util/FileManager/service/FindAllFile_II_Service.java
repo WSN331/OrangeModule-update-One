@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
+import com.qiuyi.cn.orangemodule.activity.SearchActivity;
 import com.qiuyi.cn.orangemodule.util.FileUtil;
 
 import java.io.File;
@@ -42,8 +43,18 @@ public class FindAllFile_II_Service extends Service{
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     //有外部存储卡
                     File file = Environment.getExternalStorageDirectory().getAbsoluteFile();
+
+                    long startTime = System.currentTimeMillis();
                     MainActivity.MY_ALLFILLES_II = getAllFiles(file);
+                    long endTime = System.currentTimeMillis();
+
+                    Log.e("文件查找时间", "全局文件查找时间："+(endTime-startTime));
+
                     MainActivity.MY_ALLFILLES_II.addAll(getAllDirectory(file));
+
+                    Intent intentToSearch = new Intent(SearchActivity.SearchActivity_getSDFile);
+                    intentToSearch.putExtra("findAllSDFile",true);
+                    sendBroadcast(intentToSearch);
                     Log.e("search","查找完毕");
                 }
 

@@ -33,9 +33,28 @@ public class BackUp_fm_adapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private boolean isShowCheckBox = false;
     private boolean[] flag;
 
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
+    }
+
+    public void setShowCheckBox(boolean showCheckBox) {
+        isShowCheckBox = showCheckBox;
+    }
+
+    public boolean[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean[] flag) {
+        this.flag = flag;
+    }
+
     public BackUp_fm_adapter(Context context, List<MyItemFile> listFiles){
         this.listFiles = listFiles;
         this.context = context;
+
+        flag = new boolean[listFiles.size()];
     }
 
     public interface BackupOnClick{
@@ -57,11 +76,16 @@ public class BackUp_fm_adapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public boolean onLongClick(View view) {
         if(itemClick!=null){
             itemClick.onBackLongItemClick(view, (Integer) view.getTag());
-            return true;
         }
         return false;
     }
 
+
+    //页面刷新
+    public void ReFresh(){
+        flag = new boolean[listFiles.size()];
+        notifyDataSetChanged();
+    }
 
     //2
     @Override
@@ -70,16 +94,10 @@ public class BackUp_fm_adapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         view.setOnClickListener(this);
         view.setOnLongClickListener(this);
+
         return new itemViewHolder(view);
     }
 
-    public void setShowCheckBox(boolean showCheckBox) {
-        this.isShowCheckBox = showCheckBox;
-    }
-
-    public boolean[] getFlag() {
-        return flag;
-    }
 
     //3
     @Override
@@ -91,18 +109,13 @@ public class BackUp_fm_adapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             itemViewHolder.onBind(item);
 
-            flag = new boolean[listFiles.size()];
-
-            //itemViewHolder.checkBox.setOnCheckedChangeListener(null);//先设置一次CheckBox的选中监听器，传入参数null
-
-            itemViewHolder.checkBox.setChecked(flag[position]);
-
             if(isShowCheckBox){
                 itemViewHolder.checkBox.setVisibility(View.VISIBLE);
             }else{
                 itemViewHolder.checkBox.setVisibility(View.INVISIBLE);
             }
-
+            itemViewHolder.checkBox.setOnCheckedChangeListener(null);//先设置一次CheckBox的选中监听器，传入参数null
+            itemViewHolder.checkBox.setChecked(flag[position]);
             itemViewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

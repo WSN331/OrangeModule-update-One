@@ -1,22 +1,18 @@
 package com.qiuyi.cn.orangemodule.fragment;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
@@ -25,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,10 +28,7 @@ import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.BkrtActivity;
-import com.qiuyi.cn.orangemodule.activity.FileShowActivity;
 import com.qiuyi.cn.orangemodule.adapter.BackUp_fm_adapter;
-import com.qiuyi.cn.orangemodule.bean.FileType;
-import com.qiuyi.cn.orangemodule.bean.LogOut;
 import com.qiuyi.cn.orangemodule.bean.MyItemFile;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
@@ -44,35 +36,22 @@ import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.contacts.PhoneInfo;
-import com.qiuyi.cn.orangemodule.util.FileManager.permission.ConstantPermission;
-import com.qiuyi.cn.orangemodule.util.FileManager.permission.GetPermission;
-import com.qiuyi.cn.orangemodule.util.FileManager.permission.PermissionUtil;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindContacts;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
+import com.qiuyi.cn.orangemodule.util.ShareUtil;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TooManyListenersException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Administrator on 2018/3/18.
@@ -149,12 +128,26 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        initBroadCast();
 
-        if(MainActivity.constacts==null){
+
+        mActivity.startService(new Intent(mActivity,FindContacts.class));
+        mActivity.startService(new Intent(mActivity, FindFileMsg_Service.class));
+/*        if(MainActivity.constacts==null){
             mActivity.startService(new Intent(mActivity,FindContacts.class));
         }
+        if(MainActivity.listFileZars==null){
+            mActivity.startService(new Intent(mActivity, FindFileMsg_Service.class));
+        }*/
 
-        initBroadCast();
+
+        String text = ShareUtil.getString("Update",null);
+        if(text!=null){
+            tv_prebackup.setText("上次备份："+text);
+        }else{
+            tv_prebackup.setText("上次备份："+"无");
+        }
+
         initData();
     }
 
@@ -266,34 +259,26 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
         myAdapter.setOnBackUpClickListener(new BackUp_fm_adapter.BackupOnClick() {
             @Override
             public void onBackItemClick(View view, int position) {
+                boolean isShowBox = myAdapter.isShowCheckBox();
+                if(isShowBox){
+                    //正在显示checkbox
+                    boolean[] flag = myAdapter.getFlag();
+                    flag[position] = !flag[position];
 
-                MyItemFile fileType = listSelect.get(position);
-
-                Intent intent = new Intent(mActivity, FileShowActivity.class);
-                if (position == 0) {
-                    intent.putExtra("type", 0);
-                    intent.putExtra("listFile", (Serializable) listImages);
-                } else if (position == 1) {
-                    intent.putExtra("type", 1);
-                    intent.putExtra("listFile", (Serializable) listVideos);
-                } else if (position == 2) {
-                    intent.putExtra("type",2);
-                    intent.putExtra("listFile", (Serializable) listFiles);
-                } else if (position == 3) {
-                    intent.putExtra("type", 3);
-                    intent.putExtra("listFile", (Serializable) listMusics);
-                } else {
-                    intent = null;
-                }
-                if (intent != null) {
-                    mActivity.startActivity(intent);
+                    myAdapter.setFlag(flag);
+                    myAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onBackLongItemClick(View view, int position) {
-/*                myAdapter.setShowCheckBox(true);
-                myAdapter.notifyDataSetChanged();*/
+
+                myAdapter.setShowCheckBox(true);
+                boolean flag[] = myAdapter.getFlag();
+                flag[position] = true;
+                myAdapter.setFlag(flag);
+
+                myAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -326,113 +311,165 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
     @Override
     public void onClick(View view) {
 
-        dialog.show();
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                startWrite();
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-                    }
-                });
+        if(!MainActivity.isHaveUpan){
+            new AlertDialog.Builder(mActivity)
+                    .setTitle("U盘")
+                    .setMessage("请插入U盘").show();
+            return;
+        }
+
+        int count = 0;
+        final List<Integer> mySelect = new ArrayList<>();
+        //选择，显示一下有哪几个选择了
+        boolean[] flag = myAdapter.getFlag();
+        for(int i = flag.length-1;i>=0;i--){
+            if(flag[i]){
+                Log.e("select", "选中："+i);
+                mySelect.add(i);
+                count++;
             }
-        });
+        }
 
+        if(count>0){
+            dialog.show();
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    startWrite(mySelect);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
 
+                            String upDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+                            ShareUtil.setString("Update",upDate);
+
+                            tv_prebackup.setText("上次备份："+upDate);
+                            dialog.dismiss();
+                            myAdapter.ReFresh();
+                        }
+                    });
+                }
+            });
+
+        }else{
+            new AlertDialog.Builder(mActivity)
+                    .setCancelable(false)
+                    .setTitle("备份")
+                    .setMessage("没有选择备份项目（默认备份全部）,点击确定同意备份全部，点击取消重新选择需要备份的项目")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            for(int j=0;i<5;j++){
+                                mySelect.add(j);
+                            }
+                            dialog.show();
+                            executorService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startWrite(mySelect);
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                            String upDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+                                            ShareUtil.setString("Update",upDate);
+
+                                            tv_prebackup.setText("上次备份："+upDate);
+                                            dialog.dismiss();
+                                            myAdapter.ReFresh();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
+        }
+
+        myAdapter.setShowCheckBox(false);
+        myAdapter.ReFresh();
     }
 
     //开始写入U盘
-    private void startWrite() {
+    private void startWrite(List<Integer> mySelect) {
         List<Callable<Boolean>> partions = new ArrayList<>();
-
         final WriteToUdisk udisk = WriteToUdisk.getInstance(mActivity.getApplicationContext(),mActivity);
         //获取U盘根目录
         final DocumentFile rootFile = udisk.getCurrentFolder();
         if(rootFile!=null){
-
-            partions.add(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-/*                    DocumentFile dirFile = udisk.findUFile(rootFile,"照片");
-                    Map<DocumentFile,File> searchList = new HashMap<DocumentFile, File>();
-                    //首先找到所有要写的文件
-                    for(ImageBean imageBean:listImages){
-                        File file = new File(imageBean.getPath());
-                        DocumentFile findFile = udisk.findUPFile(dirFile,file);
-                        searchList.put(findFile,file);
-                    }
-                    Iterator<DocumentFile> listDocument = searchList.keySet().iterator();
-                    while(listDocument.hasNext()){
-                        DocumentFile docFile = listDocument.next();
-                        File file = searchList.get(docFile);
-                        udisk.writeToSDFile(mActivity,file,docFile);
-                    }*/
-                    DocumentFile dirFile = udisk.findUFile(rootFile,"照片");
-                    for(ImageBean imageBean:listImages){
-                        File file = new File(imageBean.getPath());
-                        udisk.writeToSDFile(mActivity,file,dirFile);
-                    }
-                    return true;
+            for(Integer myInet:mySelect){
+                switch (myInet){
+                    case 0:
+                        partions.add(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                DocumentFile dirFile = udisk.findUFile(rootFile,"照片");
+                                for(ImageBean imageBean:listImages){
+                                    File file = new File(imageBean.getPath());
+                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                }
+                                return true;
+                            }
+                        });
+                        break;
+                    case 1:
+                        partions.add(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                DocumentFile dirFile = udisk.findUFile(rootFile,"视频");
+                                for(VideoBean videoBean:listVideos){
+                                    File file = new File(videoBean.getPath());
+                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                }
+                                return true;
+                            }
+                        });
+                        break;
+                    case 2:
+                        partions.add(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                DocumentFile dirFile = udisk.findUFile(rootFile,"文档");
+                                for(FileBean fileBean:listFiles){
+                                    File file = new File(fileBean.getPath());
+                                    udisk.writeToSDFile(mActivity, file, dirFile);
+                                }
+                                return true;
+                            }
+                        });
+                        break;
+                    case 3:
+                        partions.add(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                DocumentFile dirFile = udisk.findUFile(rootFile,"音乐");
+                                for(MusicBean musicBean:listMusics){
+                                    File file = new File(musicBean.getPath());
+                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                }
+                                return true;
+                            }
+                        });
+                        break;
+                    case 4:
+                        partions.add(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                DocumentFile dirFile = udisk.findUFile(rootFile,"联系人");
+                                udisk.writeStrToSDFile(mActivity,contacts.toString(),dirFile, BkrtActivity.PHONE_FILE);
+                                return true;
+                            }
+                        });
+                        break;
                 }
-            });
-
-            partions.add(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    DocumentFile dirFile = udisk.findUFile(rootFile,"视频");
-                    for(VideoBean videoBean:listVideos){
-                        File file = new File(videoBean.getPath());
-                        udisk.writeToSDFile(mActivity,file,dirFile);
-                    }
-                    return true;
-                }
-            });
-            partions.add(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    DocumentFile dirFile = udisk.findUFile(rootFile,"文档");
-                    for(FileBean fileBean:listFiles){
-                        File file = new File(fileBean.getPath());
-                        udisk.writeToSDFile(mActivity, file, dirFile);
-                    }
-                    return true;
-                }
-            });
-            partions.add(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-/*                    DocumentFile dirFile = udisk.findUFile(rootFile,"音乐");
-                    Map<DocumentFile,File> searchList = new HashMap<DocumentFile, File>();
-                    //首先找到所有要写的文件
-                    for(MusicBean musicBean:listMusics){
-                        File file = new File(musicBean.getPath());
-                        DocumentFile findFile = udisk.findUPFile(dirFile,file);
-                        searchList.put(findFile,file);
-                    }
-                    Iterator<DocumentFile> listDocument = searchList.keySet().iterator();
-                    while(listDocument.hasNext()){
-                        DocumentFile docFile = listDocument.next();
-                        File file = searchList.get(docFile);
-                        udisk.writeToSDFile(mActivity,file,docFile);
-                    }*/
-                    DocumentFile dirFile = udisk.findUFile(rootFile,"音乐");
-                    for(MusicBean musicBean:listMusics){
-                        File file = new File(musicBean.getPath());
-                        udisk.writeToSDFile(mActivity,file,dirFile);
-                    }
-                    return true;
-                }
-            });
-            partions.add(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    DocumentFile dirFile = udisk.findUFile(rootFile,"联系人");
-                    udisk.writeStrToSDFile(mActivity,contacts.toString(),dirFile, BkrtActivity.PHONE_FILE);
-                    return true;
-                }
-            });
+            }
 
             if(partions.size()>0){
                 ExecutorService executorService = Executors.newCachedThreadPool();
@@ -455,13 +492,6 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                     }
                 }
             }
-        }else{
-            mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mActivity,"请插入U盘",Toast.LENGTH_SHORT);
-                }
-            });
         }
     }
 
@@ -469,6 +499,9 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
+
+        myAdapter.setShowCheckBox(false);
+        myAdapter.ReFresh();
 
         //重新初始化数据
         initData();

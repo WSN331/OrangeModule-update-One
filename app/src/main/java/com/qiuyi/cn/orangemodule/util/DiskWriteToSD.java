@@ -79,6 +79,78 @@ public class DiskWriteToSD {
     }
 
 
+    //在指定目录下查找文件是否存在
+    public File findCollectionFile(File file,String name){
+        if(isSDCardState()){
+            File targetFile = getSDCardFile(name);
+
+            if(targetFile.listFiles()!=null){
+                for(File searchFile:targetFile.listFiles()){
+                    if(searchFile.getName().equals(file.getName())){
+                        //名字相同
+                        return searchFile;
+                    }
+                }
+                return null;
+            }else{
+                return null;
+            }
+        }
+        return null;
+    }
+
+    //在MyFile文件夹下，创建自己需要的文件写入
+    public void writeSelectFileToSD(File file,String name){
+        if(isSDCardState()){
+            //在MyFile文件夹创建自己的文件夹
+            File targetFileDec = getSDCardFile(name);
+
+            if(file.isDirectory()){
+                File nowDirectory = new File(targetFileDec.getAbsolutePath(),file.getName());
+                nowDirectory.mkdirs();
+                writeToSD1(file,nowDirectory);
+            }else{
+                writeToSD2(file,targetFileDec);
+            }
+        }
+    }
+
+    //将文件写入SDCard
+    public void writeFileToSD(File file,String name){
+        if(isSDCardState()){
+            File targetFileDec = getSDCardFile(name);
+
+            File targetFile = new File(targetFileDec.getAbsolutePath(),file.getName());
+
+            FileInputStream in = null;
+            FileOutputStream out = null;
+            try {
+                in = new FileInputStream(file);
+                out = new FileOutputStream(targetFile);
+                byte[] buf = new byte[1024 * 8];
+                while(in.read(buf)!=-1){
+                    out.write(buf);
+                    out.flush();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    if(in!=null){
+                        in.close();
+                    }
+                    if(out!=null){
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
     //将文件夹写入SDCard,传进来的文件夹
     public void writeDirectory(File file){
         if(file.isDirectory()){
@@ -133,24 +205,20 @@ public class DiskWriteToSD {
         }
     }
 
-
-    //将文件写入SDCard
-    public void writeFileToSD(File file,String name){
+    //将一个文件写到另一个文件中
+    public boolean writeToSD3(File file,File rootFile){
         if(isSDCardState()){
-            File targetFileDec = getSDCardFile(name);
-
-            File targetFile = new File(targetFileDec.getAbsolutePath(),file.getName());
-
             FileInputStream in = null;
             FileOutputStream out = null;
             try {
                 in = new FileInputStream(file);
-                out = new FileOutputStream(targetFile);
+                out = new FileOutputStream(rootFile);
                 byte[] buf = new byte[1024 * 8];
                 while(in.read(buf)!=-1){
                     out.write(buf);
                     out.flush();
                 }
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
             }finally {
@@ -166,7 +234,9 @@ public class DiskWriteToSD {
                 }
             }
         }
+        return false;
     }
+
 
     //将从文件中读取的联系人添加到本地手机中
     public void sendToSDCardPhone(List<ContactBean> listBean, Context context) {

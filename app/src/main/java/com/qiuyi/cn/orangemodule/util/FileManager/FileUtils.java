@@ -82,7 +82,11 @@ public class FileUtils {
     public static int getFileIconByPath(String path){
         path = path.toLowerCase();
         int iconId = R.drawable.unknow_file_icon;
-        if (path.endsWith(".type_txt") || path.endsWith(".txt")){
+        if(path.endsWith(".gif") || path.endsWith(".jpeg") || path.endsWith(".jpg")
+                || path.endsWith(".png")){
+            //是图片返回1
+            iconId = 1;
+        }else if (path.endsWith(".type_txt") || path.endsWith(".txt")){
             iconId = R.drawable.type_txt;
         }else if(path.endsWith(".doc") || path.endsWith(".docx")){
             iconId = R.drawable.type_doc;

@@ -13,8 +13,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.qiuyi.cn.orangemodule.R;
+import com.qiuyi.cn.orangemodule.Secret.AESHelper;
+import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
+import com.qiuyi.cn.orangemodule.activity.AllFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -24,7 +26,7 @@ import java.util.List;
  * Created by Administrator on 2018/3/27.
  */
 //适配器
-public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
+public class SecreteFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener,View.OnLongClickListener{
 
     private Context context;
     private List<File> fileList;
@@ -86,8 +88,8 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public interface SD_OnItemClick{
-        void onItemClick(View view,int position);
-        void onItemLongClick(View view,int position);
+        void onItemClick(View view, int position);
+        void onItemLongClick(View view, int position);
         void changeCount(int count);
     }
 
@@ -108,7 +110,7 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    public SDFileAdapter(Context context,List<File> fileList) {
+    public SecreteFileAdapter(Context context, List<File> fileList) {
         this.fileList = fileList;
         this.context = context;
 
@@ -143,7 +145,6 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 flag[position] = b;
-
                 int count = 0;
                 for(int i=0;i<flag.length;i++){
                     if(flag[i]){
@@ -180,7 +181,8 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         public void onBind(File file){
-            tv_filename.setText(file.getName());
+            String decryptName = AESHelperUpdate2.decrypt(AllFileShowActivity.PASSWORD_STRING,file.getName());
+            tv_filename.setText(decryptName.substring(0,decryptName.lastIndexOf("*")));
 
             tv_time.setText(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(file.lastModified()));
 
@@ -199,7 +201,7 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         .load(R.drawable.folder)
                         .into(iv_file);
             }else{
-                int iconId = FileUtils.getFileIconByPath(file.getPath());
+                int iconId = FileUtils.getFileIconByPath(decryptName.substring(0,decryptName.lastIndexOf("*")));
                 if(iconId==1){
                     Glide.with(context)
                             .load(file.getPath())
@@ -212,6 +214,7 @@ public class SDFileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             .load(iconId)
                             .into(iv_file);
                 }
+
             }
         }
     }

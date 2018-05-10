@@ -108,9 +108,10 @@
             </LinearLayout>
         </LinearLayout>
 
+
         <RadioGroup
             android:id="@+id/rg_button"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:background="#aaa"
             android:gravity="center"
             android:orientation="horizontal"
@@ -118,6 +119,7 @@
             android:layout_height="50dp">
             <RadioButton
                 android:id="@+id/rb_reduction"
+                android:visibility="gone"
                 android:textColor="#fff"
                 android:button="@null"
                 android:layout_weight="1"

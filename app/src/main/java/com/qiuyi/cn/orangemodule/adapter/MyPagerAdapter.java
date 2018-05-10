@@ -20,6 +20,7 @@ public class MyPagerAdapter extends PagerAdapter{
     private List<BasePager> listPager;
     private String[] myTitle;
 
+
     public MyPagerAdapter(List<BasePager> listPager,String[] myTitle){
         this.listPager = listPager;
         this.myTitle = myTitle;
@@ -53,8 +54,8 @@ public class MyPagerAdapter extends PagerAdapter{
             parent.removeAllViews();
         }
 
-        //初始化数据
-        basePager.initData();
+/*        //初始化数据
+        basePager.initData();*/
 
         container.addView(basePager.mRootView);
 
@@ -77,8 +78,7 @@ public class MyPagerAdapter extends PagerAdapter{
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        ((ViewGroup) container).removeView((View) object);
-
-        object=null;
+        //super.destroyItem(container, position, object);
     }
+
 }

@@ -96,7 +96,20 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/rl_allfileshow">
 
-            <TextView
+            <HorizontalScrollView
+                android:id="@+id/horizontalSV"
+                android:scrollbars="none"
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+                <LinearLayout
+                    android:id="@+id/ll_show_folder"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </LinearLayout>
+            </HorizontalScrollView>
+<!--            <TextView
                 android:text="nihao"
                 android:id="@+id/tv_floader"
                 android:gravity="center_vertical"
@@ -106,7 +119,7 @@
                 android:textSize="18dp"
                 android:layout_margin="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp" />
+                android:layout_height="30dp" />-->
         </RelativeLayout>
 
 
@@ -159,9 +172,16 @@
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent" />
-                <TextView
+<!--                <TextView
                     android:id="@+id/tv_rename"
                     android:text="重命名"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />-->
+                <TextView
+                    android:id="@+id/tv_more"
+                    android:text="更多"
                     android:gravity="center"
                     android:layout_weight="1"
                     android:layout_width="0dp"

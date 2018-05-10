@@ -1,9 +1,13 @@
 package com.qiuyi.cn.orangemodule.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.format.Formatter;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -24,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 2018/3/21.
@@ -32,6 +38,7 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private Context context;
     private List<File> listFile;
+    private String name;
 
     //存储所有选中的位置
     private boolean[] flag;
@@ -103,9 +110,10 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
 
-    public SearchAdapter(Context context, List<File> listFile, GridLayoutManager layoutManager){
+    public SearchAdapter(Context context, List<File> listFile, GridLayoutManager layoutManager,String name){
         this.context = context;
         this.listFile = listFile;
+        this.name = name;
 
         flag = new boolean[listFile.size()];
 
@@ -253,7 +261,19 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public void onBind(File info){
 
-            fileName.setText(info.getName());
+            String nowName = info.getName();
+            Pattern p = Pattern.compile(name.toLowerCase());
+            Matcher matcher = p.matcher(nowName.toLowerCase());
+            SpannableStringBuilder style = new SpannableStringBuilder(nowName);
+            while(matcher.find()){
+                int start = matcher.start();
+                int end = matcher.end();
+                style.setSpan(new ForegroundColorSpan(Color.BLUE),start,end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+            }
+            //修改部分字体颜色
+            fileName.setText(style);
+
+
             fileDate.setText(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(info.lastModified()));
             try {
                 if(info.isDirectory()){

@@ -73,7 +73,7 @@ public class MyFileHelper {
                 e.printStackTrace();
             }
             for (int i = 0; i < result.length; i++) {
-                Log.e("path----> ", result[i] + "");
+                Log.e("MyHelper-path----> ", result[i] + "");
                 if (result[i] != null && result[i].startsWith("/storage") && !result[i].startsWith("/storage/emulated/0")) {
                     currentFolder = new File(result[i]);
                 }
@@ -90,7 +90,7 @@ public class MyFileHelper {
         File myFileToRead = null;
         if(MainActivity.isHaveUpan){
             //得到root目录
-            File parent_path = findUdiskPath();
+            File parent_path = MainActivity.rootUFile;
             //在root目录下创建myFile文件夹
             File myFile = new File(parent_path.getAbsoluteFile(),"联系人");
             myFile.mkdirs();

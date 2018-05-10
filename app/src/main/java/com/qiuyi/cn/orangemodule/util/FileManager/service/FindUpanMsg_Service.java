@@ -45,8 +45,10 @@ public class FindUpanMsg_Service extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        MyFileHelper helper = new MyFileHelper(getApplicationContext());
-        final String floder = helper.findUdiskPath().toString();
+/*        MyFileHelper helper = new MyFileHelper(getApplicationContext());
+          final String floder = helper.findUdiskPath().toString();*/
+
+        final File floder = MainActivity.rootUFile;
 
         if(floder==null){
             startActivity(new Intent(this,MainActivity.class));
@@ -64,7 +66,7 @@ public class FindUpanMsg_Service extends Service{
 
 
     //文件分类
-    public void divideFiles(String floder){
+    public void divideFiles(File floder){
 
         allFiles = new ArrayList<>();
         listMusics = new ArrayList<>();
@@ -76,7 +78,7 @@ public class FindUpanMsg_Service extends Service{
         myFileManager = MyFileManager.getInstance(this);
 
 
-        allFiles = myFileManager.getUpanFiles(new File(floder));
+        allFiles = myFileManager.getUpanFiles(floder);
 
         for(File itemFile:allFiles){
             if (FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_IMG){

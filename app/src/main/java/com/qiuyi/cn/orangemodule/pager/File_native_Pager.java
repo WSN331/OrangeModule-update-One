@@ -5,58 +5,33 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcelable;
-import android.os.StatFs;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.TimePicker;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.AllFileShowActivity;
 import com.qiuyi.cn.orangemodule.activity.FileShowActivity;
-import com.qiuyi.cn.orangemodule.adapter.MyPagerAdapter;
+import com.qiuyi.cn.orangemodule.activity.FileShowActivity_old;
 import com.qiuyi.cn.orangemodule.adapter.NativiAdapter;
 import com.qiuyi.cn.orangemodule.bean.FileType;
-import com.qiuyi.cn.orangemodule.interfaceToutil.MyScrollerListener;
-import com.qiuyi.cn.orangemodule.myview.MyViewGroup;
 import com.qiuyi.cn.orangemodule.util.Constant;
-import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
-import com.qiuyi.cn.orangemodule.util.FileManager.MyFileManager;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
 
-import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -251,15 +226,15 @@ public class File_native_Pager extends BaseRefreshPager{
                                 distance -= dy;
                             }
 
-                            myViewGroup.scrollTo(0, (int) -distance+10);
-                            setLockDisplay(distance,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,2);
+                            myViewGroup.scrollTo(0, ((int) -distance+10)/2);
+                            setLockDisplay(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,2);
                         }
 
                         rlposY = rlnowY;
                         break;
                     case MotionEvent.ACTION_UP:
                         myViewGroup.scrollTo(0, 0);
-                        setViewDispaly(distance,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,2,null);
+                        setViewDispaly(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,2,null);
                         count=0;
                         distance = 0.0f;
                         //下拉距离，使用回调

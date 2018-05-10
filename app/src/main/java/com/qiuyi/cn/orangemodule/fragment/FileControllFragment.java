@@ -31,7 +31,7 @@ public class FileControllFragment extends BaseFragment{
     private List<BasePager> listPager;
     private MyPagerAdapter myAdapter;
 
-
+    private int[] init;
 
     @Override
     public View initView() {
@@ -48,15 +48,46 @@ public class FileControllFragment extends BaseFragment{
         //初始化ViewPager
         initPager();
 
+        init = new int[3];
+
         myAdapter = new MyPagerAdapter(listPager,titles);
 
         myViewPager.setAdapter(myAdapter);
         myTabLayout.setupWithViewPager(myViewPager);
 
+        myViewPager.setOffscreenPageLimit(3);
+
         if(MainActivity.isFromUdisk){
             myViewPager.setCurrentItem(2);
+            listPager.get(2).initData();
+
+            init[2] = 1;
+
             MainActivity.isFromUdisk = false;
+        }else{
+            myViewPager.setCurrentItem(0);
+            listPager.get(0).initData();
+
+            init[0] = 1;
         }
+
+        myViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(init[position]!=1){
+                    listPager.get(position).initData();
+                    init[position] = 1;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
 
     }
 

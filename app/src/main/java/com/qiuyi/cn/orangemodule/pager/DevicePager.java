@@ -149,13 +149,13 @@ public class DevicePager extends BasePager{
                 @Override
                 public void onClick(View view) {
 
-/*                    MainActivity mainActivity = (MainActivity) mActivity;
+                    MainActivity mainActivity = (MainActivity) mActivity;
 
-                    mainActivity.showFileControll();*/
+                    mainActivity.showFileControll();
 
 
-                    Intent intent = new Intent(mActivity,AllUdiskFileShowActivity.class);
-                    mActivity.startActivity(intent);
+/*                    Intent intent = new Intent(mActivity,AllUdiskFileShowActivity.class);
+                    mActivity.startActivity(intent);*/
                 }
             });
         }

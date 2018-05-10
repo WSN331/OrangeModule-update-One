@@ -187,8 +187,8 @@ public class MainActivity extends BasePermission implements View.OnClickListener
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //数据库存储
-        SugarContext.init(this);
+        //数据库存储，放到了MyApplication中，可以从AndroidManifest中查看
+/*        SugarContext.init(this);*/
 
         //判断U盘是否存在
         myHelper = new MyFileHelper(getApplicationContext());
@@ -500,12 +500,14 @@ public class MainActivity extends BasePermission implements View.OnClickListener
         changeFragment(fm);
         myTextView.setText("文件管理");
 
-        rl_bottom.setVisibility(View.GONE);
+        //rl_bottom.setVisibility(View.GONE);
+        rl_bottom.setVisibility(View.VISIBLE);
+        rg_button.setVisibility(View.VISIBLE);
         //判断是否有U盘
-        if(isHaveUpan){
-            rl_bottom.setVisibility(View.VISIBLE);
-            rg_button.setVisibility(View.VISIBLE);
-        }
+/*        if(isHaveUpan){
+            my_reduction.setVisibility(View.VISIBLE);
+        }*/
+        my_reduction.setVisibility(View.VISIBLE);
 
         main_ll.setVisibility(View.INVISIBLE);
 
@@ -525,9 +527,9 @@ public class MainActivity extends BasePermission implements View.OnClickListener
         }
 
         rl_bottom.setVisibility(View.VISIBLE);
-        rg_button.setVisibility(View.INVISIBLE);
+        rg_button.setVisibility(View.GONE);
 
-        mySearch.setVisibility(View.INVISIBLE);
+        mySearch.setVisibility(View.GONE);
 
         ll_equip_img.setImageResource(R.drawable.equipment2);
         state = 0;

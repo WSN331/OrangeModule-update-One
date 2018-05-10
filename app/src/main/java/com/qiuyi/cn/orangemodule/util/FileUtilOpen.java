@@ -117,4 +117,45 @@ public class FileUtilOpen {
             e.printStackTrace();
         }
     }
+
+
+
+
+    /**
+     * 根据路径打开文件,这里是私密模块特有的
+     * @param context 上下文
+     * @param filename 文件名
+     */
+    public static void openFileByType(Context context, File file,String filename) {
+
+        if(context==null||filename==null)
+            return;
+
+        Intent intent = new Intent();
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //设置intent的Action属性
+        intent.setAction(Intent.ACTION_VIEW);
+
+        String type = "";
+        //文件的类型
+        for(int i =0;i<MATCH_ARRAY.length;i++){
+            //判断文件的格式
+            //path.toString().contains(MATCH_ARRAY[i][0].toString())
+            if(filename.toLowerCase().endsWith(MATCH_ARRAY[i][0])){
+                type = MATCH_ARRAY[i][1];
+                break;
+            }
+        }
+        try {
+            //设置intent的data和Type属性
+            intent.setDataAndType(Uri.fromFile(file), type);
+            //跳转
+            context.startActivity(intent);
+        } catch (Exception e) {
+            //当系统没有携带文件打开软件，提示
+            Toast.makeText(context,"无法打开该格式文件!",Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
 }

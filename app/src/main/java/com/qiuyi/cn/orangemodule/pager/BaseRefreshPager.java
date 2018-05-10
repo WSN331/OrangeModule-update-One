@@ -3,6 +3,7 @@ package com.qiuyi.cn.orangemodule.pager;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -57,7 +58,7 @@ public class BaseRefreshPager extends BasePager implements MyScrollerListener {
 
     @Override
     public View initView() {
-        View view = View.inflate(mActivity, R.layout.pager_baserefresh_layout,null);
+        View view = View.inflate(mActivity, R.layout.pager_baserefresh_layout, null);
         //ButterKnife.bind(mActivity,view);
         myViewGroup = view.findViewById(R.id.myViewGroup);
         myLock = view.findViewById(R.id.lock);
@@ -162,4 +163,7 @@ public class BaseRefreshPager extends BasePager implements MyScrollerListener {
             myLock.setLayoutParams(params);
         }
     }
+
+
+
 }

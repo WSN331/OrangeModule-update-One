@@ -4,6 +4,8 @@ package com.qiuyi.cn.orangemodule.upansaf.db.util;
 import android.text.TextUtils;
 
 import com.qiuyi.cn.orangemodule.upansaf.db.bean.AppInfo;
+import com.qiuyi.cn.orangemodule.upansaf.db.bean.CollectionFiles;
+import com.qiuyi.cn.orangemodule.upansaf.db.bean.SecretFiles;
 
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +15,27 @@ import java.util.List;
  */
 
 public class DBUtil {
+
+    //查询所有私密模块文件
+    public static List<SecretFiles> getSecretFile(){
+        List<SecretFiles> listSecretFiles = SecretFiles.listAll(SecretFiles.class);
+        return listSecretFiles;
+    }
+
+
+
+    //根据文件路径查询文件是否存在
+    public static CollectionFiles getCollectFile(String filePath){
+        if(filePath!=null){
+            List<CollectionFiles> listFiles = CollectionFiles.findWithQuery(CollectionFiles.class,"Select * from CollectionFiles where filePath=?",filePath);
+            if(listFiles!=null && listFiles.size()>0){
+                return listFiles.get(0);
+            }
+        }
+        return null;
+    }
+
+
 
     //获取一个新的appInfo，或者一个根据条件查询出来的AppInfo
     public static AppInfo getAppInfo(String rootPath){

@@ -1,90 +1,159 @@
 package com.qiuyi.cn.orangemodule.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.provider.DocumentFile;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
+import com.qiuyi.cn.orangemodule.Manager.AllUdiskManager;
 import com.qiuyi.cn.orangemodule.R;
-
-import com.qiuyi.cn.orangemodule.adapter.RecentlyAdapter;
-import com.qiuyi.cn.orangemodule.bean.FileInfo;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.FileAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.ImageAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.MusicAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.VideoAdapter;
+import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
+import com.qiuyi.cn.orangemodule.interfaceToutil.SDFileDeleteListener;
+import com.qiuyi.cn.orangemodule.interfaceToutil.UdiskDeleteListener;
+import com.qiuyi.cn.orangemodule.myview.CommomDialog;
+import com.qiuyi.cn.orangemodule.myview.FileDetailDialog;
+import com.qiuyi.cn.orangemodule.myview.MoreOperatePopWindow;
+import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
+import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
+import com.qiuyi.cn.orangemodule.util.Constant;
+import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
+import com.qiuyi.cn.orangemodule.util.FileManager.adapter.UFileAdapter;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
+import com.qiuyi.cn.orangemodule.util.ShareFile;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
 import java.io.File;
-import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2018/3/16.
- * 文件展示模块
+ * 本地文件展示模块
  */
-public class FileShowActivity extends Activity{
+public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
 
+    private SwipeRefreshLayout myFileRefresh;
     private RecyclerView myFileShow;
-    private RecentlyAdapter myFileAdapter;
     private GridLayoutManager myGridManager;
 
-    //全选按钮
-    private TextView bt_selectAll;
+    //正常的标题栏
+    private RelativeLayout rl_normal_head;
+    private ImageView iv_back;//返回
+    private TextView tv_title,tv_paixu;//标题,排序
+
+    //选择的标题栏
+    private RelativeLayout rl_select_head;
+    private ImageView iv_cancle;//取消选择
+    private TextView tv_selectNum;//选择的文件数
+    private TextView bt_selectAll;//全选
+
     //底部导航模块
     private LinearLayout ll_pager_native_bom;
-    //删除，拷贝到U盘，取消
-    private TextView tv_delete,tv_copy,tv_cancel;
+    private TextView tv_delete,tv_copy,tv_move,tv_more;;//复制，移动，删除，重命名
 
+    //是否全选
     private boolean isSelectAll = true;
 
-
+    private List<File> newlistFiles;//文件
     private List<MusicBean> listMusics;//音乐
     private List<VideoBean> listVideos;//视频
     private List<ImageBean> listImages;//图片
     private List<FileBean> listFiles;//文件
     private List<FileBean> listFileZars;//压缩包
 
-    private FileAdapter fileAdapter;
-    private ImageAdapter imgAdapter;
-    private MusicAdapter mucAdapter;
-    private VideoAdapter videoAdapter;
+    private UFileAdapter ufileAdapter;
+
+    private LoadingDialog deleteDialog;//删除
 
     private LoadingDialog dialog;
     private WriteToUdisk udiskUtil;
+    private DiskWriteToSD diskWriteToSD;
 
+    //分享
+    private ArrayList<Uri> listUris;
+    //添加收藏和私密
+    private List<File> listSS;
 
+    //是否显示了更多操作
+    private boolean isMoreOperateshow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fileshow);
 
+        listUris = new ArrayList<>();
+        listSS = new ArrayList<>();
+        newlistFiles = new ArrayList<>();
+
         dialog = new LoadingDialog.Builder(this)
                 .setMessage("复制中")
                 .setCancelable(false)
                 .setCancelOutside(false)
                 .create();
+
+        deleteDialog = new LoadingDialog.Builder(this)
+                .setMessage("删除中")
+                .setCancelable(false)
+                .setCancelOutside(false)
+                .create();
+
         udiskUtil = WriteToUdisk.getInstance(this.getApplicationContext(),this);
+        diskWriteToSD= new DiskWriteToSD(this.getApplicationContext());
 
         initView();
 
         initData();
+
+        initBroadCast();
     }
+
+    //广播监听初始化
+    private void initBroadCast() {
+        //数据刷新
+        IntentFilter filter = new IntentFilter(Constant.FINDFILE_MSG);
+        registerReceiver(FileMsgreceiver,filter);
+    }
+
+    private BroadcastReceiver FileMsgreceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getBooleanExtra("findOk",false)){
+                //本地信息查找完毕,刷新界面
+                initData();
+                myFileRefresh.setRefreshing(false);
+            }
+        }
+    };
+
 
     /**
      * 初始化数据
@@ -106,908 +175,580 @@ public class FileShowActivity extends Activity{
         Intent intent = getIntent();
         switch (intent.getIntExtra("type",0)){
             case 0:
+                tv_title.setText("图片");
                 listImages = MainActivity.listImages;
-                imgAdapter = new ImageAdapter(this,listImages,myGridManager);
-                myFileShow.setAdapter(imgAdapter);
-
-                imgAdapter.setOnImageItemClick(new ImageAdapter.ImageItemClick() {
-                    @Override
-                    public void openImage(View view, int position, List<ImageBean> allImageBean) {
-                        ImageBean imageBean = allImageBean.get(position);
-
-                        boolean isShowBox = imgAdapter.isShowCheckBox();
-
-                        if(isShowBox){
-
-                            if(imageBean.getFiletype()!=3&& imageBean.getFiletype()!=0){
-                                //正在显示checkbox
-                                boolean[] flag = imgAdapter.getFlag();
-
-                                flag[position] = !flag[position];
-
-                                //如果当前position是选中状态，那么就从这个点去找开始和结束点
-                                isToSelectImgAll(position,allImageBean,flag);
-
-                                imgAdapter.setFlag(flag);
-                                imgAdapter.notifyDataSetChanged();
-                            }
-                        }else{
-                            if(imageBean.getFiletype()==1){
-                                FileUtilOpen.openFileByPath(getApplicationContext(),imageBean.getPath());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position, final List<ImageBean> allFileBean) {
-
-                        ImageBean imgBean = allFileBean.get(position);
-
-                        //按得不是间隔处
-                        if(imgBean.getFiletype()!=3){
-                            //头部状态栏显示
-                            bt_selectAll.setVisibility(View.VISIBLE);
-                            //底部状态栏显示
-                            ll_pager_native_bom.setVisibility(View.VISIBLE);
-
-                            bt_selectAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if(isSelectAll){
-                                        imgAdapter.selectAll();
-                                        isSelectAll = false;
-                                        bt_selectAll.setText("取消全选");
-                                    }else{
-                                        imgAdapter.noSelect();
-                                        isSelectAll = true;
-                                        bt_selectAll.setText("全选");
-                                    }
-                                    imgAdapter.notifyDataSetChanged();
-                                }
-                            });
-                            tv_cancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    //头部状态栏显示
-                                    bt_selectAll.setVisibility(View.GONE);
-                                    //底部状态栏显示
-                                    ll_pager_native_bom.setVisibility(View.GONE);
-
-                                    imgAdapter.setShowCheckBox(false);
-                                    imgAdapter.ReFresh();
-
-                                }
-                            });
-
-                            tv_delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //选择，显示一下有哪几个选择了
-                                    boolean[] flag = imgAdapter.getFlag();
-                                    for(int i = flag.length-1;i>=0;i--){
-                                        if(flag[i]){
-                                            Log.e("select", "选中："+i);
-                                            allFileBean.remove(i);
-                                        }
-                                    }
-                                    imgAdapter.ReFresh();
-                                }
-                            });
-
-                            //有U盘存在
-                            if(MainActivity.isHaveUpan){
-                                tv_copy.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //选择，显示一下有哪几个选择了
-                                        dialog.show();
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                boolean[] flag = imgAdapter.getFlag();
-                                                for(int i = flag.length-1;i>=0;i--){
-                                                    if(flag[i]){
-                                                        Log.e("select", "选中："+i);
-                                                        if(allFileBean.get(i).getFiletype()!=0 && allFileBean.get(i).getFiletype()!=3)
-                                                        {
-                                                            File file = new File(allFileBean.get(i).getPath());
-                                                            udiskUtil.writeToSDFile(getApplicationContext(),file,udiskUtil.getCurrentFolder());
-                                                        }
-                                                    }
-                                                }
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        dialog.dismiss();
-                                                        //头部状态栏显示
-                                                        bt_selectAll.setVisibility(View.GONE);
-                                                        //底部状态栏显示
-                                                        ll_pager_native_bom.setVisibility(View.GONE);
-
-                                                        imgAdapter.setShowCheckBox(false);
-                                                        imgAdapter.ReFresh();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-                                    }
-                                });
-                            }
-
-
-                            imgAdapter.setShowCheckBox(true);
-                            boolean[] flag = imgAdapter.getFlag();
-
-                            if(imgBean.getFiletype()==0){
-                                selectAll(allFileBean,position,flag);
-                            }else{
-                                flag[position] = true;
-                                isToSelectImgAll(position,allFileBean,flag);
-                            }
-
-                            imgAdapter.setFlag(flag);
-
-                            imgAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
-
+                newlistFiles.clear();
+                for(ImageBean imageBean:listImages){
+                    File file = new File(imageBean.getPath());
+                    newlistFiles.add(file);
+                }
                 break;
             case 1:
+                tv_title.setText("视频");
                 listVideos = MainActivity.listVideos;
-                videoAdapter = new VideoAdapter(this,listVideos,myGridManager);
-                myFileShow.setAdapter(videoAdapter);
-
-                videoAdapter.setOnVideoItemClick(new VideoAdapter.VideoItemClick() {
-                    @Override
-                    public void openVideo(View view, int position, List<VideoBean> allVideoBean) {
-                        VideoBean videoBean = allVideoBean.get(position);
-
-                        boolean isShowBox = videoAdapter.isShowCheckBox();
-
-                        if(isShowBox){
-
-                            if(videoBean.getFiletype()!=3&& videoBean.getFiletype()!=0){
-                                //正在显示checkbox
-                                boolean[] flag = videoAdapter.getFlag();
-
-                                flag[position] = !flag[position];
-
-                                //如果当前position是选中状态，那么就从这个点去找开始和结束点
-                                isToSelectVideoAll(position,allVideoBean,flag);
-
-                                videoAdapter.setFlag(flag);
-                                videoAdapter.notifyDataSetChanged();
-                            }
-                        }else{
-                            if(videoBean.getFiletype()==2){
-                                FileUtilOpen.openFileByPath(getApplicationContext(),videoBean.getPath());
-                            }
-                        }
-
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position, final List<VideoBean> allVideoBean) {
-                        VideoBean videoBean = allVideoBean.get(position);
-
-                        //按得不是间隔处
-                        if(videoBean.getFiletype()!=3){
-                            //头部状态栏显示
-                            bt_selectAll.setVisibility(View.VISIBLE);
-                            //底部状态栏显示
-                            ll_pager_native_bom.setVisibility(View.VISIBLE);
-
-                            bt_selectAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if(isSelectAll){
-                                        videoAdapter.selectAll();
-                                        isSelectAll = false;
-                                        bt_selectAll.setText("取消全选");
-                                    }else{
-                                        videoAdapter.noSelect();
-                                        isSelectAll = true;
-                                        bt_selectAll.setText("全选");
-                                    }
-                                    videoAdapter.notifyDataSetChanged();
-                                }
-                            });
-                            tv_cancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    //头部状态栏显示
-                                    bt_selectAll.setVisibility(View.GONE);
-                                    //底部状态栏显示
-                                    ll_pager_native_bom.setVisibility(View.GONE);
-
-                                    videoAdapter.setShowCheckBox(false);
-                                    videoAdapter.ReFresh();
-
-                                }
-                            });
-
-                            tv_delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //选择，显示一下有哪几个选择了
-                                    boolean[] flag = videoAdapter.getFlag();
-                                    for(int i = flag.length-1;i>=0;i--){
-                                        if(flag[i]){
-                                            Log.e("select", "选中："+i);
-                                            allVideoBean.remove(i);
-                                        }
-                                    }
-                                    videoAdapter.ReFresh();
-                                }
-                            });
-
-                            //有U盘存在
-                            if(MainActivity.isHaveUpan){
-                                tv_copy.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //选择，显示一下有哪几个选择了
-                                        dialog.show();
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                boolean[] flag = videoAdapter.getFlag();
-                                                for(int i = flag.length-1;i>=0;i--){
-                                                    if(flag[i]){
-                                                        Log.e("select", "选中："+i);
-                                                        if(allVideoBean.get(i).getFiletype()!=0 && allVideoBean.get(i).getFiletype()!=3)
-                                                        {
-                                                            File file = new File(allVideoBean.get(i).getPath());
-                                                            udiskUtil.writeToSDFile(getApplicationContext(),file,udiskUtil.getCurrentFolder());
-                                                        }
-                                                    }
-                                                }
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        dialog.dismiss();
-                                                        //头部状态栏显示
-                                                        bt_selectAll.setVisibility(View.GONE);
-                                                        //底部状态栏显示
-                                                        ll_pager_native_bom.setVisibility(View.GONE);
-
-                                                        videoAdapter.setShowCheckBox(false);
-                                                        videoAdapter.ReFresh();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-                                    }
-                                });
-                            }
-
-
-                            videoAdapter.setShowCheckBox(true);
-                            boolean[] flag = videoAdapter.getFlag();
-
-                            if(videoBean.getFiletype()==0){
-                                selectVideoAll(allVideoBean,position,flag);
-                            }else{
-                                flag[position] = true;
-                                isToSelectVideoAll(position,allVideoBean,flag);
-                            }
-
-                            videoAdapter.setFlag(flag);
-
-                            videoAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
+                newlistFiles.clear();
+                for(VideoBean videoBean:listVideos){
+                    File file = new File(videoBean.getPath());
+                    newlistFiles.add(file);
+                }
                 break;
             case 2:
+                tv_title.setText("文档");
                 listFiles = MainActivity.listFiles;
-                fileAdapter = new FileAdapter(this,listFiles,myGridManager);
-                myFileShow.setAdapter(fileAdapter);
-
-                fileAdapter.setOnFileItemClick(new FileAdapter.FileItemClick() {
-                    @Override
-                    public void openFile(View view, int position, List<FileBean> allFileBean) {
-                        FileBean fileBean = allFileBean.get(position);
-
-                        boolean isShowBox = fileAdapter.isShowCheckBox();
-
-                        if(isShowBox){
-
-                            if(fileBean.getFiletype()!=3&& fileBean.getFiletype()!=0){
-                                //正在显示checkbox
-                                boolean[] flag = fileAdapter.getFlag();
-
-                                flag[position] = !flag[position];
-
-                                //如果当前position是选中状态，那么就从这个点去找开始和结束点
-                                isToSelectFileAll(position,allFileBean,flag);
-
-                                fileAdapter.setFlag(flag);
-                                fileAdapter.notifyDataSetChanged();
-                            }
-                        }else{
-                            if(fileBean.getFiletype()==2){
-                                FileUtilOpen.openFileByPath(getApplicationContext(),fileBean.getPath());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position, final List<FileBean> allFileBean) {
-                        FileBean fileBean = allFileBean.get(position);
-
-                        //按得不是间隔处
-                        if(fileBean.getFiletype()!=3){
-                            //头部状态栏显示
-                            bt_selectAll.setVisibility(View.VISIBLE);
-                            //底部状态栏显示
-                            ll_pager_native_bom.setVisibility(View.VISIBLE);
-
-                            bt_selectAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if(isSelectAll){
-                                        fileAdapter.selectAll();
-                                        isSelectAll = false;
-                                        bt_selectAll.setText("取消全选");
-                                    }else{
-                                        fileAdapter.noSelect();
-                                        isSelectAll = true;
-                                        bt_selectAll.setText("全选");
-                                    }
-                                    fileAdapter.notifyDataSetChanged();
-                                }
-                            });
-                            tv_cancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    //头部状态栏显示
-                                    bt_selectAll.setVisibility(View.GONE);
-                                    //底部状态栏显示
-                                    ll_pager_native_bom.setVisibility(View.GONE);
-
-                                    fileAdapter.setShowCheckBox(false);
-                                    fileAdapter.ReFresh();
-
-                                }
-                            });
-
-                            tv_delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //选择，显示一下有哪几个选择了
-                                    boolean[] flag = fileAdapter.getFlag();
-                                    for(int i = flag.length-1;i>=0;i--){
-                                        if(flag[i]){
-                                            Log.e("select", "选中："+i);
-                                            allFileBean.remove(i);
-                                        }
-                                    }
-                                    fileAdapter.ReFresh();
-                                }
-                            });
-
-                            //有U盘存在
-                            if(MainActivity.isHaveUpan){
-                                tv_copy.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //选择，显示一下有哪几个选择了
-                                        dialog.show();
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                boolean[] flag = fileAdapter.getFlag();
-                                                for(int i = flag.length-1;i>=0;i--){
-                                                    if(flag[i]){
-                                                        Log.e("select", "选中："+i);
-                                                        if(allFileBean.get(i).getFiletype()!=0 && allFileBean.get(i).getFiletype()!=3)
-                                                        {
-                                                            File file = new File(allFileBean.get(i).getPath());
-                                                            udiskUtil.writeToSDFile(getApplicationContext(),file,udiskUtil.getCurrentFolder());
-                                                        }
-                                                    }
-                                                }
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        dialog.dismiss();
-                                                        //头部状态栏显示
-                                                        bt_selectAll.setVisibility(View.GONE);
-                                                        //底部状态栏显示
-                                                        ll_pager_native_bom.setVisibility(View.GONE);
-
-                                                        fileAdapter.setShowCheckBox(false);
-                                                        fileAdapter.ReFresh();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-                                    }
-                                });
-                            }
-
-
-                            fileAdapter.setShowCheckBox(true);
-                            boolean[] flag = fileAdapter.getFlag();
-
-                            if(fileBean.getFiletype()==0){
-                                selectFileAll(allFileBean,position,flag);
-                            }else{
-                                flag[position] = true;
-                                isToSelectFileAll(position,allFileBean,flag);
-                            }
-
-                            fileAdapter.setFlag(flag);
-
-                            fileAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
+                newlistFiles.clear();
+                for(FileBean fileBean:listFiles){
+                    File file = new File(fileBean.getPath());
+                    newlistFiles.add(file);
+                }
                 break;
             case 3:
+                tv_title.setText("音乐");
                 listMusics = MainActivity.listMusics;
-                mucAdapter = new MusicAdapter(this,listMusics,myGridManager);
-                myFileShow.setAdapter(mucAdapter);
-
-                mucAdapter.setOnMusicItemClick(new MusicAdapter.MusicItemClick() {
-                    @Override
-                    public void openMusic(View view, int position, List<MusicBean> allMusicBean) {
-                        MusicBean musicBean = allMusicBean.get(position);
-
-                        boolean isShowBox = mucAdapter.isShowCheckBox();
-
-                        if(isShowBox){
-
-                            if(musicBean.getFiletype()!=3&& musicBean.getFiletype()!=0){
-                                //正在显示checkbox
-                                boolean[] flag = mucAdapter.getFlag();
-
-                                flag[position] = !flag[position];
-
-                                //如果当前position是选中状态，那么就从这个点去找开始和结束点
-                                isToSelectMusicAll(position,allMusicBean,flag);
-
-                                mucAdapter.setFlag(flag);
-                                mucAdapter.notifyDataSetChanged();
-                            }
-                        }else{
-                            if(musicBean.getFiletype()==2){
-                                FileUtilOpen.openFileByPath(getApplicationContext(),musicBean.getPath());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position, final List<MusicBean> allMusicBean) {
-                        MusicBean musicBean = allMusicBean.get(position);
-
-                        //按得不是间隔处
-                        if(musicBean.getFiletype()!=3){
-                            //头部状态栏显示
-                            bt_selectAll.setVisibility(View.VISIBLE);
-                            //底部状态栏显示
-                            ll_pager_native_bom.setVisibility(View.VISIBLE);
-
-                            bt_selectAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if(isSelectAll){
-                                        mucAdapter.selectAll();
-                                        isSelectAll = false;
-                                        bt_selectAll.setText("取消全选");
-                                    }else{
-                                        mucAdapter.noSelect();
-                                        isSelectAll = true;
-                                        bt_selectAll.setText("全选");
-                                    }
-                                    mucAdapter.notifyDataSetChanged();
-                                }
-                            });
-                            tv_cancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    //头部状态栏显示
-                                    bt_selectAll.setVisibility(View.GONE);
-                                    //底部状态栏显示
-                                    ll_pager_native_bom.setVisibility(View.GONE);
-
-                                    mucAdapter.setShowCheckBox(false);
-                                    mucAdapter.ReFresh();
-
-                                }
-                            });
-
-                            tv_delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //选择，显示一下有哪几个选择了
-                                    boolean[] flag = mucAdapter.getFlag();
-                                    for(int i = flag.length-1;i>=0;i--){
-                                        if(flag[i]){
-                                            Log.e("select", "选中："+i);
-                                            allMusicBean.remove(i);
-                                        }
-                                    }
-                                    mucAdapter.ReFresh();
-                                }
-                            });
-
-                            //有U盘存在
-                            if(MainActivity.isHaveUpan){
-                                tv_copy.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        //选择，显示一下有哪几个选择了
-                                        dialog.show();
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                boolean[] flag = mucAdapter.getFlag();
-                                                for(int i = flag.length-1;i>=0;i--){
-                                                    if(flag[i]){
-                                                        Log.e("select", "选中："+i);
-                                                        if(allMusicBean.get(i).getFiletype()!=0 && allMusicBean.get(i).getFiletype()!=3)
-                                                        {
-                                                            File file = new File(allMusicBean.get(i).getPath());
-                                                            udiskUtil.writeToSDFile(getApplicationContext(),file,udiskUtil.getCurrentFolder());
-                                                        }
-                                                    }
-                                                }
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        dialog.dismiss();
-                                                        //头部状态栏显示
-                                                        bt_selectAll.setVisibility(View.GONE);
-                                                        //底部状态栏显示
-                                                        ll_pager_native_bom.setVisibility(View.GONE);
-
-                                                        mucAdapter.setShowCheckBox(false);
-                                                        mucAdapter.ReFresh();
-                                                    }
-                                                });
-                                            }
-                                        }).start();
-                                    }
-                                });
-                            }
-
-
-                            mucAdapter.setShowCheckBox(true);
-                            boolean[] flag = mucAdapter.getFlag();
-
-                            if(musicBean.getFiletype()==0){
-                                selectMusicAll(allMusicBean,position,flag);
-                            }else{
-                                flag[position] = true;
-                                isToSelectMusicAll(position,allMusicBean,flag);
-                            }
-
-                            mucAdapter.setFlag(flag);
-
-                            mucAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
+                newlistFiles.clear();
+                for(MusicBean musicBean:listMusics){
+                    File file = new File(musicBean.getPath());
+                    newlistFiles.add(file);
+                }
                 break;
             case 4:
+                tv_title.setText("压缩包");
                 listFileZars = MainActivity.listFileZars;
-                fileAdapter = new FileAdapter(this,listFileZars,myGridManager);
-                myFileShow.setAdapter(fileAdapter);
-
-                fileAdapter.setOnFileItemClick(new FileAdapter.FileItemClick() {
-                    @Override
-                    public void openFile(View view, int position, List<FileBean> allFileBean) {
-                        FileBean fileBean = allFileBean.get(position);
-
-                        boolean isShowBox = fileAdapter.isShowCheckBox();
-
-                        if(isShowBox){
-
-                            if(fileBean.getFiletype()!=3&& fileBean.getFiletype()!=0){
-                                //正在显示checkbox
-                                boolean[] flag = fileAdapter.getFlag();
-
-                                flag[position] = !flag[position];
-
-                                //如果当前position是选中状态，那么就从这个点去找开始和结束点
-                                isToSelectFileAll(position,allFileBean,flag);
+                newlistFiles.clear();
+                for(FileBean fileBean:listFileZars){
+                    File file = new File(fileBean.getPath());
+                    newlistFiles.add(file);
+                }
+                break;
+        }
 
 
-                                fileAdapter.setFlag(flag);
-                                fileAdapter.notifyDataSetChanged();
-                            }
-                        }else{
-                            if(fileBean.getFiletype()==2){
-                                FileUtilOpen.openFileByPath(getApplicationContext(),fileBean.getPath());
-                            }
+        ufileAdapter = new UFileAdapter(this,newlistFiles,myGridManager);
+        myFileShow.setAdapter(ufileAdapter);
+
+        //点击事件
+        ufileAdapter.setOnFileItemClick(new UFileAdapter.FileItemClick() {
+            @Override
+            public void openFile(View view, int position,List<File> fileLists) {
+                File file = newlistFiles.get(position);
+                boolean isShowBox = ufileAdapter.isShowCheckBox();
+
+                if(isShowBox){
+                    //正在显示checkbox
+                    boolean flag[] = ufileAdapter.getFlag();
+
+                    flag[position] = !flag[position];
+
+                    ufileAdapter.setFlag(flag);
+
+                    int count = 0;
+                    for(boolean flagment:flag){
+                        if(flagment){
+                            count++;
                         }
                     }
+                    tv_selectNum.setText("已选("+count+")");
 
+                    //判断是否全选了
+                    pdSelect(count);
+
+                    ufileAdapter.notifyDataSetChanged();
+                }else{
+                    FileUtilOpen.openFileByPath(getApplicationContext(),newlistFiles.get(position).getPath());
+                }
+            }
+
+            @Override
+            public void onLongClick(View view, final int position, final List<File> fileLists) {
+                final File file = newlistFiles.get(position);
+
+                //选择状态栏显示
+                rl_normal_head.setVisibility(View.GONE);
+                rl_select_head.setVisibility(View.VISIBLE);
+                //底部导航栏按钮显示
+                ll_pager_native_bom.setVisibility(View.VISIBLE);
+
+                bt_selectAll.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onLongClick(View view, int position, final List<FileBean> allFileBean) {
-                        FileBean fileBean = allFileBean.get(position);
+                    public void onClick(View view) {
+                        if(isSelectAll){
+                            ufileAdapter.selectAll();
+                            isSelectAll = false;
+                            bt_selectAll.setText("取消全选");
+                            tv_selectNum.setText("已选("+newlistFiles.size()+")");
+                        }else{
+                            ufileAdapter.noSelect();
+                            isSelectAll = true;
+                            bt_selectAll.setText("全选");
+                            tv_selectNum.setText("已选(0)");
+                        }
+                        ufileAdapter.notifyDataSetChanged();
+                    }
+                });
 
-                        //按得不是间隔处
-                        if(fileBean.getFiletype()!=3){
-                            //头部状态栏显示
-                            bt_selectAll.setVisibility(View.VISIBLE);
-                            //底部状态栏显示
-                            ll_pager_native_bom.setVisibility(View.VISIBLE);
+                //取消按钮
+                iv_cancle.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //选择状态栏显示
+                        rl_select_head.setVisibility(View.GONE);
+                        rl_normal_head.setVisibility(View.VISIBLE);
+                        ll_pager_native_bom.setVisibility(View.GONE);
 
-                            bt_selectAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if(isSelectAll){
-                                        fileAdapter.selectAll();
-                                        isSelectAll = false;
-                                        bt_selectAll.setText("取消全选");
-                                    }else{
-                                        fileAdapter.noSelect();
-                                        isSelectAll = true;
-                                        bt_selectAll.setText("全选");
-                                    }
-                                    fileAdapter.notifyDataSetChanged();
-                                }
-                            });
-                            tv_cancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
+                        ufileAdapter.setShowCheckBox(false);
+                        ufileAdapter.ReFresh();
+                    }
+                });
 
-                                    //头部状态栏显示
-                                    bt_selectAll.setVisibility(View.GONE);
-                                    //底部状态栏显示
-                                    ll_pager_native_bom.setVisibility(View.GONE);
+                tv_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //选择，显示一下有哪几个选择了
+                        boolean[] flag = ufileAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                //删除
+                                Log.e("select", "选中："+i);
+                                deleteDialog.show();
 
-                                    fileAdapter.setShowCheckBox(false);
-                                    fileAdapter.ReFresh();
+                                final File defile = newlistFiles.get(i);
 
-                                }
-                            });
-
-                            tv_delete.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //选择，显示一下有哪几个选择了
-                                    boolean[] flag = fileAdapter.getFlag();
-                                    for(int i = flag.length-1;i>=0;i--){
-                                        if(flag[i]){
-                                            Log.e("select", "选中："+i);
-                                            allFileBean.remove(i);
-                                        }
-                                    }
-                                    fileAdapter.ReFresh();
-                                }
-                            });
-
-                            //有U盘存在
-                            if(MainActivity.isHaveUpan){
-                                tv_copy.setOnClickListener(new View.OnClickListener() {
+                                new Thread(new Runnable() {
                                     @Override
-                                    public void onClick(View view) {
-                                        //选择，显示一下有哪几个选择了
-                                        dialog.show();
-
-                                        new Thread(new Runnable() {
+                                    public void run() {
+                                        doDelete(defile);
+                                        runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                boolean[] flag = fileAdapter.getFlag();
-                                                for(int i = flag.length-1;i>=0;i--){
-                                                    if(flag[i]){
-                                                        Log.e("select", "选中："+i);
-                                                        if(allFileBean.get(i).getFiletype()!=0 && allFileBean.get(i).getFiletype()!=3)
-                                                        {
-                                                            File file = new File(allFileBean.get(i).getPath());
-                                                            udiskUtil.writeToSDFile(getApplicationContext(),file,udiskUtil.getCurrentFolder());
-                                                        }
-                                                    }
-                                                }
-                                                runOnUiThread(new Runnable() {
+                                                deleteDialog.dismiss();
+                                                tv_selectNum.setText("已选(0)");
+                                            }
+                                        });
+                                    }
+                                }).start();
+
+                                newlistFiles.remove(i);
+                            }
+                        }
+                        ufileAdapter.ReFresh();
+
+                    }
+                });
+
+
+                //更多操作模块
+                tv_more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final int[] myflag ={-1,-1,-1,-1,-1};
+                        //选择
+                        boolean[] flag = ufileAdapter.getFlag();
+                        int count = 0;
+                        int location = -1;
+                        boolean isDirectory = false;
+
+                        listUris.clear();
+                        listSS.clear();
+
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                //分享
+                                File file = newlistFiles.get(i);
+                                if(!file.isDirectory()){
+                                    listUris.add(Uri.fromFile(file));
+                                }else{
+                                    isDirectory = true;
+                                }
+                                //收藏和私密
+                                listSS.add(file);
+                                count++;
+                                location=i;
+                            }
+                        }
+
+                        File collectFile = null;
+                        if(count==1){
+                            //当只有一个文件的时候，判断一下这个文件是否在收藏中
+                            File colFile = newlistFiles.get(location);
+                            //collectionFiles = DBUtil.getCollectFile(colFile.getPath());
+                            //在MyFile->CollectionDirectory文件夹下查找文件是否存在
+                            collectFile = diskWriteToSD.findCollectionFile(colFile,AllFileShowActivity.CollectionDirectory_Name);
+                            if(collectFile!=null){
+                                //若为true就是已经收藏了
+                                myflag[1] = 2;
+                            }
+
+                            if(isDirectory){
+                                //有文件夹
+                                myflag[0] = 1;//分享不行
+                                myflag[2] = 1;//添加私密不行
+                            }
+                        }else if(count>1){
+                            myflag[1] = 1;
+                            myflag[2] = 1;
+                            myflag[3] = 1;
+                            myflag[4] = 1;
+                            if(isDirectory){
+                                myflag[0] = 1;//分享不行
+                            }
+                        }
+
+
+                        final int finalCount = count;//选中的数量
+                        final int finalLocation = location;//文件的位置
+                        final boolean finalIsDirectory = isDirectory;//文件的种类
+                        final File finalCollection = collectFile;//文件手否收藏
+                        //final CollectionFiles finalCollectionFiles = collectionFiles;//文件是否在收藏中
+
+                        if(count>0){
+                            isMoreOperateshow = !isMoreOperateshow;
+                            if(isMoreOperateshow){
+
+                                new MoreOperatePopWindow(FileShowActivity.this, new MoreOperatePopWindow.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(final MoreOperatePopWindow popupWindow, int position) {
+                                        //分享
+                                        if(position==1 && !finalIsDirectory){
+                                            ShareFile.shareMultipleFiles(FileShowActivity.this,listUris);
+                                            popupWindow.dismiss();
+                                            UIShowHide();
+                                            isMoreOperateshow = false;
+                                        }
+
+                                        //添加收藏
+                                        if(position==2 && finalCount==1){
+                                            //只有一个对象
+                                            if(finalCollection!=null){
+                                                //已经在收藏中，那么操作就是取消收藏
+                                                new Thread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        dialog.dismiss();
-                                                        //头部状态栏显示
-                                                        bt_selectAll.setVisibility(View.GONE);
-                                                        //底部状态栏显示
-                                                        ll_pager_native_bom.setVisibility(View.GONE);
-
-                                                        fileAdapter.setShowCheckBox(false);
-                                                        fileAdapter.ReFresh();
+                                                        finalCollection.delete();
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                popupWindow.dismiss();
+                                                                UIShowHide();
+                                                                isMoreOperateshow = false;
+                                                            }
+                                                        });
                                                     }
-                                                });
+                                                }).start();
+                                            }else{
+                                                //为空，操作就是收藏
+                                                final File file = newlistFiles.get(finalLocation);
+
+                                                new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        diskWriteToSD.writeSelectFileToSD(file, AllFileShowActivity.CollectionDirectory_Name);
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                popupWindow.dismiss();
+                                                                UIShowHide();
+                                                                isMoreOperateshow = false;
+                                                            }
+                                                        });
+                                                    }
+                                                }).start();
+
                                             }
-                                        }).start();
+
+                                        }
+                                        //添加私密
+                                        if(position==3 && !finalIsDirectory){
+                                            //为空，操作就是收藏
+                                            final File file = newlistFiles.get(finalLocation);
+
+                                            //得到的MyFile->.SecretDirectory文件夹
+                                            File mySecretDirectory = diskWriteToSD.getSDCardFile(AllFileShowActivity.SecretDirectory_Name);
+                                            String newFileName = AESHelperUpdate2.encrypt(AllFileShowActivity.PASSWORD_STRING,file.getName()+"*"+new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+                                            final File newFile = new File(mySecretDirectory.getAbsoluteFile()+"/"+newFileName);
+
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    boolean isWrite = diskWriteToSD.writeToSD3(file,newFile);
+
+                                                    if(isWrite){
+                                                        file.delete();
+
+                                                        newlistFiles.remove(finalLocation);
+                                                    }
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            //UI更新
+                                                            popupWindow.dismiss();
+                                                            isMoreOperateshow = false;
+
+                                                            onRefresh();
+                                                        }
+                                                    });
+                                                }
+                                            }).start();
+
+                                        }
+                                        //重命名
+                                        if(position==4){
+                                            //重命名和详情都需要点击的是一个
+                                            if(finalCount ==1){
+                                                createNewFolder("重命名文件",2,newlistFiles.get(finalLocation));
+                                                popupWindow.dismiss();
+                                                UIShowHide();
+                                                isMoreOperateshow = false;
+                                            }
+                                        }
+                                        //详情
+                                        if(position==5){
+                                            //重命名和详情都需要点击的是一个
+                                            if(finalCount ==1){
+                                                new FileDetailDialog(FileShowActivity.this,R.style.dialog,newlistFiles.get(finalLocation)).show();
+                                                isMoreOperateshow = !isMoreOperateshow;
+                                                popupWindow.dismiss();
+                                                UIShowHide();
+                                                isMoreOperateshow = false;
+                                            }
+                                        }
                                     }
-                                });
+                                }).setTitle(myflag).showUp2(tv_more);
                             }
 
-
-                            fileAdapter.setShowCheckBox(true);
-                            boolean[] flag = fileAdapter.getFlag();
-
-                            if(fileBean.getFiletype()==0){
-                                selectFileAll(allFileBean,position,flag);
-                            }else{
-                                flag[position] = true;
-                                isToSelectFileAll(position,allFileBean,flag);
-                            }
-
-                            fileAdapter.setFlag(flag);
-
-                            fileAdapter.notifyDataSetChanged();
                         }
                     }
                 });
-                break;
-            default:
-                break;
-        }
+
+                //复制
+                tv_copy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //选择，显示一下有哪几个选择了
+                        selectHowToPaste(false);
+                    }
+                });
+
+                //移动
+                tv_move.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        selectHowToPaste(true);
+                    }
+                });
+
+                ufileAdapter.setShowCheckBox(true);
+                boolean[] flag = ufileAdapter.getFlag();
+
+                flag[position] = true;
+
+                ufileAdapter.setFlag(flag);
+
+                tv_selectNum.setText("已选(1)");
+                //判断是否全选了
+                pdSelect(1);
+
+                ufileAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void changeCount(int count) {
+                tv_selectNum.setText("已选("+count+")");
+                //判断是否全选
+                pdSelect(count);
+            }
+        });
     }
 
 
-    //Music是否全部选中
-    private void isToSelectImgAll(int position, List<ImageBean> allImageBean, boolean[] flag) {
-        int rooti = position-1;
-        int rootj = position+1;
-        while(allImageBean.get(rooti).getFiletype()!=0){
-            rooti--;
-        }
-        while (allImageBean.get(rootj).getFiletype()!=3){
-            rootj++;
-        }
-
-        flag[rooti] = true;
-        flag[rootj] = true;
-
-        for (int i=rooti+1;i<rootj;i++){
-            if(!flag[i]){
-                flag[rooti] = false;
-                flag[rootj] = false;
-                break;
+    /**
+     * 复制+移动
+     * @param b false=复制，true=移动（复制后，删除原来）
+     */
+    public static Map<Integer,File> copyFileMap = new HashMap<>();
+    private void selectHowToPaste(final boolean b) {
+        copyFileMap.clear();
+        boolean[] flag = ufileAdapter.getFlag();
+        for(int i = flag.length-1;i>=0;i--){
+            if(flag[i]){
+                copyFileMap.put(i,newlistFiles.get(i));
             }
         }
+        rl_select_head.setVisibility(View.GONE);
+        rl_normal_head.setVisibility(View.VISIBLE);
+        ll_pager_native_bom.setVisibility(View.GONE);
+        ufileAdapter.setShowCheckBox(false);
+        ufileAdapter.ReFresh();
+
+        new MySelectDialog(this, R.style.dialog, new MySelectDialog.OnCloseListener() {
+            @Override
+            public void onClick(Dialog dialog, Integer flag) {
+                if(flag==1){
+                    //本地
+                    Intent intent = new Intent(FileShowActivity.this, AllFileShowActivity.class);
+                    //带上标志3表示是从fileShowActivity过去的
+                    intent.putExtra("from",3);
+                    intent.putExtra("select",b);
+                    startActivity(intent);
+                }else if(flag ==2){
+                    //U盘
+                    if(MainActivity.isHaveUpan){
+                        Intent intent = new Intent(FileShowActivity.this, AllUdiskFileShowActivity.class);
+                        //带上标志3表示是从fileShowActivity过去的
+                        intent.putExtra("from",3);
+                        intent.putExtra("select",b);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(FileShowActivity.this,"请插入U盘",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }).show();
     }
 
-    //Video是否全部选中
-    private void isToSelectVideoAll(int position, List<VideoBean> allVideoBean, boolean[] flag) {
-        int rooti = position-1;
-        int rootj = position+1;
-        while(allVideoBean.get(rooti).getFiletype()!=0){
-            rooti--;
-        }
-        while (allVideoBean.get(rootj).getFiletype()!=3){
-            rootj++;
-        }
 
-        flag[rooti] = true;
-        flag[rootj] = true;
+    /**
+     * 重命名+新建
+     * @param name title
+     * @param flag 1 新建，2 重命名
+     */
+    private void createNewFolder(final String name, final int flag, final File myfile) {
+        new CommomDialog(this, R.style.dialog, new CommomDialog.OnCloseListener() {
+            @Override
+            public void onClick(Dialog dialog, final String folderName, boolean confirm) {
+                if(confirm){
+                    if(flag == 2){
+                        //重命名文件夹
+                        if(myfile!=null){
+                            if(myfile.isDirectory()){
+                                //是个文件夹
+                                File newFile = new File(myfile.getParentFile(),folderName);
+                                myfile.renameTo(newFile);
+                            }else{
+                                //是个文件
+                                String newName = folderName+myfile.getName().substring(myfile.getName().lastIndexOf("."),myfile.getName().length());
+                                File newFile = new File(myfile.getParentFile(),newName);
+                                myfile.renameTo(newFile);
+                            }
+                        }
+                        onRefresh();
+                    }
+                    dialog.dismiss();
+                }
+            }
+        }).setTitle(name).show();
+    }
 
-        for (int i=rooti+1;i<rootj;i++){
-            if(!flag[i]){
-                flag[rooti] = false;
-                flag[rootj] = false;
-                break;
+
+    //判断是否全选
+    private void pdSelect(int count) {
+        if(count==newlistFiles.size()){
+            bt_selectAll.setText("取消全选");
+            isSelectAll = false;
+        }else{
+            bt_selectAll.setText("全选");
+            isSelectAll = true;
+        }
+    }
+
+    /**
+     * 删除文件
+     * @param file
+     */
+    private void doDelete(File file) {
+        if(file.isDirectory()) {
+            for (File deleteFile : file.listFiles()) {
+                doDelete(deleteFile);
             }
         }
-    }
-
-    //File是否全部选中
-    private void isToSelectFileAll(int position, List<FileBean> allFileBean, boolean[] flag) {
-        int rooti = position-1;
-        int rootj = position+1;
-        while(allFileBean.get(rooti).getFiletype()!=0){
-            rooti--;
-        }
-        while (allFileBean.get(rootj).getFiletype()!=3){
-            rootj++;
-        }
-
-        flag[rooti] = true;
-        flag[rootj] = true;
-
-        for (int i=rooti+1;i<rootj;i++){
-            if(!flag[i]){
-                flag[rooti] = false;
-                flag[rootj] = false;
-                break;
-            }
-        }
-    }
-
-    //Music是否全部选中
-    private void isToSelectMusicAll(int position, List<MusicBean> allMusicBean, boolean[] flag) {
-        int rooti = position-1;
-        int rootj = position+1;
-        while(allMusicBean.get(rooti).getFiletype()!=0){
-            rooti--;
-        }
-        while (allMusicBean.get(rootj).getFiletype()!=3){
-            rootj++;
-        }
-
-        flag[rooti] = true;
-        flag[rootj] = true;
-
-        for (int i=rooti+1;i<rootj;i++){
-            if(!flag[i]){
-                flag[rooti] = false;
-                flag[rootj] = false;
-                break;
-            }
-        }
+        file.delete();
     }
 
 
-    //选中的是title标题栏，下面需要全部选中
-    private void selectAll(List<ImageBean> allFileBean,int position,boolean[] flag){
-        for(int i=position;i<allFileBean.size();i++){
-            ImageBean allFile = allFileBean.get(i);
-            if(allFile.getFiletype()==3){
-                flag[i] = !flag[i];
-                break;
-            }
-            flag[i] = !flag[i];
-        }
+
+    @Override
+    public void onRefresh() {
+        //选择状态栏显示
+
+        myFileRefresh.setRefreshing(true);
+
+        //启动查找U盘文件的服务
+        startService(new Intent(FileShowActivity.this,FindFileMsg_Service.class));
+
+        rl_select_head.setVisibility(View.GONE);
+        rl_normal_head.setVisibility(View.VISIBLE);
+        ll_pager_native_bom.setVisibility(View.GONE);
+
+        ufileAdapter.setShowCheckBox(false);
+        ufileAdapter.ReFresh();
     }
 
-    //选中的是title标题栏，下面需要全部选中
-    private void selectVideoAll(List<VideoBean> allFileBean,int position,boolean[] flag){
-        for(int i=position;i<allFileBean.size();i++){
-            VideoBean allFile = allFileBean.get(i);
-            if(allFile.getFiletype()==3){
-                flag[i] = !flag[i];
-                break;
-            }
-            flag[i] = !flag[i];
-        }
+
+    //操作完之后的UI显示，相当于取消
+    private void UIShowHide(){
+        //选择状态栏显示
+        rl_select_head.setVisibility(View.GONE);
+        rl_normal_head.setVisibility(View.VISIBLE);
+        ll_pager_native_bom.setVisibility(View.GONE);
+
+        ufileAdapter.setShowCheckBox(false);
+        ufileAdapter.ReFresh();
     }
 
-    //选中的是title标题栏，下面需要全部选中
-    private void selectMusicAll(List<MusicBean> allFileBean,int position,boolean[] flag){
-        for(int i=position;i<allFileBean.size();i++){
-            MusicBean allFile = allFileBean.get(i);
-            if(allFile.getFiletype()==3){
-                flag[i] = !flag[i];
-                break;
-            }
-            flag[i] = !flag[i];
-        }
-    }
 
-    //选中的是title标题栏，下面需要全部选中
-    private void selectFileAll(List<FileBean> allFileBean,int position,boolean[] flag){
-        for(int i=position;i<allFileBean.size();i++){
-            FileBean allFile = allFileBean.get(i);
-            if(allFile.getFiletype()==3){
-                flag[i] = !flag[i];
-                break;
-            }
-            flag[i] = !flag[i];
-        }
-    }
+
+
+
+
 
     /**
      * 初始化界面
      */
     private void initView() {
         myFileShow = findViewById(R.id.fileshow_rl);
+        myFileRefresh = findViewById(R.id.fileshow_sl);
 
-        bt_selectAll = findViewById(R.id.bt_selectAll);
+        myFileRefresh.setColorSchemeColors(Color.RED);
+        myFileRefresh.setOnRefreshListener(this);
+
+        //正常标题栏
+        rl_normal_head = findViewById(R.id.rl_normal_head);
+        iv_back = findViewById(R.id.allfileshow_iv_back);//返回
+        tv_paixu = findViewById(R.id.tv_paixu);
+        tv_title = findViewById(R.id.allfileshow_tv_title); //标题
+
+        //选择checkbox出来之后显示的标题栏
+        rl_select_head = findViewById(R.id.rl_select_head);
+        iv_cancle = findViewById(R.id.rl_allfileshow_title_cancle); //取消选择
+        tv_selectNum = findViewById(R.id.rl_allfileshow_title_select);//选择的文件数
+        bt_selectAll = findViewById(R.id.bt_selectAll);//全选按钮
+
+        //底部导航栏
         ll_pager_native_bom = findViewById(R.id.ll_pager_native_bom);
         tv_delete = findViewById(R.id.tv_delete);
         tv_copy = findViewById(R.id.tv_copy);
-        tv_cancel = findViewById(R.id.tv_cancel);
+        tv_move = findViewById(R.id.tv_move);
+        tv_more = findViewById(R.id.tv_more);
 
+        //返回键
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        //排序
+        tv_paixu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
+
+    @Override
+    protected void onResume() {
+        onRefresh();
+        super.onResume();
+    }
 }

@@ -1,16 +1,17 @@
 package com.qiuyi.cn.orangemodule.fragment;
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
@@ -19,43 +20,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
-import com.qiuyi.cn.orangemodule.activity.FileShowActivity;
-import com.qiuyi.cn.orangemodule.activity.UFileShowActivity;
 import com.qiuyi.cn.orangemodule.adapter.BackUp_fm_adapter;
 import com.qiuyi.cn.orangemodule.bean.MyItemFile;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
-import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 import com.qiuyi.cn.orangemodule.util.FileManager.MyFileHelper;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.contacts.ContactBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.contacts.PhoneInfo;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindContacts;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanConstacts;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanRestore_Service;
-import com.qiuyi.cn.orangemodule.util.MyApplication;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-
-import javax.security.auth.login.LoginException;
 
 /**
  * Created by Administrator on 2018/3/18.
@@ -133,8 +118,8 @@ public class RestoreFragment extends Fragment implements View.OnClickListener,Sw
         super.onActivityCreated(savedInstanceState);
 
         //启动服务查找U盘路径，并查找U盘文件
-        myFileHelper = new MyFileHelper(mActivity);
-        File file = myFileHelper.findUdiskPath();
+        //myFileHelper = new MyFileHelper(mActivity);
+        File file = MainActivity.rootUFile;
         if(file!=null){
             //启动查找U盘文件的服务
             mActivity.startService(new Intent(mActivity, FindUpanRestore_Service.class));
@@ -213,31 +198,25 @@ public class RestoreFragment extends Fragment implements View.OnClickListener,Sw
         myAdapter.setOnBackUpClickListener(new BackUp_fm_adapter.BackupOnClick() {
             @Override
             public void onBackItemClick(View view, int position) {
-                Intent intent = new Intent(mActivity, UFileShowActivity.class);
-                if(position==0){
-                    intent.putExtra("type",0);
-                    intent.putExtra("listUFile", (Serializable)listUPANImages);
-                }else if(position == 1){
-                    intent.putExtra("type",1);
-                    intent.putExtra("listUFile", (Serializable)listUPANVideos);
-                }else if(position == 2){
-                    intent.putExtra("type",2);
-                    intent.putExtra("listUFile", (Serializable)listUPANFiles);
-                }else if(position == 3){
-                    intent.putExtra("type",3);
-                    intent.putExtra("listUFile", (Serializable)listUPANMusics);
-                }else{
-                    intent = null;
-                }
-                if(intent!=null){
-                    mActivity.startActivity(intent);
+                boolean isShowBox = myAdapter.isShowCheckBox();
+                if(isShowBox){
+                    //正在显示checkbox
+                    boolean[] flag = myAdapter.getFlag();
+                    flag[position] = !flag[position];
+
+                    myAdapter.setFlag(flag);
+                    myAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onBackLongItemClick(View view, int position) {
-/*                myAdapter.setShowCheckBox(true);
-                myAdapter.notifyDataSetChanged();*/
+                myAdapter.setShowCheckBox(true);
+                boolean flag[] = myAdapter.getFlag();
+                flag[position] = true;
+                myAdapter.setFlag(flag);
+
+                myAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -341,83 +320,149 @@ public class RestoreFragment extends Fragment implements View.OnClickListener,Sw
     @Override
     public void onClick(View view) {
 
-
-        dialog.show();
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                startRestore();
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-                    }
-                });
+        int count = 0;
+        final List<Integer> mySelect = new ArrayList<>();
+        //选择，显示一下有哪几个选择了
+        boolean[] flag = myAdapter.getFlag();
+        for(int i = flag.length-1;i>=0;i--){
+            if(flag[i]){
+                Log.e("select", "选中："+i);
+                mySelect.add(i);
+                count++;
             }
-        });
+        }
+
+        if(count>0){
+            dialog.show();
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    startRestore(mySelect);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            myAdapter.ReFresh();
+                        }
+                    });
+                }
+            });
+        }else{
+            new AlertDialog.Builder(mActivity)
+                    .setCancelable(false)
+                    .setTitle("还原")
+                    .setMessage("没有选择还原项目（默认还原全部）,点击确定同意还原全部，点击取消重新选择需要还原的项目")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            for(int j=0;i<5;j++){
+                                mySelect.add(j);
+                            }
+                            dialog.show();
+                            executorService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startRestore(mySelect);
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.dismiss();
+                                            myAdapter.ReFresh();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
+        }
+
+        myAdapter.setShowCheckBox(false);
+        myAdapter.ReFresh();
     }
 
 
     //文件还原
-    private void startRestore() {
+    private void startRestore(List<Integer> mySelect) {
         List<Callable<Void>> partions = new ArrayList<>();
         final DiskWriteToSD diskWriteToSD = new DiskWriteToSD(mActivity.getApplicationContext());
         if(diskWriteToSD.isSDCardState()){
 
-            partions.add(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    for(File file : listUPANImages){
-                        diskWriteToSD.writeFileToSD(file,"照片");
-                    }
-                    return null;
+            for(Integer myInet:mySelect){
+                switch(myInet){
+                    case 0:
+                        partions.add(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                for(File file : listUPANImages){
+                                    diskWriteToSD.writeFileToSD(file,"照片");
+                                }
+                                return null;
+                            }
+                        });
+                        break;
+                    case 1:
+                        partions.add(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                for(File file : listUPANVideos){
+                                    diskWriteToSD.writeFileToSD(file,"视频");
+                                }
+                                return null;
+                            }
+                        });
+                        break;
+                    case 2:
+                        partions.add(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                for(File file : listUPANFiles){
+                                    diskWriteToSD.writeFileToSD(file,"文档");
+                                }
+                                return null;
+                            }
+                        });
+                        break;
+                    case 3:
+                        partions.add(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                for(File file : listUPANMusics){
+                                    diskWriteToSD.writeFileToSD(file,"音乐");
+                                }
+                                return null;
+                            }
+                        });
+                        break;
+                    case 4:
+                        partions.add(new Callable<Void>() {
+                            @Override
+                            public Void call() throws Exception {
+                                //获取联系人文件
+                                constactFile = MainActivity.constactUP;
+                                if(constactFile!=null){
+                                    diskWriteToSD.writeFileToSD(constactFile,"联系人");
+                                }
+                                for(ContactBean myBean:listContact){
+                                    if(myBean==null){
+                                        continue;
+                                    }
+                                    diskWriteToSD.init(myBean);
+                                }
+                                diskWriteToSD.sendToSDCardPhone(listContact, mActivity.getApplicationContext());
+                                return null;
+                            }
+                        });
+                        break;
                 }
-            });
-            partions.add(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    for(File file : listUPANVideos){
-                        diskWriteToSD.writeFileToSD(file,"视频");
-                    }
-                    return null;
-                }
-            });
-            partions.add(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    for(File file : listUPANFiles){
-                        diskWriteToSD.writeFileToSD(file,"文档");
-                    }
-                    return null;
-                }
-            });
-            partions.add(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    for(File file : listUPANMusics){
-                        diskWriteToSD.writeFileToSD(file,"音乐");
-                    }
-                    return null;
-                }
-            });
-            partions.add(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    //获取联系人文件
-                    constactFile = MainActivity.constactUP;
-                    if(constactFile!=null){
-                        diskWriteToSD.writeFileToSD(constactFile,"联系人");
-                    }
-                    for(ContactBean myBean:listContact){
-                        if(myBean==null){
-                            continue;
-                        }
-                        diskWriteToSD.init(myBean);
-                    }
-                    diskWriteToSD.sendToSDCardPhone(listContact, mActivity.getApplicationContext());
-                    return null;
-                }
-            });
+            }
 
             //开始还原
             if(partions.size()>0){
@@ -454,6 +499,8 @@ public class RestoreFragment extends Fragment implements View.OnClickListener,Sw
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
 
+        myAdapter.setShowCheckBox(false);
+        myAdapter.ReFresh();
         //重新初始化数据
         initData();
     }

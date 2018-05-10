@@ -113,7 +113,65 @@ public class MyViewGroup extends ViewGroup{
 
 
 
-/*    private float mPosY,mCurPosY,mPosX,mCurPosX;
+    private float mPosY,mCurPosY;
+
+    //外部拦截法
+/*    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                mPosY = ev.getY();
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mCurPosY = ev.getY();
+                Log.e("posY", "posY "+mPosY+" curY "+mCurPosY);
+
+                float dy = mCurPosY-mPosY;
+                if(getScrollY()<0 && dy<0){
+                    Log.e("scroY", "scroY "+getScrollY()+" dy "+dy);
+                    return true;
+                }
+
+                mPosY = mCurPosY;
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return false;
+    }*/
+
+/*    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                mPosY = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mCurPosY = event.getY();
+
+                float distanceY = mCurPosY - mPosY;
+
+                Log.e("viewgroup", "distance"+distanceY);
+
+                //下滑动
+                scrollTo(0, (int) (-distanceY));
+                //myScrollerListener.setLockDisplay(mCurPosY-mPosY,mRefreshHeight,mSecretHeight);
+
+                break;
+            case MotionEvent.ACTION_UP:
+*//*                float distance = mCurPosY-mPosY;
+                //下拉距离，使用回调
+                myScrollerListener.setViewDispaly(distance,mRefreshHeight,mSecretHeight);*//*
+                break;
+            default:
+                break;
+        }
+        return true;
+    }*/
+
+
+    /*    private float mPosY,mCurPosY,mPosX,mCurPosX;
     private int count = 1;
 
     //滑动监听

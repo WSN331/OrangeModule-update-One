@@ -329,22 +329,31 @@ public class File_recently_Pager extends BaseRefreshPager{
             }
         });
 
+
         myRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent ev) {
 
                 switch (ev.getAction()){
                     case MotionEvent.ACTION_DOWN:
+                        Log.e("move", "giveChild");
                         rlposY = ev.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
                         rlnowY = ev.getRawY();
                         float dy = rlnowY - rlposY;
 
+                        //判断是否滑动到recycler第一个列表
                         boolean istop = myRecyclerView.canScrollVertically(-1);
 
-                        if((!istop && distance>=0 && dy>0) || myViewGroup.getScrollY()<0){
+/*                        if(myViewGroup.getScrollY()<0 && dy<0){
+                            myViewGroup.scrollTo(0, ((int) -distance+10)/2);
+                            setLockDisplay(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,1);
 
+                            Log.e("move", "giveParent");
+                        }*/
+
+                        if((!istop && distance>=0 && dy>0) || myViewGroup.getScrollY()<0){
                             distance += dy;
                             count++;
 

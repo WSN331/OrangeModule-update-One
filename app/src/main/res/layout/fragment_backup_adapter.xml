@@ -42,7 +42,7 @@
         <CheckBox
             android:id="@+id/checkBox"
             android:checked="false"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:button="@null"
             android:background="@drawable/backup_checkstyle"
             android:layout_width="26dp"

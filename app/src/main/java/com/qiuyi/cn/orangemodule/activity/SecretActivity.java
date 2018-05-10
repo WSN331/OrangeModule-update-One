@@ -43,6 +43,7 @@ public class SecretActivity extends Activity implements Password.OnFinishListene
             if(password.getOriginText().equals("123456")){
                 Intent intent = new Intent(this,SecretContentActivity.class);
                 startActivity(intent);
+                finish();
             }else{
 
                 new AlertDialog.Builder(this)

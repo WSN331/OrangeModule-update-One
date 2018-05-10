@@ -80,6 +80,7 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public interface ImageItemClick{
         void openImage(View view, int position, List<ImageBean> allImageBean);
         void onLongClick(View view,int position,List<ImageBean> allFileBean);
+        void changeCount(int count,List<ImageBean> sorListFile);
     }
 
     public void setOnImageItemClick(ImageItemClick myClick){
@@ -285,6 +286,14 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     /*flag[position] = b;*/
                     Log.e("change", b+"");
                     notifyDataSetChanged();
+
+                    int count = 0;
+                    for(int i=0;i<flag.length;i++){
+                        if(flag[i]){
+                            count++;
+                        }
+                    }
+                    ImageItemClick.changeCount(count,sorListFile);
                 }
             });
 
@@ -309,6 +318,14 @@ public class ImageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     flag[position] = b;
 
                     isToSelectImgAll(position,sorListFile,flag);
+
+                    int count = 0;
+                    for(int i=0;i<flag.length;i++){
+                        if(flag[i]){
+                            count++;
+                        }
+                    }
+                    ImageItemClick.changeCount(count,sorListFile);
                 }
             });
 

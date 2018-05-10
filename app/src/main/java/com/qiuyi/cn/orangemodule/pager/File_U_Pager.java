@@ -262,8 +262,8 @@ public class File_U_Pager extends BaseRefreshPager{
                                 distance -= dy;
                             }
 
-                            myViewGroup.scrollTo(0, (int) -distance+10);
-                            setLockDisplay(distance,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3);
+                            myViewGroup.scrollTo(0, ((int) -distance+10)/2);
+                            setLockDisplay(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3);
                         }
 
                         rlposY = rlnowY;
@@ -271,9 +271,9 @@ public class File_U_Pager extends BaseRefreshPager{
                     case MotionEvent.ACTION_UP:
                         myViewGroup.scrollTo(0, 0);
                         if(currentFolder==null){
-                            setViewDispaly(distance,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3,null);
+                            setViewDispaly(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3,null);
                         }else{
-                            setViewDispaly(distance,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3,currentFolder.toString());
+                            setViewDispaly(distance/2,myViewGroup.mRefreshHeight,myViewGroup.mSecretHeight,3,currentFolder.toString());
                         }
                         count=0;
                         distance = 0.0f;
@@ -333,7 +333,17 @@ public class File_U_Pager extends BaseRefreshPager{
     private File currentFolder = null; //U盘根目录
     //查找U盘，并开启服务如果查找到了
     private void findStorage() {
-        //存储得到的文件路径
+
+        currentFolder = MainActivity.rootUFile;
+
+        Constant.UPAN_AVAILSIZE = currentFolder.getUsableSpace();
+        Constant.UPAN_MEMORYSIZE = currentFolder.getTotalSpace();
+        //启动查找U盘文件的服务
+        Intent intent = new Intent(mActivity, FindUpanMsg_Service.class);
+        mActivity.startService(intent);
+
+
+/*        //存储得到的文件路径
         String[] result = null;
         //得到存储管理
         StorageManager storageManager = (StorageManager) mActivity.getSystemService(Context.STORAGE_SERVICE);
@@ -365,7 +375,7 @@ public class File_U_Pager extends BaseRefreshPager{
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         if(currentFolder == null){
             Toast.makeText(mActivity,"请插入U盘",Toast.LENGTH_SHORT);

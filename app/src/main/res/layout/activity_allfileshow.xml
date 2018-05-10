@@ -172,9 +172,16 @@
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent" />
-                <TextView
+<!--                <TextView
                     android:id="@+id/tv_rename"
                     android:text="重命名"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />-->
+                <TextView
+                    android:id="@+id/tv_more"
+                    android:text="更多"
                     android:gravity="center"
                     android:layout_weight="1"
                     android:layout_width="0dp"
