@@ -164,6 +164,7 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
     }
 
 
+    private int whereFromSearch;
     //初始化数据
     private void initData() {
 
@@ -201,6 +202,10 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
             }else if(from == 4){
                 //从UFileShow过来
                 showPaste(from,flag, UFileShowActivity.copyFileMap);
+            }else if(from == 5){
+                whereFromSearch = intent.getIntExtra("whereFrom",0);
+                //从Search过去
+                showPaste(from,flag, SearchActivity.copyFileMap);
             }
         }
 
@@ -776,6 +781,14 @@ public class AllFileShowActivity extends Activity implements SwipeRefreshLayout.
                                     //从U盘过来的文件
                                     myManager.udiskDelete(file);
                                     //udiskDeleteListener.doUdiskDelete(file);
+                                }else if(flag && whereFrom==5){
+                                    if(whereFromSearch==1){
+                                        //是从剪切过来的
+                                        doDelete(file);
+                                    }else if(whereFromSearch==2){
+                                        //从U盘过来的文件
+                                        myManager.udiskDelete(file);
+                                    }
                                 }
 
                                 runOnUiThread(new Runnable() {

@@ -26,34 +26,22 @@ import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.Manager.AllUdiskManager;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
-import com.qiuyi.cn.orangemodule.adapter.RecentlyAdapter;
 import com.qiuyi.cn.orangemodule.interfaceToutil.SDFileDeleteListener;
 import com.qiuyi.cn.orangemodule.interfaceToutil.UdiskDeleteListener;
 import com.qiuyi.cn.orangemodule.myview.CommomDialog;
 import com.qiuyi.cn.orangemodule.myview.FileDetailDialog;
 import com.qiuyi.cn.orangemodule.myview.MoreOperatePopWindow;
 import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
-import com.qiuyi.cn.orangemodule.upan.UAllFileShowActivity;
 import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
-import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.FileAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.ImageAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.MusicAdapter;
 import com.qiuyi.cn.orangemodule.util.FileManager.adapter.UFileAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.VideoAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.ShareFile;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
 import java.io.File;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -574,8 +562,20 @@ public class UFileShowActivity extends Activity implements UdiskDeleteListener,S
                 tv_copy.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //选择，显示一下有哪几个选择了
-                        selectHowToPaste(false);
+
+                        int count = 0;
+                        boolean[] flag = ufileAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(false);
+                        }
+
                     }
                 });
 
@@ -583,7 +583,19 @@ public class UFileShowActivity extends Activity implements UdiskDeleteListener,S
                 tv_move.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        selectHowToPaste(true);
+
+                        int count = 0;
+                        boolean[] flag = ufileAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(true);
+                        }
+
                     }
                 });
 
@@ -624,11 +636,13 @@ public class UFileShowActivity extends Activity implements UdiskDeleteListener,S
                 copyFileMap.put(i,listFiles.get(i));
             }
         }
-        rl_select_head.setVisibility(View.GONE);
+
+        UIShowHide();
+/*        rl_select_head.setVisibility(View.GONE);
         rl_normal_head.setVisibility(View.VISIBLE);
         ll_pager_native_bom.setVisibility(View.GONE);
         ufileAdapter.setShowCheckBox(false);
-        ufileAdapter.ReFresh();
+        ufileAdapter.ReFresh();*/
 
         new MySelectDialog(this, R.style.dialog, new MySelectDialog.OnCloseListener() {
             @Override

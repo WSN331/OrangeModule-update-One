@@ -1,42 +1,6 @@
 package com.qiuyi.cn.orangemodule.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.qiuyi.cn.myloadingdialog.LoadingDialog;
-import com.qiuyi.cn.orangemodule.MainActivity;
-import com.qiuyi.cn.orangemodule.Manager.AllUdiskManager;
-import com.qiuyi.cn.orangemodule.R;
-
-import com.qiuyi.cn.orangemodule.interfaceToutil.SDFileDeleteListener;
-import com.qiuyi.cn.orangemodule.myview.CommomDialog;
-import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
-import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
-import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
-import com.qiuyi.cn.orangemodule.util.FileManager.adapter.UFileAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
-import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2018/3/16.
@@ -44,7 +8,7 @@ import java.util.Map;
  */
 public class FileShowActivity_old extends Activity{
 
-    private SwipeRefreshLayout myFileRefresh;
+    /*private SwipeRefreshLayout myFileRefresh;
     private RecyclerView myFileShow;
     private GridLayoutManager myGridManager;
 
@@ -119,9 +83,9 @@ public class FileShowActivity_old extends Activity{
         initData();
     }
 
-    /**
+    *//**
      * 初始化数据
-     */
+     *//*
     private void initData() {
         //设置文件
 
@@ -133,9 +97,9 @@ public class FileShowActivity_old extends Activity{
 
     }
 
-    /*
+    *//*
     * 判断得到的数据类型
-    * */
+    * *//*
     private void whatTypeToget() {
         Intent intent = getIntent();
         switch (intent.getIntExtra("type",0)){
@@ -163,11 +127,11 @@ public class FileShowActivity_old extends Activity{
     }
 
 
-    /**
+    *//**
      * 重命名+新建
      * @param name title
      * @param flag 1 新建，2 重命名
-     */
+     *//*
     private void createNewFolder(String name, final int flag, final File myfile) {
         new CommomDialog(this, R.style.dialog, new CommomDialog.OnCloseListener() {
             @Override
@@ -198,10 +162,10 @@ public class FileShowActivity_old extends Activity{
 
 
 
-    /**
+    *//**
      * 复制+移动
      * @param b false=复制，true=移动（复制后，删除原来）
-     */
+     *//*
     private void selectHowToPaste(final boolean b,Map<Integer,File> copyFileMap) {
         if(copyFileMap.size()<=0){
             return;
@@ -403,9 +367,9 @@ public class FileShowActivity_old extends Activity{
 
 
 
-    /**
+    *//**
      * 初始化界面
-     */
+     *//*
     private void initView() {
         //展示列表
         myFileShow = findViewById(R.id.fileshow_rl);
@@ -445,7 +409,7 @@ public class FileShowActivity_old extends Activity{
             }
         });
     }
-
+*/
 }
 
 

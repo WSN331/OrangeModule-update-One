@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,25 +22,16 @@ import android.widget.Toast;
 
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
-import com.qiuyi.cn.orangemodule.Manager.AllUdiskManager;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
-import com.qiuyi.cn.orangemodule.interfaceToutil.SDFileDeleteListener;
-import com.qiuyi.cn.orangemodule.interfaceToutil.UdiskDeleteListener;
 import com.qiuyi.cn.orangemodule.myview.CommomDialog;
 import com.qiuyi.cn.orangemodule.myview.FileDetailDialog;
 import com.qiuyi.cn.orangemodule.myview.MoreOperatePopWindow;
 import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
 import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
-import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
 import com.qiuyi.cn.orangemodule.util.FileManager.adapter.UFileAdapter;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_II_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.ShareFile;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
@@ -82,12 +72,8 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
     //是否全选
     private boolean isSelectAll = true;
 
-    private List<File> newlistFiles;//文件
-    private List<MusicBean> listMusics;//音乐
-    private List<VideoBean> listVideos;//视频
-    private List<ImageBean> listImages;//图片
-    private List<FileBean> listFiles;//文件
-    private List<FileBean> listFileZars;//压缩包
+    private List<File> listFiles;
+
 
     private UFileAdapter ufileAdapter;
 
@@ -112,7 +98,6 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
 
         listUris = new ArrayList<>();
         listSS = new ArrayList<>();
-        newlistFiles = new ArrayList<>();
 
         dialog = new LoadingDialog.Builder(this)
                 .setMessage("复制中")
@@ -139,14 +124,14 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
     //广播监听初始化
     private void initBroadCast() {
         //数据刷新
-        IntentFilter filter = new IntentFilter(Constant.FINDFILE_MSG);
+        IntentFilter filter = new IntentFilter(SearchActivity.SearchActivity_getSDFile);
         registerReceiver(FileMsgreceiver,filter);
     }
 
     private BroadcastReceiver FileMsgreceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getBooleanExtra("findOk",false)){
+            if(intent.getBooleanExtra("findAllSDFile",false)){
                 //本地信息查找完毕,刷新界面
                 initData();
                 myFileRefresh.setRefreshing(false);
@@ -176,60 +161,40 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
         switch (intent.getIntExtra("type",0)){
             case 0:
                 tv_title.setText("图片");
-                listImages = MainActivity.listImages;
-                newlistFiles.clear();
+                listFiles = MainActivity.listImages;
+/*                newlistFiles.clear();
                 for(ImageBean imageBean:listImages){
                     File file = new File(imageBean.getPath());
                     newlistFiles.add(file);
-                }
+                }*/
                 break;
             case 1:
                 tv_title.setText("视频");
-                listVideos = MainActivity.listVideos;
-                newlistFiles.clear();
-                for(VideoBean videoBean:listVideos){
-                    File file = new File(videoBean.getPath());
-                    newlistFiles.add(file);
-                }
+                listFiles = MainActivity.listVideos;
                 break;
             case 2:
                 tv_title.setText("文档");
                 listFiles = MainActivity.listFiles;
-                newlistFiles.clear();
-                for(FileBean fileBean:listFiles){
-                    File file = new File(fileBean.getPath());
-                    newlistFiles.add(file);
-                }
                 break;
             case 3:
                 tv_title.setText("音乐");
-                listMusics = MainActivity.listMusics;
-                newlistFiles.clear();
-                for(MusicBean musicBean:listMusics){
-                    File file = new File(musicBean.getPath());
-                    newlistFiles.add(file);
-                }
+                listFiles = MainActivity.listMusics;
                 break;
             case 4:
                 tv_title.setText("压缩包");
-                listFileZars = MainActivity.listFileZars;
-                newlistFiles.clear();
-                for(FileBean fileBean:listFileZars){
-                    File file = new File(fileBean.getPath());
-                    newlistFiles.add(file);
-                }
+                listFiles = MainActivity.listFileZars;
                 break;
         }
 
 
-        ufileAdapter = new UFileAdapter(this,newlistFiles,myGridManager);
+        ufileAdapter = new UFileAdapter(this,listFiles,myGridManager);
         myFileShow.setAdapter(ufileAdapter);
 
         //点击事件
         ufileAdapter.setOnFileItemClick(new UFileAdapter.FileItemClick() {
             @Override
             public void openFile(View view, int position,List<File> fileLists) {
-                File file = newlistFiles.get(position);
+                File file = listFiles.get(position);
                 boolean isShowBox = ufileAdapter.isShowCheckBox();
 
                 if(isShowBox){
@@ -253,13 +218,13 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
 
                     ufileAdapter.notifyDataSetChanged();
                 }else{
-                    FileUtilOpen.openFileByPath(getApplicationContext(),newlistFiles.get(position).getPath());
+                    FileUtilOpen.openFileByPath(getApplicationContext(),listFiles.get(position).getPath());
                 }
             }
 
             @Override
             public void onLongClick(View view, final int position, final List<File> fileLists) {
-                final File file = newlistFiles.get(position);
+                final File file = listFiles.get(position);
 
                 //选择状态栏显示
                 rl_normal_head.setVisibility(View.GONE);
@@ -274,7 +239,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                             ufileAdapter.selectAll();
                             isSelectAll = false;
                             bt_selectAll.setText("取消全选");
-                            tv_selectNum.setText("已选("+newlistFiles.size()+")");
+                            tv_selectNum.setText("已选("+listFiles.size()+")");
                         }else{
                             ufileAdapter.noSelect();
                             isSelectAll = true;
@@ -310,7 +275,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                 Log.e("select", "选中："+i);
                                 deleteDialog.show();
 
-                                final File defile = newlistFiles.get(i);
+                                final File defile = listFiles.get(i);
 
                                 new Thread(new Runnable() {
                                     @Override
@@ -326,7 +291,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                     }
                                 }).start();
 
-                                newlistFiles.remove(i);
+                                listFiles.remove(i);
                             }
                         }
                         ufileAdapter.ReFresh();
@@ -352,7 +317,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                         for(int i = flag.length-1;i>=0;i--){
                             if(flag[i]){
                                 //分享
-                                File file = newlistFiles.get(i);
+                                File file = listFiles.get(i);
                                 if(!file.isDirectory()){
                                     listUris.add(Uri.fromFile(file));
                                 }else{
@@ -368,7 +333,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                         File collectFile = null;
                         if(count==1){
                             //当只有一个文件的时候，判断一下这个文件是否在收藏中
-                            File colFile = newlistFiles.get(location);
+                            File colFile = listFiles.get(location);
                             //collectionFiles = DBUtil.getCollectFile(colFile.getPath());
                             //在MyFile->CollectionDirectory文件夹下查找文件是否存在
                             collectFile = diskWriteToSD.findCollectionFile(colFile,AllFileShowActivity.CollectionDirectory_Name);
@@ -435,7 +400,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                                 }).start();
                                             }else{
                                                 //为空，操作就是收藏
-                                                final File file = newlistFiles.get(finalLocation);
+                                                final File file = listFiles.get(finalLocation);
 
                                                 new Thread(new Runnable() {
                                                     @Override
@@ -458,7 +423,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                         //添加私密
                                         if(position==3 && !finalIsDirectory){
                                             //为空，操作就是收藏
-                                            final File file = newlistFiles.get(finalLocation);
+                                            final File file = listFiles.get(finalLocation);
 
                                             //得到的MyFile->.SecretDirectory文件夹
                                             File mySecretDirectory = diskWriteToSD.getSDCardFile(AllFileShowActivity.SecretDirectory_Name);
@@ -473,7 +438,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                                     if(isWrite){
                                                         file.delete();
 
-                                                        newlistFiles.remove(finalLocation);
+                                                        listFiles.remove(finalLocation);
                                                     }
                                                     runOnUiThread(new Runnable() {
                                                         @Override
@@ -493,7 +458,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                         if(position==4){
                                             //重命名和详情都需要点击的是一个
                                             if(finalCount ==1){
-                                                createNewFolder("重命名文件",2,newlistFiles.get(finalLocation));
+                                                createNewFolder("重命名文件",2,listFiles.get(finalLocation));
                                                 popupWindow.dismiss();
                                                 UIShowHide();
                                                 isMoreOperateshow = false;
@@ -503,7 +468,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                                         if(position==5){
                                             //重命名和详情都需要点击的是一个
                                             if(finalCount ==1){
-                                                new FileDetailDialog(FileShowActivity.this,R.style.dialog,newlistFiles.get(finalLocation)).show();
+                                                new FileDetailDialog(FileShowActivity.this,R.style.dialog,listFiles.get(finalLocation)).show();
                                                 isMoreOperateshow = !isMoreOperateshow;
                                                 popupWindow.dismiss();
                                                 UIShowHide();
@@ -522,8 +487,21 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                 tv_copy.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //选择，显示一下有哪几个选择了
-                        selectHowToPaste(false);
+
+                        int count = 0;
+                        boolean[] flag = ufileAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+
+
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(false);
+                        }
+
                     }
                 });
 
@@ -531,7 +509,19 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
                 tv_move.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        selectHowToPaste(true);
+
+                        int count = 0;
+                        boolean[] flag = ufileAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(true);
+                        }
                     }
                 });
 
@@ -569,14 +559,16 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
         boolean[] flag = ufileAdapter.getFlag();
         for(int i = flag.length-1;i>=0;i--){
             if(flag[i]){
-                copyFileMap.put(i,newlistFiles.get(i));
+                copyFileMap.put(i,listFiles.get(i));
             }
         }
-        rl_select_head.setVisibility(View.GONE);
+
+        UIShowHide();
+/*        rl_select_head.setVisibility(View.GONE);
         rl_normal_head.setVisibility(View.VISIBLE);
         ll_pager_native_bom.setVisibility(View.GONE);
         ufileAdapter.setShowCheckBox(false);
-        ufileAdapter.ReFresh();
+        ufileAdapter.ReFresh();*/
 
         new MySelectDialog(this, R.style.dialog, new MySelectDialog.OnCloseListener() {
             @Override
@@ -640,7 +632,7 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
 
     //判断是否全选
     private void pdSelect(int count) {
-        if(count==newlistFiles.size()){
+        if(count==listFiles.size()){
             bt_selectAll.setText("取消全选");
             isSelectAll = false;
         }else{
@@ -670,8 +662,9 @@ public class FileShowActivity extends Activity implements SwipeRefreshLayout.OnR
 
         myFileRefresh.setRefreshing(true);
 
-        //启动查找U盘文件的服务
-        startService(new Intent(FileShowActivity.this,FindFileMsg_Service.class));
+        //启动查找本地文件的服务
+        //startService(new Intent(FileShowActivity.this,FindFileMsg_Service.class));
+        startService(new Intent(FileShowActivity.this, FindAllFile_II_Service.class));
 
         rl_select_head.setVisibility(View.GONE);
         rl_normal_head.setVisibility(View.VISIBLE);

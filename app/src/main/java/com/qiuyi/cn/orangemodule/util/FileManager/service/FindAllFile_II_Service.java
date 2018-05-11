@@ -9,7 +9,8 @@ import android.util.Log;
 
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.activity.SearchActivity;
-import com.qiuyi.cn.orangemodule.util.FileUtil;
+import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
+import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +28,14 @@ public class FindAllFile_II_Service extends Service{
 
     private ExecutorService executorService;
 
+    private List<File> allFiles;//所有文件
+    private List<File> listMusics;//音乐
+    private List<File> listVideos;//视频
+    private List<File> listImages;//图片
+    private List<File> listFiles;//文件
+    private List<File> listFileZars;//压缩包
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -37,6 +46,13 @@ public class FindAllFile_II_Service extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        allFiles = new ArrayList<>();
+        listMusics = new ArrayList<>();
+        listVideos = new ArrayList<>();
+        listImages = new ArrayList<>();
+        listFiles = new ArrayList<>();
+        listFileZars = new ArrayList<>();
+
         executorService.execute(new Runnable() {
             @Override
             public void run() {
@@ -45,12 +61,18 @@ public class FindAllFile_II_Service extends Service{
                     File file = Environment.getExternalStorageDirectory().getAbsoluteFile();
 
                     long startTime = System.currentTimeMillis();
-                    MainActivity.MY_ALLFILLES_II = getAllFiles(file);
+                    allFiles = getAllFiles(file);
+
+                    divide(allFiles);
+
+                    MainActivity.MY_ALLFILLES_II = allFiles;
+
                     long endTime = System.currentTimeMillis();
 
                     Log.e("文件查找时间", "全局文件查找时间："+(endTime-startTime));
 
                     MainActivity.MY_ALLFILLES_II.addAll(getAllDirectory(file));
+
 
                     Intent intentToSearch = new Intent(SearchActivity.SearchActivity_getSDFile);
                     intentToSearch.putExtra("findAllSDFile",true);
@@ -62,6 +84,32 @@ public class FindAllFile_II_Service extends Service{
         });
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+
+
+    //将所有文件分类
+    private void divide(List<File> allFiles) {
+
+        for(File itemFile:allFiles){
+            if (FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_IMG){
+                listImages.add(itemFile);
+            }else if(FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_MP4){
+                listVideos.add(itemFile);
+            }else if(FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_DOC){
+                listFiles.add(itemFile);
+            }else if(FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_MP3){
+                listMusics.add(itemFile);
+            }else if(FileUtils.getFileType(itemFile.getPath()) == ConstantValue.TYPE_ZIP){
+                listFileZars.add(itemFile);
+            }
+        }
+
+        MainActivity.listImages = listImages;
+        MainActivity.listVideos = listVideos;
+        MainActivity.listFiles = listFiles;
+        MainActivity.listMusics = listMusics;
+        MainActivity.listFileZars = listFileZars;
     }
 
     public List<File> getAllDirectory(File newFile){

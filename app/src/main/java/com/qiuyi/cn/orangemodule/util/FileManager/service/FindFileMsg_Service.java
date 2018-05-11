@@ -2,28 +2,8 @@ package com.qiuyi.cn.orangemodule.util.FileManager.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
-import com.qiuyi.cn.orangemodule.MainActivity;
-import com.qiuyi.cn.orangemodule.util.Constant;
-import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
-import com.qiuyi.cn.orangemodule.util.FileManager.MyFileManager;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 /**
  * Created by Administrator on 2018/3/26.
@@ -31,7 +11,7 @@ import java.util.concurrent.FutureTask;
  */
 public class FindFileMsg_Service extends Service{
 
-    //各类文件
+/*    //各类文件
     private MyFileManager myFileManager;
     private List<MusicBean> listMusics;//音乐
     private List<VideoBean> listVideos;//视频
@@ -149,7 +129,7 @@ public class FindFileMsg_Service extends Service{
         }
 
 
-    }
+    }*/
 
 
     @Nullable

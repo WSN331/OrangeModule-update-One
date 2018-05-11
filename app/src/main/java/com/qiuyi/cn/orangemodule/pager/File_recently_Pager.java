@@ -5,50 +5,29 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.Nullable;
-import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.Resource;
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
-import com.qiuyi.cn.orangemodule.adapter.MyPagerAdapter;
 import com.qiuyi.cn.orangemodule.adapter.RecentlyAdapter;
-import com.qiuyi.cn.orangemodule.bean.FileInfo;
-import com.qiuyi.cn.orangemodule.myview.MyViewPager;
 import com.qiuyi.cn.orangemodule.util.Constant;
-import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
-import com.qiuyi.cn.orangemodule.util.FileManager.MyFileManager;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import rx.Observable;
-import rx.schedulers.Schedulers;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 
 /**
@@ -220,10 +199,10 @@ public class File_recently_Pager extends BaseRefreshPager{
                 FileBean fileBean = allFileBean.get(position);
                 if(fileBean.getFiletype()!=3){
 
-                    //头部状态栏显示
+/*                    //头部状态栏显示
                     rl_selectAll.setVisibility(View.VISIBLE);
                     //底部状态栏显示
-                    ll_pager_recently_bom.setVisibility(View.VISIBLE);
+                    ll_pager_recently_bom.setVisibility(View.VISIBLE);*/
 
                     bt_selectAll.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -312,7 +291,7 @@ public class File_recently_Pager extends BaseRefreshPager{
                     }
 
 
-                    myadapter.setShowCheckBox(true);
+/*                    myadapter.setShowCheckBox(true);
                     boolean[] flag = myadapter.getFlag();
 
                     if(fileBean.getFiletype()==0){
@@ -324,7 +303,7 @@ public class File_recently_Pager extends BaseRefreshPager{
 
                     myadapter.setFlag(flag);
 
-                    myadapter.notifyDataSetChanged();
+                    myadapter.notifyDataSetChanged();*/
                 }
             }
         });

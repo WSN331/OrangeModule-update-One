@@ -28,7 +28,7 @@ import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
 import com.qiuyi.cn.orangemodule.activity.AllFileShowActivity;
 import com.qiuyi.cn.orangemodule.activity.FileShowActivity;
-import com.qiuyi.cn.orangemodule.activity.FileShowActivity_old;
+
 import com.qiuyi.cn.orangemodule.activity.SearchActivity;
 import com.qiuyi.cn.orangemodule.activity.UFileShowActivity;
 import com.qiuyi.cn.orangemodule.adapter.SDFileAdapter;
@@ -167,6 +167,8 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
 
     }
 
+
+    private int whereFromSearch;
     //初始化数据
     private void initData() {
         if(MainActivity.rootUFile!=null){
@@ -203,6 +205,10 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
             }else if(from == 4){
                 //从uFileShow过来
                 showPaste(from,flag, UFileShowActivity.copyFileMap);
+            }else if(from == 5){
+                whereFromSearch = intent.getIntExtra("whereFrom",0);
+                //从Search过去
+                showPaste(from,flag, SearchActivity.copyFileMap);
             }
 
 
@@ -836,6 +842,17 @@ public class AllUdiskFileShowActivity extends Activity implements SwipeRefreshLa
                                         }
                                     }else if(flag && (whereFrom==1||whereFrom==3)){
                                         sdFileDeleteListener.doDeleteSDFile(file);
+                                    }else if(flag && whereFrom==5){
+                                        if(whereFromSearch==1){
+                                            //是从剪切过来的
+                                            sdFileDeleteListener.doDeleteSDFile(file);
+                                        }else if(whereFromSearch==2){
+                                            //从U盘过来的文件
+                                            if(befordFile!=null){
+                                                doDelete(befordFile);
+                                                listDocFile.remove(befordFile);
+                                            }
+                                        }
                                     }
 
                                     runOnUiThread(new Runnable() {

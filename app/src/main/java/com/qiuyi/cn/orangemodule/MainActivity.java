@@ -142,11 +142,11 @@ public class MainActivity extends BasePermission implements View.OnClickListener
     //全局静态变量存储所有获取的文件数据
     public static List<File> MY_ALLFILLES_II = new ArrayList<>();//所有文件
     public static List<FileBean> MY_ALLFILES = new ArrayList<>();//最近前100个文件
-    public static List<MusicBean> listMusics = new ArrayList<>();//音乐
-    public static List<VideoBean> listVideos = new ArrayList<>();//视频
-    public static List<ImageBean> listImages = new ArrayList<>();//图片
-    public static List<FileBean> listFiles = new ArrayList<>();//文件
-    public static List<FileBean> listFileZars = new ArrayList<>();//压缩包
+    public static List<File> listMusics = new ArrayList<>();//音乐
+    public static List<File> listVideos = new ArrayList<>();//视频
+    public static List<File> listImages = new ArrayList<>();//图片
+    public static List<File> listFiles = new ArrayList<>();//文件
+    public static List<File> listFileZars = new ArrayList<>();//压缩包
     public static JSONObject constacts = null;
 
     //U盘全部文件

@@ -156,7 +156,56 @@
                 android:layout_above="@+id/ll_pager_native_bom">
             </android.support.v7.widget.RecyclerView>
 
+
             <LinearLayout
+                android:id="@+id/ll_pager_native_bom"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:background="@drawable/pager_recently"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                >
+                <TextView
+                    android:id="@+id/tv_copy"
+                    android:text="复制"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_move"
+                    android:text="移动"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_delete"
+                    android:text="删除"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_more"
+                    android:text="更多"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/tv_cancel"
+                    android:text="取消"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+
+<!--            <LinearLayout
                 android:id="@+id/ll_pager_native_bom"
                 android:visibility="gone"
                 android:orientation="horizontal"
@@ -194,7 +243,7 @@
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent" />
-            </LinearLayout>
+            </LinearLayout>-->
         </RelativeLayout>
 
 

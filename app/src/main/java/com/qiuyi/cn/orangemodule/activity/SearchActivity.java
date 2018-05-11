@@ -1,12 +1,13 @@
 package com.qiuyi.cn.orangemodule.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,31 +24,39 @@ import android.widget.Toast;
 import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
+import com.qiuyi.cn.orangemodule.Secret.AESHelperUpdate2;
 import com.qiuyi.cn.orangemodule.adapter.SearchAdapter;
-import com.qiuyi.cn.orangemodule.upansaf.db.bean.CollectionFiles;
+import com.qiuyi.cn.orangemodule.myview.CommomDialog;
+import com.qiuyi.cn.orangemodule.myview.FileDetailDialog;
+import com.qiuyi.cn.orangemodule.myview.MoreOperatePopWindow;
+import com.qiuyi.cn.orangemodule.myview.MySelectDialog;
 import com.qiuyi.cn.orangemodule.upansaf.ui.FileActivity;
+import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.DiskWriteToSD;
 import com.qiuyi.cn.orangemodule.util.FileManager.ConstantValue;
-import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_II_Service;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindUpanMsg_Service;
 import com.qiuyi.cn.orangemodule.util.FileUtilOpen;
+import com.qiuyi.cn.orangemodule.util.ShareFile;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.qiuyi.cn.orangemodule.MainActivity.listFiles;
 
 /**
  * Created by Administrator on 2018/4/2.
@@ -60,15 +69,18 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
     TextView bt_selectAll;
     @BindView(R.id.img_selectAll)
     ImageView img_selectAll;
+
     //底部功能栏
     @BindView(R.id.ll_pager_native_bom)
-    LinearLayout ll_function_bottom;
+    LinearLayout ll_pager_native_bom;
+    @BindView(R.id.tv_copy)
+    TextView tv_copy;
+    @BindView(R.id.tv_move)
+    TextView tv_move;
     @BindView(R.id.tv_delete)
     TextView tv_delete;
-    @BindView(R.id.tv_copytoUdisk)
-    TextView tv_copytoUdisk;
-    @BindView(R.id.tv_copytoSD)
-    TextView tv_copytoSD;
+    @BindView(R.id.tv_more)
+    TextView tv_more;
     @BindView(R.id.tv_cancel)
     TextView tv_cancel;
 
@@ -100,16 +112,31 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
     private GridLayoutManager myGridManager;
 
     private int whereFrom = 0;
+
+    //复制中
     private LoadingDialog dialog;
+    //搜索中
+    private LoadingDialog searchdialog;
+    //删除中
+    private LoadingDialog deleteDialog;
+
 
     private boolean isSelectAll = true;
 
     private WriteToUdisk udiskUtil;
     private DiskWriteToSD diskWriteToSD;
 
-    private List<DocumentFile> listDocFile;
+    //查找所有的UP存在文件
+    private List<DocumentFile> listDocFiles;
 
-    private LoadingDialog searchdialog;
+
+    //分享
+    private ArrayList<Uri> listUris;
+    //添加收藏和私密
+    private List<File> listSS;
+
+    //是否显示了更多操作
+    private boolean isMoreOperateshow = false;
 
 
     @Override
@@ -122,6 +149,10 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
         udiskUtil = WriteToUdisk.getInstance(this.getApplicationContext(),this);
         diskWriteToSD= new DiskWriteToSD(this.getApplicationContext());
 
+
+        listUris = new ArrayList<>();
+        listSS = new ArrayList<>();
+
         searchdialog = new LoadingDialog.Builder(this)
                 .setMessage("搜索中...")
                 .setCancelable(false)
@@ -131,7 +162,13 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
         dialog = new LoadingDialog.Builder(this)
                 .setCancelOutside(false)
                 .setCancelable(false)
-                .setMessage("粘贴中...")
+                .setMessage("复制中...")
+                .create();
+
+        deleteDialog = new LoadingDialog.Builder(this)
+                .setMessage("删除中")
+                .setCancelable(false)
+                .setCancelOutside(false)
                 .create();
 
         //这里是专门的输入查找
@@ -148,7 +185,9 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
         if(umain){
             //查找U盘内文件
             whereFrom = 2;
-            listDocFile = udiskUtil.getAllFile(udiskUtil.getCurrentFolder());
+
+            listDocFiles = new ArrayList<>();
+            getAllDocFile();
             //初始化U盘文件
             initUFileData();
         }
@@ -156,6 +195,19 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
         initListener();
 
         initBroadCast();
+    }
+
+    //获得所有Doc文件
+    private void getAllDocFile() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                listDocFiles.clear();
+                listDocFiles.add(MainActivity.rootUDFile);
+                listDocFiles.addAll(udiskUtil.getAllFile(MainActivity.rootUDFile));
+                Log.e("docFile", "查找完毕");
+            }
+        }).start();
     }
 
     //广播接收
@@ -336,6 +388,7 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
     //调用adapter显示
     private void showInAdapter(final List<File> keyListFile,String name) {
 
+        //按照文件夹，文件，字母排序
         Collections.sort(keyListFile, new Comparator<File>() {
             @Override
             public int compare(File f1, File f2) {
@@ -407,7 +460,7 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                 img_selectAll.setVisibility(View.GONE);
                 bt_selectAll.setVisibility(View.VISIBLE);
                 //底部导航栏显示
-                ll_function_bottom.setVisibility(View.VISIBLE);
+                ll_pager_native_bom.setVisibility(View.VISIBLE);
 
                 bt_selectAll.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -431,7 +484,7 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                     public void onClick(View view) {
                         img_selectAll.setVisibility(View.VISIBLE);
                         bt_selectAll.setVisibility(View.GONE);
-                        ll_function_bottom.setVisibility(View.GONE);
+                        ll_pager_native_bom.setVisibility(View.GONE);
 
                         mySearchAdapter.setShowCheckBox(false);
                         mySearchAdapter.ReFresh();
@@ -449,7 +502,22 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                                     if(flag[i]){
                                         Log.e("select", "选中："+i);
                                         //本地的直接删除
-                                        keyListFile.get(i).delete();
+                                        deleteDialog.show();
+
+                                        final File defile = keyListFile.get(i);
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                doDelete(defile);
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        deleteDialog.dismiss();
+                                                    }
+                                                });
+                                            }
+                                        }).start();
                                         keyListFile.remove(i);
                                     }
                                 }
@@ -461,7 +529,25 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                                     if(flag[i]){
                                         Log.e("select", "选中："+i);
                                         //U盘的
-                                        udiskUtil.getDocFile(listDocFile,keyListFile.get(i).getName()).delete();
+                                        //从当前目录下去找
+                                        final DocumentFile deleteFile = findDocFile(keyListFile.get(i));
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                doDeleteUP(deleteFile);
+
+                                                listDocFiles.remove(deleteFile);
+
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        deleteDialog.dismiss();
+                                                    }
+                                                });
+                                            }
+                                        }).start();
+
                                         keyListFile.remove(i);
                                     }
                                 }
@@ -472,7 +558,503 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                     }
                 });
 
-                switch (whereFrom){
+                //更多模块
+                tv_more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final int[] myflag ={-1,-1,-1,-1,-1};
+                        //选择
+                        boolean[] flag = mySearchAdapter.getFlag();
+                        int count = 0;
+                        int location = -1;
+                        boolean isDirectory = false;
+
+                        listUris.clear();
+                        listSS.clear();
+
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                //分享
+                                File file = keyListFile.get(i);
+                                if(!file.isDirectory()){
+                                    listUris.add(Uri.fromFile(file));
+                                }else{
+                                    isDirectory = true;
+                                }
+                                //收藏和私密
+                                listSS.add(file);
+                                count++;
+                                location=i;
+                            }
+                        }
+
+                        File collectFile = null;
+                        if(count==1){
+                            //当只有一个文件的时候，判断一下这个文件是否在收藏中
+                            File colFile = keyListFile.get(location);
+                            //在MyFile->CollectionDirectory文件夹下查找文件是否存在
+                            collectFile = diskWriteToSD.findCollectionFile(colFile, AllUdiskFileShowActivity.CollectionDirectory_Name);
+                            if(collectFile!=null){
+                                //若为true就是已经收藏了
+                                myflag[1] = 2;
+                            }
+
+                            if(isDirectory){
+                                //有文件夹
+                                myflag[0] = 1;//分享不行
+                                myflag[2] = 1;//添加私密不行
+                            }
+                        }else if(count>1){
+                            myflag[1] = 1;
+                            myflag[2] = 1;
+                            myflag[3] = 1;
+                            myflag[4] = 1;
+                            if(isDirectory){
+                                myflag[0] = 1;//分享不行
+                            }
+                        }
+
+
+                        final int finalCount = count;//选中的数量
+                        final int finalLocation = location;//文件的位置
+                        final boolean finalIsDirectory = isDirectory;//文件的种类
+                        final File finalCollection = collectFile;//文件是否收藏
+
+                        if(count>0){
+                            isMoreOperateshow = !isMoreOperateshow;
+                            if(isMoreOperateshow){
+
+                                new MoreOperatePopWindow(SearchActivity.this, new MoreOperatePopWindow.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(final MoreOperatePopWindow popupWindow, int position) {
+                                        //分享
+                                        if(position==1 && !finalIsDirectory){
+                                            ShareFile.shareMultipleFiles(SearchActivity.this,listUris);
+                                            popupWindow.dismiss();
+                                            UIShowHide();
+                                            isMoreOperateshow = false;
+                                        }
+
+                                        //添加收藏
+                                        if(position==2 && finalCount==1){
+                                            //只有一个对象
+                                            if(finalCollection!=null){
+                                                //已经在收藏中，那么操作就是取消收藏
+                                                new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        finalCollection.delete();
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                popupWindow.dismiss();
+                                                                UIShowHide();
+                                                                isMoreOperateshow = false;
+                                                            }
+                                                        });
+                                                    }
+                                                }).start();
+                                            }else{
+                                                //为空，操作就是收藏
+                                                final File file = keyListFile.get(finalLocation);
+
+                                                new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        diskWriteToSD.writeSelectFileToSD(file, AllFileShowActivity.CollectionDirectory_Name);
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                popupWindow.dismiss();
+                                                                UIShowHide();
+                                                                isMoreOperateshow = false;
+                                                            }
+                                                        });
+                                                    }
+                                                }).start();
+
+                                            }
+
+                                        }
+                                        //添加私密
+                                        if(position==3 && !finalIsDirectory && whereFrom==1){
+                                            //来自本地
+
+                                            //为空，操作就是收藏
+                                            final File file = keyListFile.get(finalLocation);
+
+                                            //得到的MyFile->.SecretDirectory文件夹
+                                            File mySecretDirectory = diskWriteToSD.getSDCardFile(AllFileShowActivity.SecretDirectory_Name);
+                                            String newFileName = AESHelperUpdate2.encrypt(AllFileShowActivity.PASSWORD_STRING,file.getName()+"*"+new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+                                            final File newFile = new File(mySecretDirectory.getAbsoluteFile()+"/"+newFileName);
+
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    boolean isWrite = diskWriteToSD.writeToSD3(file,newFile);
+
+                                                    if(isWrite){
+                                                        file.delete();
+
+                                                        keyListFile.remove(finalLocation);
+
+                                                    }
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            //UI更新
+                                                            popupWindow.dismiss();
+                                                            isMoreOperateshow = false;
+                                                            UIShowHide();
+                                                            //onRefresh();
+                                                        }
+                                                    });
+                                                }
+                                            }).start();
+
+                                        }
+                                        //添加私密
+                                        if(position==3 && !finalIsDirectory && whereFrom==2){
+                                            //为空，操作就是收藏
+                                            final File file = keyListFile.get(finalLocation);
+
+                                            //得到的MyFile->.SecretDirectory文件夹
+                                            File mySecretDirectory = diskWriteToSD.getSDCardFile(AllUdiskFileShowActivity.SecretDirectory_Name);
+                                            String newFileName = AESHelperUpdate2.encrypt(AllUdiskFileShowActivity.PASSWORD_STRING,file.getName()+"*"+new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+                                            final File newFile = new File(mySecretDirectory.getAbsoluteFile()+"/"+newFileName);
+
+                                            final DocumentFile deleteFile = findDocFile(file);
+
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    boolean isWrite = diskWriteToSD.writeToSD3(file,newFile);
+
+                                                    if(isWrite){
+                                                        doDeleteUP(deleteFile);
+
+                                                        keyListFile.remove(finalLocation);
+
+                                                        listDocFiles.remove(deleteFile);
+                                                    }
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            //UI更新
+                                                            popupWindow.dismiss();
+                                                            isMoreOperateshow = false;
+
+                                                            UIShowHide();
+                                                            //onRefresh();
+                                                        }
+                                                    });
+                                                }
+                                            }).start();
+
+                                        }
+
+
+
+                                        //重命名
+                                        if(position==4 && whereFrom ==1){
+                                            //重命名和详情都需要点击的是一个
+                                            if(finalCount ==1){
+                                                createNewFolder("重命名文件",2,keyListFile.get(finalLocation));
+                                                popupWindow.dismiss();
+                                                UIShowHide();
+                                                isMoreOperateshow = false;
+                                            }
+                                        }
+                                        //重命名
+                                        if(position==4 && whereFrom==2){
+                                            //重命名和详情都需要点击的是一个
+                                            if(finalCount ==1){
+                                                createNewFolderUP("重命名文件",2,keyListFile.get(finalLocation));
+                                                popupWindow.dismiss();
+                                                UIShowHide();
+                                                isMoreOperateshow = false;
+                                            }
+                                        }
+
+
+                                        //详情
+                                        if(position==5){
+                                            //重命名和详情都需要点击的是一个
+                                            if(finalCount ==1){
+                                                new FileDetailDialog(SearchActivity.this,R.style.dialog,keyListFile.get(finalLocation)).show();
+                                                isMoreOperateshow = !isMoreOperateshow;
+                                                popupWindow.dismiss();
+                                                UIShowHide();
+                                                isMoreOperateshow = false;
+                                            }
+                                        }
+                                    }
+                                }).setTitle(myflag).showUp2(tv_more);
+                            }
+
+                        }
+
+                    }
+                });
+
+                //复制
+                tv_copy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        int count = 0;
+                        boolean[] flag = mySearchAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(false);
+                        }
+
+                    }
+                });
+
+                //移动
+                tv_move.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        int count = 0;
+                        boolean[] flag = mySearchAdapter.getFlag();
+                        for(int i = flag.length-1;i>=0;i--){
+                            if(flag[i]){
+                                count++;
+                            }
+                        }
+
+                        if(count>0){
+                            //选择，显示一下有哪几个选择了
+                            selectHowToPaste(true);
+                        }
+                    }
+                });
+
+
+
+                mySearchAdapter.setShowCheckBox(true);
+                boolean flag[] = mySearchAdapter.getFlag();
+                flag[position] = true;
+
+                mySearchAdapter.setFlag(flag);
+                mySearchAdapter.notifyDataSetChanged();
+
+            }
+        });
+    }
+
+
+
+    /**
+     * 复制+移动
+     * @param b false=复制，true=移动（复制后，删除原来）
+     */
+    public static Map<Integer,File> copyFileMap = new HashMap<>();
+    private void selectHowToPaste(final boolean b) {
+        copyFileMap.clear();
+        boolean[] flag = mySearchAdapter.getFlag();
+        for(int i = flag.length-1;i>=0;i--){
+            if(flag[i]){
+                copyFileMap.put(i,listFiles.get(i));
+            }
+        }
+
+        UIShowHide();
+
+        new MySelectDialog(this, R.style.dialog, new MySelectDialog.OnCloseListener() {
+            @Override
+            public void onClick(Dialog dialog, Integer flag) {
+                if(flag==1){
+                    //本地
+                    Intent intent = new Intent(SearchActivity.this, AllFileShowActivity.class);
+                    //带上标志3表示是从fileShowActivity过去的
+                    intent.putExtra("from",5);
+                    intent.putExtra("select",b);
+                    intent.putExtra("whereFrom",whereFrom);
+                    startActivity(intent);
+                }else if(flag ==2){
+                    //U盘
+                    if(MainActivity.isHaveUpan){
+                        Intent intent = new Intent(SearchActivity.this, AllUdiskFileShowActivity.class);
+                        //带上标志3表示是从fileShowActivity过去的
+                        intent.putExtra("from",5);
+                        intent.putExtra("select",b);
+                        intent.putExtra("whereFrom",whereFrom);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(SearchActivity.this,"请插入U盘",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }).show();
+    }
+
+
+
+
+
+    /**
+     * 重命名+新建
+     * @param name title
+     * @param flag 1 新建，2 重命名
+     */
+    private void createNewFolder(final String name, final int flag, final File myfile) {
+        new CommomDialog(this, R.style.dialog, new CommomDialog.OnCloseListener() {
+            @Override
+            public void onClick(Dialog dialog, final String folderName, boolean confirm) {
+                if(confirm){
+                    if(flag == 2){
+                        //重命名文件夹
+                        if(myfile!=null){
+                            if(myfile.isDirectory()){
+                                //是个文件夹
+                                File newFile = new File(myfile.getParentFile(),folderName);
+                                myfile.renameTo(newFile);
+                            }else{
+                                //是个文件
+                                String newName = folderName+myfile.getName().substring(myfile.getName().lastIndexOf("."),myfile.getName().length());
+                                File newFile = new File(myfile.getParentFile(),newName);
+                                myfile.renameTo(newFile);
+                            }
+                        }
+                        UIShowHide();
+                        //onRefresh();
+                    }
+                    dialog.dismiss();
+                }
+            }
+        }).setTitle(name).show();
+    }
+
+
+
+    /**
+     * 重命名+新建
+     * @param name title
+     * @param flag 1 新建，2 重命名
+     */
+    private void createNewFolderUP(final String name, final int flag, final File myfile) {
+        new CommomDialog(this, R.style.dialog, new CommomDialog.OnCloseListener() {
+            @Override
+            public void onClick(Dialog dialog, final String folderName, boolean confirm) {
+                if(confirm){
+                    if(flag == 2){
+                        //重命名文件夹
+                        if(myfile!=null){
+                            //找到要重命名的文件夹
+                            DocumentFile nowFile = findDocFile(myfile);
+
+                            listDocFiles.remove(nowFile);
+
+                            //是个文件
+                            String newName = folderName+myfile.getName().substring(myfile.getName().lastIndexOf("."),myfile.getName().length());
+                            Log.e("fileName", nowFile.getName());
+                            nowFile.renameTo(newName);
+
+                            dialog.dismiss();
+
+                            //addListAllDocFile(nowFile);
+                            listDocFiles.add(nowFile);
+                        }
+
+                    }
+                    UIShowHide();
+                    //onRefresh();
+                }
+            }
+        }).setTitle(name).show();
+    }
+
+
+
+
+
+
+
+    /**
+     * 删除文件
+     * @param file
+     */
+    private void doDelete(File file) {
+        if(file.isDirectory()) {
+            for (File deleteFile : file.listFiles()) {
+                doDelete(deleteFile);
+            }
+        }
+        file.delete();
+    }
+
+    /**
+     * 删除文件
+     * @param docFile
+     */
+    private void doDeleteUP(DocumentFile docFile) {
+        if(docFile.exists()){
+            if(docFile.isDirectory()){
+                for(DocumentFile nowDocFile:docFile.listFiles()){
+                    doDeleteUP(nowDocFile);
+                }
+            }
+            docFile.delete();
+        }
+    }
+
+    /**
+     * 这里是一个全部文件的查找
+     * 将File文件转换成DocumentFile
+     * @param file
+     * @return
+     */
+    private DocumentFile findDocFile(File file){
+        DocumentFile myFile = udiskUtil.getDocFile(listDocFiles,file.getPath());
+
+        if(myFile==null){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(SearchActivity.this,"请稍等，您的操作太快了~",Toast.LENGTH_SHORT);
+                    return;
+                }
+            });
+        }
+        return myFile;
+    }
+
+
+    //操作完之后的UI显示，相当于取消
+    private void UIShowHide(){
+        img_selectAll.setVisibility(View.VISIBLE);
+        bt_selectAll.setVisibility(View.GONE);
+        ll_pager_native_bom.setVisibility(View.GONE);
+
+        mySearchAdapter.setShowCheckBox(false);
+        mySearchAdapter.ReFresh();
+    }
+
+}
+
+
+/*    //将选中的文件写入U盘
+    private void writeToUDick(File file,DocumentFile documentFile) {
+        if(file.isDirectory()){
+            DocumentFile dirFile = documentFile.createDirectory(file.getName());
+            for(File newFile:file.listFiles()){
+                writeToUDick(newFile,dirFile);
+            }
+        }else{
+            udiskUtil.writeToSDFile(this,file,documentFile);
+        }
+    }*/
+
+/*switch (whereFrom){
                     case 1:
                         //手机拷贝到U盘
                         tv_copytoUdisk.setOnClickListener(new View.OnClickListener() {
@@ -556,31 +1138,4 @@ public class SearchActivity extends Activity implements View.OnClickListener,Tex
                         break;
                     default:
                         break;
-                }
-
-
-                mySearchAdapter.setShowCheckBox(true);
-                boolean flag[] = mySearchAdapter.getFlag();
-                flag[position] = true;
-
-                mySearchAdapter.setFlag(flag);
-                mySearchAdapter.notifyDataSetChanged();
-
-            }
-        });
-    }
-
-    //将选中的文件写入U盘
-    private void writeToUDick(File file,DocumentFile documentFile) {
-        if(file.isDirectory()){
-            DocumentFile dirFile = documentFile.createDirectory(file.getName());
-            for(File newFile:file.listFiles()){
-                writeToUDick(newFile,dirFile);
-            }
-        }else{
-            udiskUtil.writeToSDFile(this,file,documentFile);
-        }
-    }
-
-
-}
+                }*/

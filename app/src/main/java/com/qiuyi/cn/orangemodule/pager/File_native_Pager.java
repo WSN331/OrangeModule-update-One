@@ -19,17 +19,15 @@ import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.AllFileShowActivity;
 import com.qiuyi.cn.orangemodule.activity.FileShowActivity;
-import com.qiuyi.cn.orangemodule.activity.FileShowActivity_old;
+import com.qiuyi.cn.orangemodule.activity.SearchActivity;
 import com.qiuyi.cn.orangemodule.adapter.NativiAdapter;
 import com.qiuyi.cn.orangemodule.bean.FileType;
 import com.qiuyi.cn.orangemodule.util.Constant;
 import com.qiuyi.cn.orangemodule.util.FileManager.FileUtils;
 import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_II_Service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,18 +55,18 @@ public class File_native_Pager extends BaseRefreshPager{
 
     //各类文件
     private List<FileBean> listAllFiles;
-    private List<MusicBean> listMusics;//音乐
-    private List<VideoBean> listVideos;//视频
-    private List<ImageBean> listImages;//图片
-    private List<FileBean> listFiles;//文件
-    private List<FileBean> listFileZars;//压缩包
+    private List<File> listMusics;//音乐
+    private List<File> listVideos;//视频
+    private List<File> listImages;//图片
+    private List<File> listFiles;//文件
+    private List<File> listFileZars;//压缩包
 
     public File_native_Pager(Activity mActivity) {
         super(mActivity);
     }
 
     private void initBroadCast() {
-        IntentFilter filter = new IntentFilter(Constant.FINDFILE_MSG);
+        IntentFilter filter = new IntentFilter(SearchActivity.SearchActivity_getSDFile);
         mActivity.registerReceiver(fileMsgreceiver,filter);
         IntentFilter filterRf = new IntentFilter(Constant.NATIVEFRESH);
         mActivity.registerReceiver(refreshNative,filterRf);
@@ -89,7 +87,7 @@ public class File_native_Pager extends BaseRefreshPager{
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            if(intent.getBooleanExtra("findOk",false)){
+            if(intent.getBooleanExtra("findAllSDFile",false)){
                 listMusics = MainActivity.listMusics;
                 listVideos = MainActivity.listVideos;
                 listImages = MainActivity.listImages;
@@ -154,6 +152,7 @@ public class File_native_Pager extends BaseRefreshPager{
 
 
 
+
     @Override
     public void addView(LinearLayout myFrameLayout) {
         super.addView(myFrameLayout);
@@ -196,8 +195,8 @@ public class File_native_Pager extends BaseRefreshPager{
 
 
         //启动查找数据的服务
-        mActivity.startService(new Intent(mActivity,FindFileMsg_Service.class));
-
+        //mActivity.startService(new Intent(mActivity,FindFileMsg_Service.class));
+        mActivity.startService(new Intent(mActivity,FindAllFile_II_Service.class));
 
         myNativeRl.setOnTouchListener(new View.OnTouchListener() {
             @Override

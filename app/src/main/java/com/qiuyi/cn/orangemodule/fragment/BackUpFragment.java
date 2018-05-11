@@ -28,16 +28,13 @@ import com.qiuyi.cn.myloadingdialog.LoadingDialog;
 import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.activity.BkrtActivity;
+import com.qiuyi.cn.orangemodule.activity.SearchActivity;
 import com.qiuyi.cn.orangemodule.adapter.BackUp_fm_adapter;
 import com.qiuyi.cn.orangemodule.bean.MyItemFile;
 import com.qiuyi.cn.orangemodule.util.Constant;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.FileBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.ImageBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.MusicBean;
-import com.qiuyi.cn.orangemodule.util.FileManager.bean1.VideoBean;
 import com.qiuyi.cn.orangemodule.util.FileManager.contacts.PhoneInfo;
+import com.qiuyi.cn.orangemodule.util.FileManager.service.FindAllFile_II_Service;
 import com.qiuyi.cn.orangemodule.util.FileManager.service.FindContacts;
-import com.qiuyi.cn.orangemodule.util.FileManager.service.FindFileMsg_Service;
 import com.qiuyi.cn.orangemodule.util.ShareUtil;
 import com.qiuyi.cn.orangemodule.util.WriteToUdisk;
 
@@ -81,10 +78,10 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
     //手机联系人获取
     private PhoneInfo phoneInfo;
 
-    private List<MusicBean> listMusics;//音乐
-    private List<VideoBean> listVideos;//视频
-    private List<ImageBean> listImages;//图片
-    private List<FileBean> listFiles;//文件
+    private List<File> listMusics;//音乐
+    private List<File> listVideos;//视频
+    private List<File> listImages;//图片
+    private List<File> listFiles;//文件
     private List<Long> sizes;//存储文件大小
 
     private JSONObject contacts = null;//联系人
@@ -132,7 +129,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
 
 
         mActivity.startService(new Intent(mActivity,FindContacts.class));
-        mActivity.startService(new Intent(mActivity, FindFileMsg_Service.class));
+        mActivity.startService(new Intent(mActivity, FindAllFile_II_Service.class));
+        //mActivity.startService(new Intent(mActivity, FindFileMsg_Service.class));
 /*        if(MainActivity.constacts==null){
             mActivity.startService(new Intent(mActivity,FindContacts.class));
         }
@@ -154,7 +152,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
     private void initBroadCast() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constant.BACKUP);
-        filter.addAction(Constant.FINDFILE_MSG);
+
+        filter.addAction(SearchActivity.SearchActivity_getSDFile);
         mActivity.registerReceiver(myContactsReceiver,filter);
     }
 
@@ -168,8 +167,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                         initData();
                     }
                     break;
-                case Constant.FINDFILE_MSG:
-                    if(intent.getBooleanExtra("findOk",false)){
+                case SearchActivity.SearchActivity_getSDFile:
+                    if(intent.getBooleanExtra("findAllSDFile",false)){
                         initData();
                     }
                     break;
@@ -219,32 +218,32 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
 
         Long sizeImages = Long.valueOf(0);
         if(listImages!=null && listImages.size()>0){
-            for(ImageBean image:listImages){
-                sizeImages += image.getSize();
+            for(File image:listImages){
+                sizeImages += image.length();
             }
         }
         sizes.add(sizeImages);
 
         Long sizeVideo = Long.valueOf(0);
         if(listVideos!=null && listVideos.size()>0){
-            for(VideoBean video:listVideos){
-                sizeVideo += video.getSize();
+            for(File video:listVideos){
+                sizeVideo += video.length();
             }
         }
         sizes.add(sizeVideo);
 
         Long sizeFiles = Long.valueOf(0);
         if(listFiles!=null && listFiles.size()>0){
-            for(FileBean file:listFiles){
-                sizeFiles += file.getSize();
+            for(File file:listFiles){
+                sizeFiles += file.length();
             }
         }
         sizes.add(sizeFiles);
 
         Long sizeMusic = Long.valueOf(0);
         if(listMusics!=null && listMusics.size()>0){
-            for(MusicBean music:listMusics){
-                sizeMusic += music.getSize();
+            for(File music:listMusics){
+                sizeMusic += music.length();
             }
         }
         sizes.add(sizeMusic);
@@ -411,9 +410,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                             @Override
                             public Boolean call() throws Exception {
                                 DocumentFile dirFile = udisk.findUFile(rootFile,"照片");
-                                for(ImageBean imageBean:listImages){
-                                    File file = new File(imageBean.getPath());
-                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                for(File imageBean:listImages){
+                                    udisk.writeToSDFile(mActivity,imageBean,dirFile);
                                 }
                                 return true;
                             }
@@ -424,9 +422,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                             @Override
                             public Boolean call() throws Exception {
                                 DocumentFile dirFile = udisk.findUFile(rootFile,"视频");
-                                for(VideoBean videoBean:listVideos){
-                                    File file = new File(videoBean.getPath());
-                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                for(File videoBean:listVideos){
+                                    udisk.writeToSDFile(mActivity,videoBean,dirFile);
                                 }
                                 return true;
                             }
@@ -437,9 +434,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                             @Override
                             public Boolean call() throws Exception {
                                 DocumentFile dirFile = udisk.findUFile(rootFile,"文档");
-                                for(FileBean fileBean:listFiles){
-                                    File file = new File(fileBean.getPath());
-                                    udisk.writeToSDFile(mActivity, file, dirFile);
+                                for(File fileBean:listFiles){
+                                    udisk.writeToSDFile(mActivity, fileBean, dirFile);
                                 }
                                 return true;
                             }
@@ -450,9 +446,8 @@ public class BackUpFragment extends Fragment implements View.OnClickListener,Swi
                             @Override
                             public Boolean call() throws Exception {
                                 DocumentFile dirFile = udisk.findUFile(rootFile,"音乐");
-                                for(MusicBean musicBean:listMusics){
-                                    File file = new File(musicBean.getPath());
-                                    udisk.writeToSDFile(mActivity,file,dirFile);
+                                for(File musicBean:listMusics){
+                                    udisk.writeToSDFile(mActivity,musicBean,dirFile);
                                 }
                                 return true;
                             }
