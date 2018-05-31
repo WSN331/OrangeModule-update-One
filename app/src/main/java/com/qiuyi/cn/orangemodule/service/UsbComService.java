@@ -169,7 +169,7 @@ public class UsbComService extends Service{
                 Log.e(TAG, "已经获得权限");
                 //这里是需要寻找的设备
                 usbDeviceList.add(device);
-
+    
                 //框架
                 if(device.getVendorId()==1155 && device.getProductId()==22336){
                     s[1] = 1;
