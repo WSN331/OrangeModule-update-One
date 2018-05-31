@@ -174,6 +174,10 @@ public class UsbComService extends Service{
                 if(device.getVendorId()==1155 && device.getProductId()==22336){
                     s[1] = 1;
                 }
+                //水质
+                if(device.getVendorId()==886 && device.getProductId()==30003){
+                    s[3] = 1;
+                }
                 //甲醛
                 if(device.getVendorId()==887 && device.getProductId()==30004){
                     s[4] = 1;
@@ -203,12 +207,12 @@ public class UsbComService extends Service{
 /*        if(s[2]==0){
             Intent stopIntent = new Intent(ACTION_STOP2);
             sendBroadcast(stopIntent);
-        }
+        }*/
         //水质
         if(s[3]==0){
             Intent stopIntent = new Intent(ACTION_STOP3);
             sendBroadcast(stopIntent);
-        }*/
+        }
         //甲醛
         if(s[4]==0){
             Intent stopIntent = new Intent(ACTION_STOP4);

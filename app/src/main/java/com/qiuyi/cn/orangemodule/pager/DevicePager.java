@@ -21,7 +21,9 @@ import com.qiuyi.cn.orangemodule.MainActivity;
 import com.qiuyi.cn.orangemodule.R;
 import com.qiuyi.cn.orangemodule.service.UsbComService;
 import com.qiuyi.cn.orangemodule.service.UsbJQService;
+import com.qiuyi.cn.orangemodule.service.UsbPMService;
 import com.qiuyi.cn.orangemodule.service.UsbService;
+import com.qiuyi.cn.orangemodule.service.UsbWaterService;
 import com.qiuyi.cn.orangemodule.upanupdate.AllUdiskFileShowActivity;
 import com.qiuyi.cn.orangemodule.util.UsbCommunication;
 
@@ -205,7 +207,6 @@ public class DevicePager extends BasePager{
 
             //判断连接
             if(action.equals(TAGIN)){
-
                 //解除原有的绑定
                 mActivity.unbindService(usbComServiceConn);
                 //启动全局USB插入服务
@@ -412,40 +413,36 @@ public class DevicePager extends BasePager{
                                     if(communication.getDeviceConnection()!=null){
                                         //框架模块
                                         if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
-                                            n++;
-                                            if(n==1){
-
-                                                //框架模块
-                                                Bundle bundle = new Bundle();
-                                                bundle.putParcelable("usbDevice",nowDevice);
-                                                Intent newIntent = new Intent(mActivity, UsbService.class);
-                                                //这里有点不同
-                                                newIntent.putExtras(bundle);
-                                                //启动接收数据服务
-                                                mActivity.startService(newIntent);
-                                            }
-/*                                            if(n==1){
-                                                //空气模块
-                                                Bundle bundle = new Bundle();
-                                                bundle.putParcelable("usbDevice",nowDevice);
-                                                Intent newIntent = new Intent(mActivity, UsbPMService.class);
-                                                //这里有点不同
-                                                newIntent.putExtras(bundle);
-                                                //启动接收数据服务
-                                                mActivity.startService(newIntent);
-                                            }*/
-/*                                            if(n==1){
-                                                //水质模块
-                                                Bundle bundle = new Bundle();
-                                                bundle.putParcelable("usbDevice",nowDevice);
-                                                Intent newIntent = new Intent(mActivity, UsbWaterService.class);
-                                                //这里有点不同
-                                                newIntent.putExtras(bundle);
-                                                //启动接收数据服务
-                                                mActivity.startService(newIntent);
-                                            }*/
-
+                                            //框架模块
+                                            Bundle bundle = new Bundle();
+                                            bundle.putParcelable("usbDevice",nowDevice);
+                                            Intent newIntent = new Intent(mActivity, UsbService.class);
+                                            //这里有点不同
+                                            newIntent.putExtras(bundle);
+                                            //启动接收数据服务
+                                            mActivity.startService(newIntent);
                                         }
+                                        //水质模块
+                                        if(nowDevice.getVendorId()==886 && nowDevice.getProductId()==30003){
+                                            //水质模块
+                                            Bundle bundle = new Bundle();
+                                            bundle.putParcelable("usbDevice",nowDevice);
+                                            Intent newIntent = new Intent(mActivity, UsbWaterService.class);
+                                            //这里有点不同
+                                            newIntent.putExtras(bundle);
+                                            //启动接收数据服务
+                                            mActivity.startService(newIntent);
+                                        }
+/*                                        if(nowDevice.getVendorId()==1155 && nowDevice.getProductId()==22336){
+                                            //空气模块
+                                            Bundle bundle = new Bundle();
+                                            bundle.putParcelable("usbDevice",nowDevice);
+                                            Intent newIntent = new Intent(mActivity, UsbPMService.class);
+                                            //这里有点不同
+                                            newIntent.putExtras(bundle);
+                                            //启动接收数据服务
+                                            mActivity.startService(newIntent);
+                                        }*/
                                         //甲醛模块
                                         if(nowDevice.getVendorId()==887 && nowDevice.getProductId()==30004){
                                             //当前插入的设备
