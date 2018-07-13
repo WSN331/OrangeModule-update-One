@@ -145,11 +145,11 @@ public class UsbCommunication {
 
 
     //发送数据
-/*    public int sendMessage(byte[] bytes) {
+    public int sendMessage(byte[] bytes) {
         int result = deviceConnection.bulkTransfer(usbEpOut, bytes, bytes.length, 3000);
         Log.e(TAG, result + "----------------------");
         return result;
-    }*/
+    }
 
 
 

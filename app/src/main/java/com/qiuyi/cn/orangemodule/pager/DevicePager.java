@@ -1,6 +1,7 @@
 package com.qiuyi.cn.orangemodule.pager;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,7 +39,6 @@ import butterknife.ButterKnife;
  * 这个是4个功能模块的作用逻辑
  */
 public class DevicePager extends BasePager{
-
     //空气
     private static final String ACTION1 ="com.yangjian.testPM.RECEIVER";
     //水质
