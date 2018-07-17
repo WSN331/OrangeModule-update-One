@@ -72,7 +72,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@+id/linearLayout2">
-            <com.qiuyi.cn.orangemodule.myview.BatteryView
+            <com.qiuyi.cn.orangemoduleNew.myview.BatteryView
                 android:id="@+id/horizontalBattery"
                 android:layout_width="60dp"
                 android:layout_height="100dp"

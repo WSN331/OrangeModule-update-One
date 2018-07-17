@@ -5,7 +5,7 @@ android {
     buildToolsVersion "26.0.1"
 
     defaultConfig {
-        applicationId "com.qiuyi.cn.orangemodule"
+        applicationId "com.qiuyi.cn.orangemoduleNew"
         minSdkVersion 17
         targetSdkVersion 23
         versionCode 1

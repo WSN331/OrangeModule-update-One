@@ -6,11 +6,11 @@
     android:weightSum="1">
 
 
-    <com.qiuyi.cn.orangemodule.util.CustomVideoView
+    <com.qiuyi.cn.orangemoduleNew.util.CustomVideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    </com.qiuyi.cn.orangemodule.util.CustomVideoView>
+    </com.qiuyi.cn.orangemoduleNew.util.CustomVideoView>
 
     <LinearLayout
         android:orientation="vertical"
