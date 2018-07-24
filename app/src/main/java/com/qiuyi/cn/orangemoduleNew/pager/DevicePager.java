@@ -12,6 +12,7 @@ import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import com.qiuyi.cn.orangemoduleNew.MainActivity;
 import com.qiuyi.cn.orangemoduleNew.R;
 import com.qiuyi.cn.orangemoduleNew.service.UsbComService;
 import com.qiuyi.cn.orangemoduleNew.service.UsbJQService;
+import com.qiuyi.cn.orangemoduleNew.service.UsbPMService;
 import com.qiuyi.cn.orangemoduleNew.service.UsbService;
 import com.qiuyi.cn.orangemoduleNew.service.UsbWaterService;
 import com.qiuyi.cn.orangemoduleNew.util.UsbCommunication;
@@ -93,6 +95,10 @@ public class DevicePager extends BasePager{
     TextView waterShow;
     @BindView(R.id.jq_rank)
     TextView jqShow;
+
+    //显示设备数量
+    @BindView(R.id.device)
+    TextView device_show;
 
     //检测usb连接
     private UsbCommunication communication;
@@ -201,26 +207,27 @@ public class DevicePager extends BasePager{
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             //判断连接
             if(action.equals(TAGIN)){
+                Log.e("USBlianjie", "正在连接");
                 //解除原有的绑定
                 mActivity.unbindService(usbComServiceConn);
                 //启动全局USB插入服务
-                intent = new Intent(mActivity, UsbComService.class);
+                Intent serviceIntent = new Intent(mActivity, UsbComService.class);
                 usbComServiceConn = new UsbComServiceConn();
                 //绑定服务
-                mActivity.bindService(intent,usbComServiceConn, Context.BIND_AUTO_CREATE);
+                mActivity.bindService(serviceIntent,usbComServiceConn, Context.BIND_AUTO_CREATE);
             }
             //判断移除
             if(action.equals(TAGOUT)){
+                Log.e("USBlianjie", "拔出连接");
                 //解除原有的绑定
                 mActivity.unbindService(usbComServiceConn);
                 //启动全局USB插入服务
-                intent = new Intent(mActivity, UsbComService.class);
+                Intent serviceIntent = new Intent(mActivity, UsbComService.class);
                 usbComServiceConn = new UsbComServiceConn();
                 //绑定服务
-                mActivity.bindService(intent,usbComServiceConn, Context.BIND_AUTO_CREATE);
+                mActivity.bindService(serviceIntent,usbComServiceConn, Context.BIND_AUTO_CREATE);
             }
 
             //判断Usb大容量设备连接移除,这里的大容量设备指的是电脑
@@ -282,7 +289,9 @@ public class DevicePager extends BasePager{
             String jqString = intent.getStringExtra("jq");
             Float jqint = Float.parseFloat(jqString)/1000;
             if(jqString!=null && !jqString.equals("123")){
+
                 ll_jq.setBackgroundColor(Color.parseColor("#ff975a"));
+
                 tv_jq.setText(jqint+"mg/m³");
 
                 if(jqint<=0.05){
@@ -302,8 +311,6 @@ public class DevicePager extends BasePager{
                     jqShow.setText("重度污染（甲醛含量超标）");
                     jqShow.setBackgroundColor(Color.parseColor("#ee0000"));
                 }
-
-
             }/*else{
                 ll_jq.setBackgroundColor(Color.parseColor("#8a8a8a"));
                 tv_jq.setText("0.000mg/m³");
@@ -399,6 +406,7 @@ public class DevicePager extends BasePager{
                         @Override
                         public void run() {
                             Toast.makeText(mActivity,"现在有"+deviceList.size()+"个设备接入",Toast.LENGTH_SHORT).show();
+                            device_show.setText("现在有"+deviceList.size()+"个设备连接中");
                             int n = 0;
                             synchronized (deviceList){
                                 Iterator<UsbDevice> it = deviceList.iterator();

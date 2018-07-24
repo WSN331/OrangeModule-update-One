@@ -57,7 +57,6 @@ public class MessageUtil {
     }
 
 
-
     //得到空气数据
     public static String[] getPMData(String str){
         String[] mydata = new String[3];
@@ -122,17 +121,8 @@ public class MessageUtil {
 
     //得到甲醛数据
     public static String getJQData(String str){
-        String mydata = null;
-        if(str.length()>=20){
-            String jqdata = str.substring(str.indexOf("4546303030343031")+16);
-
-            String d1 = jqdata.substring(0,2);
-            String d2 = jqdata.substring(2,4);
-            int myint1 = Integer.parseInt(d1,16);
-            int myint2 = Integer.parseInt(d2,16);
-            mydata = String.valueOf(myint1)+String.valueOf(myint2);
-
-        }
+        String[] nowStr = str.split(",");
+        String mydata = nowStr[nowStr.length-1];
         return mydata;
     }
 

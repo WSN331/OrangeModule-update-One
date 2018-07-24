@@ -59,8 +59,10 @@ public class UsbComService extends Service{
     private List<UsbDevice> usbDeviceList = new ArrayList<>();
 
     //初始化权限
-    private PendingIntent pendingIntent;
+    private PendingIntent pendingIntent = null;
 
+    //是否有弹窗
+    private Boolean isShow = true;
     //服务创建的时候执行
     @Override
     public void onCreate() {
@@ -74,6 +76,7 @@ public class UsbComService extends Service{
             public void run() {
                 //统计运行次数
                 int n = 0;
+                Log.e("USBlianjie", "while");
                 while (serviceRunning){
                     n++;
 /*                    synchronized (usbDeviceList){*/
@@ -81,7 +84,6 @@ public class UsbComService extends Service{
                             usbDetection();
                         }
                         if(usbDeviceCallback!=null && n>=3){
-
                             usbDeviceCallback.dataChanged(usbDeviceList);
                             serviceRunning = false;
                         }
@@ -122,6 +124,7 @@ public class UsbComService extends Service{
                 Log.e("granted", granted + "");
 
                 if(granted){
+                    Log.e("newgranted", granted + ".."+context);
                     initUsbDevice(context);
                 }else{
                     Log.e("asas","没有权限");
@@ -150,6 +153,7 @@ public class UsbComService extends Service{
 
         //遍历所有
         while (deviceIterator.hasNext()){
+            Log.e("USBlianjie", "设备数量"+devicelist.size());
             UsbDevice device = deviceIterator.next();
             //检测到U盘
             if (device.getVendorId()==2316 && device.getProductId()==4096){
@@ -166,7 +170,7 @@ public class UsbComService extends Service{
                 Log.e(TAG, "已经获得权限");
                 //这里是需要寻找的设备
                 usbDeviceList.add(device);
-    
+
                 //框架
                 if(device.getVendorId()==1155 && device.getProductId()==22336){
                     s[1] = 1;
@@ -181,12 +185,18 @@ public class UsbComService extends Service{
                 }
             }else{
                 Log.e(TAG, "正在获取权限...");
-
-                pendingIntent = PendingIntent.getBroadcast(context,0,new Intent(ACTION_USB_PERMISSION),0);
+                Log.e("USBlianjie", "申请权限");
+                if(pendingIntent==null){
+                    pendingIntent = PendingIntent.getBroadcast(context,0,new Intent(ACTION_USB_PERMISSION),0);
+                }
                 context.registerReceiver(broadcastReceiver, new IntentFilter(ACTION_USB_PERMISSION));
 
-                usbManager.requestPermission(device, pendingIntent);
+                if(isShow){
+                    usbManager.requestPermission(device, pendingIntent);
+                    isShow = false;
+                }
             }
+
         }
 
         //U盘
@@ -219,6 +229,9 @@ public class UsbComService extends Service{
 /*        if(usbDeviceCallback!=null){
             usbDeviceCallback.dataChanged(usbDeviceList);
         }*/
+        if(usbDeviceCallback!=null){
+            usbDeviceCallback.dataChanged(usbDeviceList);
+        }
     }
 
 
@@ -259,6 +272,7 @@ public class UsbComService extends Service{
     //解除绑定
     @Override
     public boolean onUnbind(Intent intent) {
+        isShow = true;
         return super.onUnbind(intent);
     }
     //销毁时调用

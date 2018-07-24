@@ -1,5 +1,7 @@
 package com.qiuyi.cn.orangemoduleNew.Secret;
 
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.text.TextUtils;
 import android.util.Log;
 

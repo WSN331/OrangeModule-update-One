@@ -82,6 +82,7 @@ public class UsbService extends Service {
             public void run() {
                 receiveBytes = communication.receiveMessage();
 
+                Log.e("framework",receiveBytes+"");
                 if (receiveBytes != null) {
                     //这里执行与Activity的交互操作
                     initData = MessageUtil.byte2String(receiveBytes);

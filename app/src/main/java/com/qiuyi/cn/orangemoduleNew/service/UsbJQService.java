@@ -81,21 +81,26 @@ public class UsbJQService extends Service {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                receiveBytes = communication.receiveMessage();
+                receiveBytes = communication.receiveData();
+
 
                 if (receiveBytes != null) {
                     //这里执行与Activity的交互操作
 
-                    //先转成字符串
-                    initData = MessageUtil.byte2String(receiveBytes);
-                    //将bytes[]字符串转成16进制的字符串输出
-                    String mydata = MessageUtil.bytesToHexString(initData);
+                    //String mydata = MessageUtil.bytesToHex(receiveBytes);
 
-                    Log.e("jqjqjq", "这里是数据"+mydata+"数据长度"+initData.split("\r\n")[0].length());
-                    if (mydata.startsWith("4546303030343031") && initData.split("\r\n")[0].length()==10) {
+                    initData = MessageUtil.byte2String(receiveBytes);
+                    String mydata = initData.split("\r\n")[0];
+/*                    //先转成字符串
+
+                    //将bytes[]字符串转成16进制的字符串输出
+                    String mydata = MessageUtil.bytesToHexString(initData);*/
+
+                    Log.e("jqnow", "这里是数据 "+mydata+"数据长度 "+mydata.length());
+
+                    if (mydata.startsWith("EF,0004") && mydata.length()==15) {
                         dateJQ = MessageUtil.getJQData(mydata);
                         intent.putExtra("jq", dateJQ);
-
                     }else{
                         intent.putExtra("jq","123");
                     }

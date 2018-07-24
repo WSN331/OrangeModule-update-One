@@ -89,7 +89,7 @@ public class UsbPMService extends Service {
                     //字节转换成16进制字符串
                     String mydata = MessageUtil.bytesToHex(receiveBytes);
 
-                    Log.e("pppppp","数据:"+mydata.split("0d0a")[0]+"--长度:"+mydata.split("0d0a")[0].length());
+                    Log.e("pmpmpm","数据:"+mydata.split("0d0a")[0]+"--长度:"+mydata.split("0d0a")[0].length());
                     String nowdata = mydata.split("0d0a")[0];
                     if(nowdata.startsWith("4546303030323033") && nowdata.length() == 28){
                         frameList = MessageUtil.getPMData(nowdata);
