@@ -82,19 +82,20 @@ public class UsbWaterService extends Service {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                receiveBytes = communication.receiveMessage();
+                receiveBytes = communication.receiveData();
 
                 if (receiveBytes != null) {
                     //这里执行与Activity的交互操作
 
+                    initData = MessageUtil.byte2String(receiveBytes);
+                    String mydata = initData.split("\r\n")[0];
+
                     //将bytes[]转成16进制的字符串输出
-                    String mydata = MessageUtil.bytesToHex(receiveBytes);
+                    //String mydata = MessageUtil.bytesToHex(receiveBytes);
 
-                    Log.e("water", "这里是数据"+mydata.split("0d0a")[0]+"数据长度"+mydata.split("0d0a")[0].length());
+                    Log.e("water", "这里是数据"+mydata+"数据长度"+mydata.length());
 
-                    String nowdata = mydata.split("0d0a")[0];
-
-                    if (nowdata.startsWith("4546303030333031") && nowdata.length()==24) {
+                    if (mydata.startsWith("EF,0003") && mydata.length()==15) {
                         dataWater = MessageUtil.getWaterData(mydata);
 
                         intent.putExtra("water", dataWater);
