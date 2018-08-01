@@ -105,8 +105,10 @@ public class MainFragmentEquipment extends BaseFragment{
                     tv_state.setText("框架状态:已连接");
                 }*/
                 tv_electricity.setText("电量:"+text1);
+
                 myBattery.setPower(Integer.parseInt(frameData[1]));
-/*                tv_voltage.setText("框架电压:"+text2);*/
+
+                /*                tv_voltage.setText("框架电压:"+text2);*/
             }/*else{
                 frame.setBackgroundResource(R.drawable.framework);
                 tv_state.setText("框架状态:未连接");

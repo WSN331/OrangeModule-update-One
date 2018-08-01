@@ -247,13 +247,12 @@ public class DevicePager extends BasePager{
         @Override
         public void onReceive(Context context, Intent intent) {
             String waterData = intent.getStringExtra("water");
-
             if(waterData!=null){
                 ll_water.setBackgroundColor(Color.parseColor("#ff975a"));
                 tv_tds.setText(waterData+"ppm");
-
-                int water = Integer.parseInt(waterData);
-                if(water<=9){
+                //int water = Integer.parseInt(waterData);
+                Float water = Float.parseFloat(waterData);
+                if(0<water && water<=9){
                     //纯净水（优）
                     waterShow.setText("纯净水（优）");
                     waterShow.setBackgroundColor(Color.parseColor("#7cfc00"));
@@ -273,7 +272,6 @@ public class DevicePager extends BasePager{
                     //污染水
                     waterShow.setText("污染水");
                     waterShow.setBackgroundColor(Color.parseColor("#ee0000"));
-
                 }
 
             }
@@ -428,6 +426,7 @@ public class DevicePager extends BasePager{
                                             mActivity.startService(newIntent);
                                         }
                                         //水质模块
+                                        //886,30003
                                         if(nowDevice.getVendorId()==886 && nowDevice.getProductId()==30003){
                                             //水质模块
                                             Bundle bundle = new Bundle();

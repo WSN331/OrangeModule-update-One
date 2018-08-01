@@ -100,7 +100,11 @@ public class MessageUtil {
 
     //得到水质数据
     public static String getWaterData(String str){
-        String mydata = null;
+        String[] nowStr = str.split(",");
+        String mydata = nowStr[nowStr.length-1];
+        return mydata;
+
+/*        String mydata = null;
         if(str.length()>=24){
             String waterData = str.substring(str.indexOf("4546303030333031")+16);
 
@@ -116,7 +120,7 @@ public class MessageUtil {
             Log.e("myint",myw1+"-"+myw2+"-"+"-"+myw3+"-"+myw4);
             mydata = String.valueOf(myw1)+String.valueOf(myw2)+String.valueOf(myw3)+String.valueOf(myw4);
         }
-        return mydata;
+        return mydata;*/
     }
 
     //得到甲醛数据
